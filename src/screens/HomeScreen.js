@@ -5,7 +5,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View>
       <Text style={styles.headerStyle}>HomeScreen</Text>
-      {/* <Button
+      <Button
         onPress={() => navigation.navigate("Review")}
         title="Go to Review"
       ></Button>
@@ -20,7 +20,7 @@ const HomeScreen = ({ navigation }) => {
       <Button
         onPress={() => navigation.navigate("Profile")}
         title="Go to Review"
-      ></Button> */}
+      ></Button>
     </View>
   );
 };
