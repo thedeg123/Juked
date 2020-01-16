@@ -28,7 +28,7 @@ const exploreFlow = {
 };
 
 const switchNavigator = createSwitchNavigator({
-  loginFlow: createStackNavigator(
+  loginFlow: createSwitchNavigator(
     {
       SignIn: SignInScreen,
       SignUp: SignUpScreen

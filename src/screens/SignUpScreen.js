@@ -1,21 +1,31 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
+import AuthForm from "../components/AuthForm";
+import { Context as AuthContext } from "../context/AuthContext";
 
 const SignUpScreen = ({ navigation }) => {
+  const { state, signup } = useContext(AuthContext);
   return (
-    <View>
-      <Text style={styles.headerStyle}>SignUpScreen</Text>
+    <View style={styles.containerStyle}>
+      <AuthForm
+        headerText="Welcome to Juked!"
+        submitButtonAction={() => signup()}
+        submitButtonTitle="Sign up"
+      ></AuthForm>
       <Button
-        onPress={() => navigation.navigate("Home")}
-        title="Go to Home"
+        onPress={() => navigation.navigate("SignIn")}
+        title="Already have an account? Sign in."
       ></Button>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  headerStyle: {
-    fontSize: 60
+  containerStyle: {
+    margin: 20,
+    justifyContent: "center",
+    flex: 1,
+    marginBottom: 200
   }
 });
 
