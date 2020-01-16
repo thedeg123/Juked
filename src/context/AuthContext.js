@@ -12,12 +12,18 @@ const authReducer = (state, action) => {
 const signin = disatch => () => {
   return disatch({ type: "sign_in", payload: "Signed in!" });
 };
+const signup = disatch => () => {
+  return disatch({ type: "sign_in", payload: "Signed in!" });
+};
+const signout = disatch => () => {
+  return disatch({ type: "sign_in", payload: "Signed in!" });
+};
 //signout,
 //signup,
 //clearErrorMessage,
 //tryLocalSignin;
 export const { Provider, Context } = createDataContext(
   authReducer,
-  { signin },
+  { signin, signout, signup },
   { token: null, msg: "" }
 );
