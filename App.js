@@ -18,8 +18,7 @@ import ReviewScreen from "./src/screens/ReviewScreen";
 import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
-
-import { TabNavigator, StackNavigator } from "react-navigation";
+import { Provider as AuthProvider } from "./src/context/AuthContext";
 
 const exploreFlow = {
   Review: ReviewScreen,
@@ -61,5 +60,9 @@ const switchNavigator = createSwitchNavigator({
 const App = createAppContainer(switchNavigator);
 
 export default () => {
-  return <App></App>;
+  return (
+    <AuthProvider>
+      <App></App>
+    </AuthProvider>
+  );
 };
