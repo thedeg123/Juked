@@ -1,7 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { View, StyleSheet, Button } from "react-native";
 import { Context as AuthContext } from "../context/AuthContext";
-import { Text, Input } from "react-native-elements";
 import AuthForm from "../components/AuthForm";
 
 const SignInScreen = ({ navigation }) => {
