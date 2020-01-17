@@ -4,16 +4,22 @@ import AuthForm from "../components/AuthForm";
 import { Context as AuthContext } from "../context/AuthContext";
 
 const SignUpScreen = ({ navigation }) => {
-  const { state, signup } = useContext(AuthContext);
+  const { state, signup, remove_error } = useContext(AuthContext);
   return (
     <View style={styles.containerStyle}>
       <AuthForm
         headerText="Welcome to Juked!"
-        submitButtonAction={() => signup()}
+        submitButtonAction={(email, password) =>
+          signup(email, password, () => navigation.navigate("Home"))
+        }
         submitButtonTitle="Sign up"
       ></AuthForm>
+      {state.errorMessage ? <Text>{state.errorMessage}</Text> : null}
       <Button
-        onPress={() => navigation.navigate("SignIn")}
+        onPress={() => {
+          remove_error();
+          return navigation.navigate("SignIn");
+        }}
         title="Already have an account? Sign in."
       ></Button>
     </View>

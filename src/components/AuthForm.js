@@ -28,7 +28,7 @@ const AuthForm = ({ headerText, submitButtonAction, submitButtonTitle }) => {
         autoCorrect={false}
       ></Input>
       <Button
-        onPress={() => submitButtonAction()}
+        onPress={() => submitButtonAction(email, password)}
         title={submitButtonTitle}
       ></Button>
     </View>

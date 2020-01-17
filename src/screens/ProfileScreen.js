@@ -1,7 +1,10 @@
-import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import React, { useContext } from "react";
+import { Context as AuthContext } from "../context/AuthContext";
+import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 
-const ProfileScreen = ({ navigation }) => {
+const UserProfileScreen = ({ navigation }) => {
+  const { signout } = useContext(AuthContext);
   return (
     <View>
       <Text style={styles.headerStyle}>ProfileScreen</Text>
@@ -17,10 +20,24 @@ const ProfileScreen = ({ navigation }) => {
   );
 };
 
+UserProfileScreen.navigationOptions = ({ navigation }) => {
+  return {
+    headerRight: () => (
+      <TouchableOpacity onPress={() => navigation.navigate("Account")}>
+        <AntDesign style={styles.headerRightStyle} name="setting"></AntDesign>
+      </TouchableOpacity>
+    )
+  };
+};
+
 const styles = StyleSheet.create({
   headerStyle: {
     fontSize: 60
+  },
+  headerRightStyle: {
+    fontSize: 25,
+    marginRight: 10
   }
 });
 
-export default ProfileScreen;
+export default UserProfileScreen;
