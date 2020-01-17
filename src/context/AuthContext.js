@@ -26,29 +26,34 @@ const signin = disatch => async (email, password, callback) => {
         default:
           return disatch({
             type: "add_error",
-            payload: "Something went wrong :("
+            payload: error.message
           });
       }
     });
 };
-const signup = disatch => async (email, password, callback) => {
-  await firebase
-    .auth()
-    .createUserWithEmailAndPassword(email, password)
-    .then(() => {
-      disatch({ type: "remove_error" });
-      callback();
-    })
-    .catch(err => {
-      console.log(err, err.code);
-      switch (err.code) {
-        default:
-          return disatch({
-            type: "add_error",
-            payload: "Something went wrong :("
-          });
-      }
-    });
+const signup = disatch => async (email, password, verifyPassword, callback) => {
+  password === verifyPassword
+    ? await firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then(() => {
+          disatch({ type: "remove_error" });
+          callback();
+        })
+        .catch(err => {
+          console.log(err, err.code);
+          switch (err.code) {
+            default:
+              return disatch({
+                type: "add_error",
+                payload: error.message
+              });
+          }
+        })
+    : disatch({
+        type: "add_error",
+        payload: "Passwords do not Match!"
+      });
 };
 
 const signout = disatch => async callback => {
@@ -65,7 +70,7 @@ const signout = disatch => async callback => {
         default:
           return disatch({
             type: "add_error",
-            payload: "Something went wrong :("
+            payload: error.message
           });
       }
     });
