@@ -1,22 +1,77 @@
 import createDataContext from "./CreateDataContext";
+import firebase from "firebase";
 
 const authReducer = (state, action) => {
   switch (action.type) {
-    case "sign_in":
-      return { ...state, msg: action.payload };
+    case "add_error":
+      return { ...state, errorMessage: action.payload };
+    case "remove_error":
+      return { ...state, errorMessage: "" };
     default:
       return state;
   }
 };
 
-const signin = disatch => () => {
-  return disatch({ type: "sign_in", payload: "Signed in!" });
+const signin = disatch => async (email, password, callback) => {
+  await firebase
+    .auth()
+    .signInWithEmailAndPassword(email, password)
+    .then(() => {
+      disatch({ type: "remove_error" });
+      callback();
+    })
+    .catch(err => {
+      console.log(err, err.code);
+      switch (err.code) {
+        default:
+          return disatch({
+            type: "add_error",
+            payload: "Something went wrong :("
+          });
+      }
+    });
 };
-const signup = disatch => () => {
-  return disatch({ type: "sign_in", payload: "Signed in!" });
+const signup = disatch => async (email, password, callback) => {
+  await firebase
+    .auth()
+    .createUserWithEmailAndPassword(email, password)
+    .then(() => {
+      disatch({ type: "remove_error" });
+      callback();
+    })
+    .catch(err => {
+      console.log(err, err.code);
+      switch (err.code) {
+        default:
+          return disatch({
+            type: "add_error",
+            payload: "Something went wrong :("
+          });
+      }
+    });
 };
-const signout = disatch => () => {
-  return disatch({ type: "sign_in", payload: "Signed in!" });
+
+const signout = disatch => async callback => {
+  await firebase
+    .auth()
+    .signOut()
+    .then(() => {
+      disatch({ type: "remove_error" });
+      callback();
+    })
+    .catch(err => {
+      console.log(err, err.code);
+      switch (err.code) {
+        default:
+          return disatch({
+            type: "add_error",
+            payload: "Something went wrong :("
+          });
+      }
+    });
+};
+const remove_error = disatch => () => {
+  return disatch({ type: "remove_error" });
 };
 //signout,
 //signup,
@@ -24,6 +79,6 @@ const signout = disatch => () => {
 //tryLocalSignin;
 export const { Provider, Context } = createDataContext(
   authReducer,
-  { signin, signout, signup },
-  { token: null, msg: "" }
+  { signin, signout, signup, remove_error },
+  { token: null, errorMessage: "" }
 );

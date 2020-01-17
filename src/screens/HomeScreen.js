@@ -18,8 +18,10 @@ const HomeScreen = ({ navigation }) => {
         title="Go to Review"
       ></Button>
       <Button
-        onPress={() => navigation.navigate("Profile")}
-        title="Go to Review"
+        onPress={() => {
+          return navigation.navigate("Profile");
+        }}
+        title="Go to Profile"
       ></Button>
     </View>
   );
