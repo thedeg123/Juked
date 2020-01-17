@@ -1,11 +1,18 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Button } from "react-native";
-import { Context as AuthContext } from "../context/AuthContext";
 import { Text, Input } from "react-native-elements";
+import PasswordField from "./PasswordField";
 
-const AuthForm = ({ headerText, submitButtonAction, submitButtonTitle }) => {
+const AuthForm = ({
+  headerText,
+  submitButtonAction,
+  submitButtonTitle,
+  confirmPassword
+}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [verifyPassword, setVerifyPassword] = useState("");
+
   return (
     <View>
       <Text style={styles.headerStyle}>Juked</Text>
@@ -19,22 +26,33 @@ const AuthForm = ({ headerText, submitButtonAction, submitButtonTitle }) => {
         autoCorrect={false}
       ></Input>
       <View style={styles.verticalSpacerStyle}></View>
-      <Input
-        value={password}
-        secureTextEntry={true}
-        label="Password"
-        onChangeText={text => setPassword(text)}
-        autoCapitalize="none"
-        autoCorrect={false}
-      ></Input>
+      <PasswordField
+        password={password}
+        updatePassword={setPassword}
+      ></PasswordField>
+      <View style={styles.verticalSpacerStyle}></View>
+      {confirmPassword ? (
+        <PasswordField
+          password={verifyPassword}
+          updatePassword={setVerifyPassword}
+          title="Confirm Password"
+        ></PasswordField>
+      ) : null}
       <Button
-        onPress={() => submitButtonAction(email, password)}
+        onPress={() =>
+          confirmPassword
+            ? submitButtonAction(email, password, verifyPassword)
+            : submitButtonAction(email, password)
+        }
         title={submitButtonTitle}
       ></Button>
     </View>
   );
 };
 
+AuthForm.defaultProps = {
+  confirmPassword: false
+};
 const styles = StyleSheet.create({
   headerStyle: {
     fontSize: 64,

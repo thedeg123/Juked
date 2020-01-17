@@ -1,16 +1,21 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import AuthForm from "../components/AuthForm";
 import { Context as AuthContext } from "../context/AuthContext";
+import PasswordField from "../components/PasswordField";
 
 const SignUpScreen = ({ navigation }) => {
   const { state, signup, remove_error } = useContext(AuthContext);
+
   return (
     <View style={styles.containerStyle}>
       <AuthForm
+        confirmPassword={true}
         headerText="Welcome to Juked!"
-        submitButtonAction={(email, password) =>
-          signup(email, password, () => navigation.navigate("Home"))
+        submitButtonAction={(email, password, verifyPassword) =>
+          signup(email, password, verifyPassword, () =>
+            navigation.navigate("Home")
+          )
         }
         submitButtonTitle="Sign up"
       ></AuthForm>
@@ -31,7 +36,8 @@ const styles = StyleSheet.create({
     margin: 20,
     justifyContent: "center",
     flex: 1,
-    marginBottom: 200
+    marginBottom: 200,
+    marginTop: 80
   }
 });
 
