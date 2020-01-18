@@ -23,6 +23,7 @@ const UserPreview = ({ username, avatar, id, callback }) => {
 
 const styles = StyleSheet.create({
   overallStyle: {
+    marginVertical: 10,
     padding: 10,
     flexDirection: "row",
     alignItems: "center",
