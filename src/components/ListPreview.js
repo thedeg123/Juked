@@ -3,17 +3,17 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 /**
- * UserPreview Component for ListScreen
- * @param {string} username - username of this user
- * @param {Object} avatar - information regards of the image of user's avatar
- * @param {string} id - user's Id, if needed
- * @param {onPressCallback} callback - the callback jumping to this user's ProfileScreen(undefined yet)
+ * ListPreview Component for ListScreen
+ * @param {string} title - title of the list
+ * @param {integer} num - number of songs in the list
+ * @param {string} id - any identifier needed for this list
+ * @param {onPressCallback} callback - callback jumping to detailed song(undefined yet)
  */
-const UserPreview = ({ username, avatar, id, callback }) => {
+const ListPreview = ({ title, num, id, callback }) => {
   return (
     <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{username}</Text>
-      <Image style={styles.imageStyle} source={avatar} />
+      <Text style={styles.textStyle}>{title}</Text>
+      <Text style={styles.numStyle}>{num}</Text>
       <TouchableOpacity onPress={callback}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </TouchableOpacity>
@@ -37,14 +37,14 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 20,
+    fontSize: 25,
     color: colors.text,
     flex: 1
   },
-  imageStyle: {
-    width: 30,
-    height: 30
+  numStyle: {
+    fontSize: 25,
+    color: colors.primary
   }
 });
 
-export default UserPreview;
+export default ListPreview;
