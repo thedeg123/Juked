@@ -1,25 +1,35 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
+import useMusic from "../hooks/useMusic";
 
 const HomeScreen = ({ navigation }) => {
+  const [songs, err, searchAPI] = useMusic();
+  console.log(songs, err);
   return (
     <View>
       <Text style={styles.headerStyle}>HomeScreen</Text>
       <Button
-        onPress={() => navigation.navigate("Review")}
-        title="Go to Review"
-      ></Button>
-      <Button
-        onPress={() => navigation.navigate("Album")}
-        title="Go to Review"
-      ></Button>
-      <Button
-        onPress={() => navigation.navigate("Artist")}
+        onPress={() => {
+          navigation.navigate("Artist");
+        }}
         title="Go to Review"
       ></Button>
       <Button
         onPress={() => {
-          return navigation.navigate("Profile");
+          navigation.navigate("Artist");
+        }}
+        title="Go to Artist"
+      ></Button>
+      <Button
+        onPress={() => {
+          navigation.navigate("Artist");
+        }}
+        title="Go to Artist"
+      ></Button>
+
+      <Button
+        onPress={() => {
+          navigation.navigate("Profile");
         }}
         title="Go to Profile"
       ></Button>
