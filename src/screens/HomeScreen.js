@@ -1,10 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
-import useMusic from "../hooks/useMusic";
 
 const HomeScreen = ({ navigation }) => {
-  const [songs, err, searchAPI] = useMusic();
-  console.log(songs, err);
   return (
     <View>
       <Text style={styles.headerStyle}>HomeScreen</Text>
