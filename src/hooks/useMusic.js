@@ -4,12 +4,6 @@ import { Buffer } from "buffer";
 import axios from "axios";
 
 export default () => {
-  const [songs, setSongs] = useState(null);
-  const [search, setSearch] = useState(null);
-  const [albums, setAlbums] = useState(null);
-  const [err, setErr] = useState("");
-  const BASE_PATH = "https://api.spotify.com/v1";
-
   /**
    * @async
    * @function requestAccessToken
@@ -55,13 +49,65 @@ export default () => {
       };
       const response = await axios.get(path, {
         headers: authHeader,
-        params: { params }
+        params: params
       });
       return response.data;
     } catch (error) {
       return error;
     }
   };
+
+  const reducer = async (state, action) => {
+    const accessToken = await requestAccessToken(config.id, config.secret);
+    switch (action.RequestType) {
+      case await "find_tracks":
+        return {
+          ...state,
+          tracks: await requestAPI(
+            accessToken,
+            `${BASE_PATH}/tracks/${action.id}`,
+            {}
+          )
+        };
+      case "find_albums":
+        return {
+          ...state,
+          albums: await requestAPI(
+            accessToken,
+            `${BASE_PATH}/albums/${action.id}`,
+            {}
+          )
+        };
+      case "find_artists":
+        console.log("here");
+        return await {
+          ...state,
+          artists: await requestAPI(
+            accessToken,
+            `${BASE_PATH}/artists/${action.id}`,
+            {}
+          )
+        };
+      case "search_api":
+        return {
+          ...state,
+          search: await requestAPI(accessToken, `${BASE_PATH}/search`, {
+            q: action.searchTerm,
+            type: action.catagory
+          })
+        };
+      default:
+        return state;
+    }
+  };
+  const [state, dispatch] = useReducer(reducer, {
+    tracks: null,
+    albums: null,
+    artists: null,
+    search: null
+  });
+  const [err, setErr] = useState("");
+  const BASE_PATH = "https://api.spotify.com/v1";
 
   /**
    * @async
@@ -71,12 +117,7 @@ export default () => {
    * @return {null}
    */
   const findTracks = async id => {
-    const result = await requestAccessToken(config.id, config.secret)
-      .then(accessToken =>
-        requestAPI(accessToken, `${BASE_PATH}/tracks/${id}`, {})
-      )
-      .catch(err => setErr(err));
-    setSongs(result);
+    await dispatch({ RequestType: "find_tracks", id });
   };
   /**
    * @async
@@ -86,36 +127,34 @@ export default () => {
    * @return {null}
    */
   const findAlbums = async id => {
-    const result = await requestAccessToken(config.id, config.secret)
-      .then(accessToken =>
-        requestAPI(accessToken, `${BASE_PATH}/albums/${id}`, {})
-      )
-      .catch(err => setErr(err));
-    setAlbums(result);
+    await dispatch({ RequestType: "find_albums", id });
+  };
+  /**
+   * @async
+   * @function findArtists
+   * @param {Object} id - a song's unique ID
+   * @description - updates the value of songs with found track
+   * @return {null}
+   */
+  const findArtists = async id => {
+    await dispatch({ RequestType: "find_artists", id });
   };
   /**
    * @async
    * @function searchAPI
-   * @param {Object} searchTerm - a query term
-   * @param {Object} catagory - a song's unique ID
+   * @param {String} searchTerm - a query term
+   * @param {String} catagory - Valid types are: "album" , "artist", "playlist", and "track".
    * @description - updates the value of search with found object
    * @return {null}
    */
-  const searchAPI = async (searchTerm, category) => {
-    searchTerm = searchTerm.replace(/ /g, "+"); //replacing spaces with "+" for api
-    const result = await requestAccessToken(config.id, config.secret)
-      .then(accessToken =>
-        requestAPI(accessToken, `${BASE_PATH}/search`, {
-          q: searchTerm,
-          type: category
-        })
-      )
-      .catch(err => setErr(err));
-    setSearch(result);
+  const searchAPI = async (searchTerm, catagory) => {
+    await dispatch({
+      RequestType: "search_api",
+      searchTerm: searchTerm.replace(/ /g, "+"), //because the api must have searches replaced with +
+      catagory
+    });
   };
   //this code runs only once, not every time the state vars are updated
-  useEffect(() => {
-    searchAPI("howlin wolf", "artists");
-  }, []);
-  return { songs, err, requestAccessToken };
+  useEffect(() => {}, []);
+  return [state, findAlbums, findArtists, findTracks, searchAPI];
 };
