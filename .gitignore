@@ -38,3 +38,4 @@ web-report/
 node_modules
 assets/icon.png
 assets/splash.png
+src/api/musicConfig.js
