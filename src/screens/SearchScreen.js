@@ -3,20 +3,13 @@ import { Text, View, StyleSheet, Button } from "react-native";
 import SearchBar from "../components/SearchBar";
 import SearchStyle from "../components/SearchStyle";
 import useMusic from "../hooks/useMusic";
+import ResultsList from "../components/ResultsList";
 
 const SearchScreen = () => {
   const [term, setTerm] = useState("");
   const [searchType, setSearchType] = useState("song");
-  const {
-    tracks,
-    albums,
-    artists,
-    search,
-    findAlbums,
-    findArtists,
-    findTracks,
-    searchAPI
-  } = useMusic();
+  const { search, searchAPI } = useMusic();
+
   return (
     <View style={styles.container}>
       <SearchBar
@@ -28,11 +21,7 @@ const SearchScreen = () => {
       />
       <SearchStyle searchType={searchType} setSearchType={setSearchType} />
       <Text>Searching for {searchType}:</Text>
-      <Text>
-        {search
-          ? `${search.artists.items[0].name}: ${search.artists.items[0].id}`
-          : "none"}
-      </Text>
+      <ResultsList term={term} searchType={searchType} search={search} />
     </View>
   );
 };
