@@ -1,17 +1,28 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
+import * as firebase from "firebase";
 
-const LoadingScreen = () => {
+const LoadingScreen = ({ navigation }) => {
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(user => {
+      user ? navigation.navigate("mainFlow") : navigation.navigate("loginFlow");
+    });
+  }, []);
+
   return (
-    <View>
-      <Text style={styles.headerStyle}>LoadingScreen</Text>
+    <View style={styles.container}>
+      <ActivityIndicator size="large" />
+      <Text>Loading</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  headerStyle: {
-    fontSize: 60
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
 

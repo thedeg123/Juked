@@ -19,6 +19,12 @@ import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
 import { Provider as AuthProvider } from "./src/context/AuthContext";
+import * as firebase from "firebase";
+import firebaseConfig from "./src/api/firebaseConfig";
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
 const exploreFlow = {
   Review: ReviewScreen,
@@ -28,7 +34,8 @@ const exploreFlow = {
 };
 
 const switchNavigator = createSwitchNavigator({
-  loginFlow: createStackNavigator(
+  Loading: LoadingScreen,
+  loginFlow: createSwitchNavigator(
     {
       SignIn: SignInScreen,
       SignUp: SignUpScreen
