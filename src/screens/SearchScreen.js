@@ -1,17 +1,24 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { Text, View, StyleSheet } from "react-native";
+import SearchBar from "../components/SearchBar";
 
 const SearchScreen = () => {
+  const [term, setTerm] = useState("");
+
   return (
-    <View>
-      <Text style={styles.headerStyle}>SearchScreen</Text>
+    <View style={styles.container}>
+      <SearchBar
+        term={term}
+        onTermChange={setTerm}
+        onTermSubmit={() => console.log("To do")}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  headerStyle: {
-    fontSize: 60
+  container: {
+    marginTop: 20
   }
 });
 
