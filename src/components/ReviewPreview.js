@@ -1,22 +1,24 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import colors from "../constants/colors";
 /**
  * ReviewPreview Component for ListScreen
  * @param {string} title - title of this artist, album or song
- * @param {integer} score - your score
+ * @param {integer} rating - your rating
  * @param {string} id - any identifier needed for this review
- * @param {onPressCallback} callback - callback jumping to detailed review(undefined yet), null if no detailed review
+ * @param {Object} navigation - navigation objected passed from screen
  */
-const ReviewPreview = ({ title, score, id, callback }) => {
+const ReviewPreview = ({ title, rating, id, navigation }) => {
   return (
     <View style={styles.overallStyle}>
       <Text style={styles.textStyle}>{title}</Text>
-      <Text style={styles.scoreStyle}>{score}</Text>
+      <Text style={styles.scoreStyle}>{rating}</Text>
       {(() =>
         callback ? (
-          <TouchableOpacity onPress={callback}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Review", { id })}
+          >
             <Feather name="info" style={styles.iconStyle} />
           </TouchableOpacity>
         ) : null)()}

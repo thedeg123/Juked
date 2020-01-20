@@ -7,14 +7,14 @@ import colors from "../constants/colors";
  * @param {string} username - username of this user
  * @param {Object} avatar - information regards of the image of user's avatar
  * @param {string} id - user's Id, if needed
- * @param {onPressCallback} callback - the callback jumping to this user's ProfileScreen(undefined yet)
+ * @param {Object} navigation - navigation objected passed from screen
  */
-const UserPreview = ({ username, avatar, id, callback }) => {
+const UserPreview = ({ username, avatar, id, navigation }) => {
   return (
     <View style={styles.overallStyle}>
       <Text style={styles.textStyle}>{username}</Text>
       <Image style={styles.imageStyle} source={avatar} />
-      <TouchableOpacity onPress={callback}>
+      <TouchableOpacity onPress={() => navigation.navigate("Profile", { id })}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </TouchableOpacity>
     </View>

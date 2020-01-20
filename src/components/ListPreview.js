@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 /**
@@ -7,14 +7,14 @@ import colors from "../constants/colors";
  * @param {string} title - title of the list
  * @param {integer} num - number of songs in the list
  * @param {string} id - any identifier needed for this list
- * @param {onPressCallback} callback - callback jumping to detailed song(undefined yet)
+ * @param {Object} navigation - navigation objected passed from screen
  */
-const ListPreview = ({ title, num, id, callback }) => {
+const ListPreview = ({ title, num, id, navigation }) => {
   return (
     <View style={styles.overallStyle}>
       <Text style={styles.textStyle}>{title}</Text>
       <Text style={styles.numStyle}>{num}</Text>
-      <TouchableOpacity onPress={callback}>
+      <TouchableOpacity onPress={console.log("user pressed the song")}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </TouchableOpacity>
     </View>
