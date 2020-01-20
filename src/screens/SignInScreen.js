@@ -10,9 +10,7 @@ const SignInScreen = ({ navigation }) => {
     <View style={styles.containerStyle}>
       <AuthForm
         headerText="Welcome back!"
-        submitButtonAction={(email, password) =>
-          signin(email, password, () => navigation.navigate("Home"))
-        }
+        submitButtonAction={(email, password) => signin(email, password)}
         submitButtonTitle="Sign in"
       ></AuthForm>
       {state.errorMessage ? <Text>{state.errorMessage}</Text> : null}
