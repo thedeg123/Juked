@@ -40,3 +40,6 @@ assets/icon.png
 assets/splash.png
 src/api/firebaseConfig.js
 src/api/musicConfig.js
+package-lock.json
+.expo/packager-info.json
+.expo/settings.json
