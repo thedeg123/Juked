@@ -1,5 +1,5 @@
 import React from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import {
   createAppNavigator,
   createSwitchNavigator,
@@ -21,6 +21,7 @@ import SignUpScreen from "./src/screens/SignUpScreen";
 import { Provider as AuthProvider } from "./src/context/AuthContext";
 import * as firebase from "firebase";
 import firebaseConfig from "./src/api/firebaseConfig";
+import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -48,23 +49,50 @@ const switchNavigator = createSwitchNavigator({
     }
   ),
   mainFlow: createBottomTabNavigator({
-    homeFlow: createStackNavigator({
-      Home: HomeScreen,
-      ...exploreFlow
-    }),
-    searchFlow: createStackNavigator({
-      Search: SearchScreen,
-      ...exploreFlow
-    }),
-    profileFlow: createStackNavigator({
-      Profile: ProfileScreen,
-      Account: AccountScreen,
-      List: ListScreen
-    })
+    homeFlow: {
+      screen: createStackNavigator({
+        Home: HomeScreen,
+        ...exploreFlow
+      }),
+      navigationOptions: {
+        tabBarLabel: ({ tintColor: color }) => (
+          <Foundation name="home" style={styles.iconStyle} color={color} />
+        )
+      }
+    },
+    searchFlow: {
+      screen: createStackNavigator({
+        Search: SearchScreen,
+        ...exploreFlow
+      }),
+      navigationOptions: {
+        tabBarLabel: ({ tintColor: color }) => (
+          <FontAwesome name="search" style={styles.iconStyle} color={color} />
+        )
+      }
+    },
+    profileFlow: {
+      screen: createStackNavigator({
+        Profile: ProfileScreen,
+        Account: AccountScreen,
+        List: ListScreen
+      }),
+      navigationOptions: {
+        tabBarLabel: ({ tintColor: color }) => (
+          <Octicons name="person" style={styles.iconStyle} color={color} />
+        )
+      }
+    }
   })
 });
 
 const App = createAppContainer(switchNavigator);
+
+const styles = StyleSheet.create({
+  iconStyle: {
+    fontSize: 35
+  }
+});
 
 export default () => {
   return (
