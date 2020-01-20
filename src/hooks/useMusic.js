@@ -1,7 +1,9 @@
-import { useState, useEffect, useReducer } from "react";
+import { useState } from "react";
 import config from "../api/musicConfig";
 import { Buffer } from "buffer";
 import axios from "axios";
+
+const BASE_PATH = "https://api.spotify.com/v1";
 
 export default () => {
   /**
@@ -49,7 +51,7 @@ export default () => {
       };
       const response = await axios.get(path, {
         headers: authHeader,
-        params: params
+        params
       });
       return response.data;
     } catch (error) {
@@ -57,57 +59,43 @@ export default () => {
     }
   };
 
-  const reducer = async (state, action) => {
+  const reducer = async (updateState, action) => {
     const accessToken = await requestAccessToken(config.id, config.secret);
     switch (action.RequestType) {
-      case await "find_tracks":
-        return {
-          ...state,
-          tracks: await requestAPI(
-            accessToken,
-            `${BASE_PATH}/tracks/${action.id}`,
-            {}
-          )
-        };
+      case "find_tracks":
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/tracks/${action.id}`, {})
+        );
+        break;
       case "find_albums":
-        return {
-          ...state,
-          albums: await requestAPI(
-            accessToken,
-            `${BASE_PATH}/albums/${action.id}`,
-            {}
-          )
-        };
-      case "find_artists":
-        console.log("here");
-        return await {
-          ...state,
-          artists: await requestAPI(
-            accessToken,
-            `${BASE_PATH}/artists/${action.id}`,
-            {}
-          )
-        };
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/albums/${action.id}`, {})
+        );
+        break;
+      case "find_artists": {
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/artists/${action.id}`, {})
+        );
+        break;
+      }
       case "search_api":
-        return {
-          ...state,
-          search: await requestAPI(accessToken, `${BASE_PATH}/search`, {
+        console.log(action);
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/search`, {
             q: action.searchTerm,
             type: action.catagory
           })
-        };
+        );
+        break;
       default:
-        return state;
+        break;
     }
   };
-  const [state, dispatch] = useReducer(reducer, {
-    tracks: null,
-    albums: null,
-    artists: null,
-    search: null
-  });
+  const [tracks, setTracks] = useState(null);
+  const [albums, setAlbums] = useState(null);
+  const [artists, setArtists] = useState(null);
+  const [search, setSearch] = useState(null);
   const [err, setErr] = useState("");
-  const BASE_PATH = "https://api.spotify.com/v1";
 
   /**
    * @async
@@ -117,7 +105,7 @@ export default () => {
    * @return {null}
    */
   const findTracks = async id => {
-    await dispatch({ RequestType: "find_tracks", id });
+    await reducer(setTracks, { RequestType: "find_tracks", id });
   };
   /**
    * @async
@@ -127,7 +115,7 @@ export default () => {
    * @return {null}
    */
   const findAlbums = async id => {
-    await dispatch({ RequestType: "find_albums", id });
+    await reducer(setAlbums, { RequestType: "find_albums", id });
   };
   /**
    * @async
@@ -137,7 +125,7 @@ export default () => {
    * @return {null}
    */
   const findArtists = async id => {
-    await dispatch({ RequestType: "find_artists", id });
+    await reducer(setArtists, { RequestType: "find_artists", id });
   };
   /**
    * @async
@@ -148,13 +136,20 @@ export default () => {
    * @return {null}
    */
   const searchAPI = async (searchTerm, catagory) => {
-    await dispatch({
+    await reducer(setSearch, {
       RequestType: "search_api",
       searchTerm: searchTerm.replace(/ /g, "+"), //because the api must have searches replaced with +
       catagory
     });
   };
-  //this code runs only once, not every time the state vars are updated
-  useEffect(() => {}, []);
-  return [state, findAlbums, findArtists, findTracks, searchAPI];
+  return {
+    tracks,
+    albums,
+    artists,
+    search,
+    findAlbums,
+    findArtists,
+    findTracks,
+    searchAPI
+  };
 };
