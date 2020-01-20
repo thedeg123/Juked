@@ -20,3 +20,5 @@ bin-release/
 node_modules
 assets/icon.png
 assets/splash.png
+src/api/firebaseConfig.js
+src/api/musicConfig.js
