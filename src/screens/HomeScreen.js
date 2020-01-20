@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import useMusic from "../hooks/useMusic";
 
+//Starting tab navigator icon thing
 const HomeScreen = ({ navigation }) => {
   //a few examples of useMusic in action!
   //information on returned objects can be found at: https://developer.spotify.com/documentation/web-api/reference/
