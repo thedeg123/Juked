@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import SearchBar from "../components/SearchBar";
+import SearchStyle from "../components/SearchStyle";
 
 const SearchScreen = () => {
   const [term, setTerm] = useState("");
@@ -13,12 +14,8 @@ const SearchScreen = () => {
         onTermChange={setTerm}
         onTermSubmit={() => console.log("To do")}
       />
-      <View style={styles.searchTypeStyle}>
-        <Button title="Songs" style={styles.buttonStyle} />
-        <Button title="Albums" style={styles.buttonStyle} />
-        <Button title="Artists" style={styles.buttonStyle} />
-        <Button title="Users" style={styles.buttonStyle} />
-      </View>
+      <SearchStyle searchType={searchType} setSearchType={setSearchType} />
+      <Text>Searching for {searchType}:</Text>
     </View>
   );
 };
@@ -26,17 +23,6 @@ const SearchScreen = () => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 20
-  },
-  searchTypeStyle: {
-    marginTop: 10,
-    marginHorizontal: 10,
-    flexDirection: "row",
-    borderWidth: 1,
-    borderColor: "#3480eb",
-    justifyContent: "space-between"
-  },
-  buttonStyle: {
-    marginHorizontal: 20
   }
 });
 
