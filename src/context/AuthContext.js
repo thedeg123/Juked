@@ -26,7 +26,7 @@ const signin = disatch => async (email, password, callback) => {
         default:
           return disatch({
             type: "add_error",
-            payload: error.message
+            payload: err.message
           });
       }
     });
@@ -46,7 +46,7 @@ const signup = disatch => async (email, password, verifyPassword, callback) => {
             default:
               return disatch({
                 type: "add_error",
-                payload: error.message
+                payload: err.message
               });
           }
         })
@@ -70,7 +70,7 @@ const signout = disatch => async callback => {
         default:
           return disatch({
             type: "add_error",
-            payload: error.message
+            payload: err.message
           });
       }
     });

@@ -3,38 +3,53 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import useMusic from "../hooks/useMusic";
 
 const HomeScreen = ({ navigation }) => {
-  const [state, findAlbums, findArtists, findTracks, searchAPI] = useMusic();
-  useEffect(() => {
-    findArtists("0OdUWJ0sBjDrqHygGUXeCF");
-    console.log(state); //this doesnt print as it should. Is that becuase its printing before the promise is complete? I have no idea!
-  }, []);
+  //a few examples of useMusic in action!
+  //information on returned objects can be found at: https://developer.spotify.com/documentation/web-api/reference/
+  const {
+    tracks,
+    albums,
+    artists,
+    search,
+    findAlbums,
+    findArtists,
+    findTracks,
+    searchAPI
+  } = useMusic();
   return (
     <View>
       <Text style={styles.headerStyle}>HomeScreen</Text>
+      <Text>{artists ? `${artists.name}: ${artists.id}` : "none"}</Text>
       <Button
         onPress={() => {
-          navigation.navigate("Artist");
+          findArtists("0OdUWJ0sBjDrqHygGUXeCF");
+          if (artists) console.log(Object.keys(artists));
         }}
-        title="Go to Review"
+        title="Find Artist ID"
       ></Button>
+      <Text>{tracks ? `${tracks.name}: ${tracks.id}` : "none"}</Text>
       <Button
         onPress={() => {
-          navigation.navigate("Artist");
+          findTracks("11dFghVXANMlKmJXsNCbNl");
         }}
-        title="Go to Artist"
+        title="Find Track ID"
       ></Button>
+      <Text>{albums ? `${albums.name}: ${albums.id}` : "none"}</Text>
       <Button
         onPress={() => {
-          navigation.navigate("Artist");
+          findAlbums("0sNOF9WDwhWunNAHPD3Baj");
         }}
-        title="Go to Artist"
+        title="Find Album ID"
       ></Button>
-
+      <Text>
+        {search
+          ? `${search.artists.items[0].name}: ${search.artists.items[0].id}`
+          : "none"}
+      </Text>
       <Button
         onPress={() => {
-          navigation.navigate("Profile");
+          searchAPI("Bob Dylan", "artist");
         }}
-        title="Go to Profile"
+        title='Search for "Bob Dylan" in artist'
       ></Button>
     </View>
   );
