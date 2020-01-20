@@ -7,25 +7,25 @@ const SearchStyle = ({ searchType, setSearchType }) => {
       <View style={styles.backgroundStyle}>
         <Button
           title="Songs"
-          style={styles.buttonPressedStyle}
+          style={styles.buttonStyle}
           color={searchType === "song" ? "red" : "#3480eb"}
           onPress={() => setSearchType("song")}
         />
         <Button
           title="Albums"
-          style={styles.buttonNotPressedStyle}
+          style={styles.buttonStyle}
           color={searchType === "album" ? "red" : "#3480eb"}
           onPress={() => setSearchType("album")}
         />
         <Button
           title="Artists"
-          style={styles.buttonNotPressedStyle}
+          style={styles.buttonStyle}
           color={searchType === "artist" ? "red" : "#3480eb"}
           onPress={() => setSearchType("artist")}
         />
         <Button
           title="Users"
-          style={styles.buttonNotPressedStyle}
+          style={styles.buttonStyle}
           color={searchType === "user" ? "red" : "#3480eb"}
           onPress={() => setSearchType("user")}
         />
@@ -45,8 +45,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#3480eb"
   },
-  buttonPressedStyle: {},
-  buttonNotPressedStyle: {}
+  buttonStyle: {
+    flex: 1,
+    alignSelf: "center"
+  }
 });
 
 export default SearchStyle;
