@@ -28,7 +28,9 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
   return (
     <View style={styles.overallStyle}>
       <Text style={styles.textStyle}>{title}</Text>
-      <Text style={styles.typeStyle}>{type}</Text>
+      <Text style={styles.typeStyle}>
+        {type.charAt(0).toUpperCase() + type.slice(1)}
+      </Text>
       <TouchableOpacity onPress={handleNavigate}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </TouchableOpacity>
