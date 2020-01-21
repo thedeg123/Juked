@@ -17,10 +17,16 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
         break;
       case "album":
         //navigation.navigate("Album", { music_id: music_id });
-        navigation.navigate("Album", { music_id: "testing here" });
+        navigation.navigate("Album", {
+          music_id: music_id,
+          title: title
+        });
         break;
       case "artist":
-        navigation.navigate("Artist", { music_id: music_id });
+        navigation.navigate("Artist", {
+          music_id: music_id,
+          title: title
+        });
         break;
       default:
         break;

@@ -24,7 +24,6 @@ const ResultsList = ({ term, searchType, search, navigation }) => {
     return (
       <View>
         <SearchPreview
-          //root={search ? `${search.albums.items[0]}` : "none"}
           title={search ? `${search.albums.items[0].name}` : "none"}
           type={searchType}
           music_id={search ? `${search.albums.items[0].id}` : "none"}
@@ -41,10 +40,9 @@ const ResultsList = ({ term, searchType, search, navigation }) => {
     return (
       <View>
         <SearchPreview
-          //root={search ? `${search.artist.items[0]}` : "none"}
-          title={search ? `${search.artist.items[0].name}` : "none"}
+          title={search ? `${search.artists.items[0].name}` : "none"}
           type={searchType}
-          music_id={search ? `${search.artist.items[0].id}` : "none"}
+          music_id={search ? `${search.artists.items[0].id}` : "none"}
           navigation={navigation}
         />
         <Text>

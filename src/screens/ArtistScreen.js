@@ -1,11 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const ArtistScreen = ({ music_id }) => {
+const ArtistScreen = ({ navigation }) => {
   return (
     <View>
-      <Text style={styles.headerStyle}>ArtistScreen</Text>
-      <Text>{music_id}</Text>
+      <Text style={styles.headerStyle}>{navigation.getParam("title")}</Text>
+      <Text>music_id: {navigation.getParam("music_id")}</Text>
     </View>
   );
 };
