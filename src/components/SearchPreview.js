@@ -9,16 +9,16 @@ import colors from "../constants/colors";
  * @param {string} music_id - original id from spotify
  * @param {Object} navigation - navigation objected passed from screen
  */
-const UserPreview = ({ username, type, music_id, navigation }) => {
+const UserPreview = ({ title, type, music_id, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
-      case "Song":
+      case "track":
         console.log("Pressed song" + music_id); // TODO: navigation undefined in lucidchart
         break;
-      case "Album":
+      case "album":
         navigation.navigate("Album", { music_id });
         break;
-      case "Artist":
+      case "artist":
         navigation.navigate("Artist", { music_id });
         break;
       default:
@@ -27,7 +27,7 @@ const UserPreview = ({ username, type, music_id, navigation }) => {
   };
   return (
     <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{username}</Text>
+      <Text style={styles.textStyle}>{title}</Text>
       <Text style={styles.typeStyle}>{type}</Text>
       <TouchableOpacity onPress={handleNavigate}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
