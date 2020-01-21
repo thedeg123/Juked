@@ -35,6 +35,9 @@ web-report/
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
 
+# expo config files
+.expo/
+
 node_modules
 assets/icon.png
 assets/splash.png
