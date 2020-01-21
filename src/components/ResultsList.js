@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 
 const ResultsList = ({ term, searchType, search }) => {
-  if (searchType === "song") {
+  if (searchType === "track") {
     return (
       <View>
         <Text>

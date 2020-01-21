@@ -8,8 +8,8 @@ const SearchStyle = ({ searchType, setSearchType }) => {
         <Button
           title="Songs"
           style={styles.buttonStyle}
-          color={searchType === "song" ? "red" : "#3480eb"}
-          onPress={() => setSearchType("song")}
+          color={searchType === "track" ? "red" : "#3480eb"}
+          onPress={() => setSearchType("track")}
         />
         <Button
           title="Albums"

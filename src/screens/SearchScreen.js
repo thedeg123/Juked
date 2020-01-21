@@ -7,7 +7,7 @@ import ResultsList from "../components/ResultsList";
 
 const SearchScreen = () => {
   const [term, setTerm] = useState("");
-  const [searchType, setSearchType] = useState("song");
+  const [searchType, setSearchType] = useState("track");
   const { search, searchAPI } = useMusic();
 
   return (
@@ -17,7 +17,6 @@ const SearchScreen = () => {
         onTermChange={setTerm}
         onTermSubmit={() => {
           searchAPI(term, searchType);
-          //console.log(search.tracks);
         }}
       />
       <SearchStyle searchType={searchType} setSearchType={setSearchType} />
