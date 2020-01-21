@@ -34,7 +34,6 @@ web-report/
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
-
 node_modules
 assets/icon.png
 assets/splash.png
@@ -43,3 +42,5 @@ src/api/musicConfig.js
 package-lock.json
 .expo/packager-info.json
 .expo/settings.json
+package-lock.json
+Juked-server/api/juked-1-firebase-admin-cred.json
