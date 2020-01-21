@@ -12,8 +12,12 @@ let users = db.collection("users");
  * @param {Object} res - the incoming HTTP request - {uid: database_key }
  * @param {Object} req - the outgoing response
  */
-router.get(`/getuser/`, async (uid, res) => {
-  res.send(`{user: ${await users.doc(uid).get()}`);
+router.get("/getuser/:uid", async (req, res) => {
+  const user = await users
+    .doc(req.params.uid)
+    .get()
+    .then(user => user.data());
+  return res.status(200).send(`{user: ${JSON.stringify(user)}}`);
 });
 /**
  * @param {Object} res - the incoming HTTP request - {uid: database_key }
@@ -21,7 +25,7 @@ router.get(`/getuser/`, async (uid, res) => {
  */
 router.post("/deleteuser", (req, res) => {
   // TODO
-  res.send('{"status": 404}');
+  return res.send('{"status": 404}');
 });
 /**
  * @param {Object} res - the incoming HTTP request - { uid: database_key, #REQUIRED
@@ -79,7 +83,7 @@ router.post("/updateuser", async (req, res) => {
         }
       });
   }
-  res.send(RESPONSE);
+  return res.status(200).send(RESPONSE);
 });
 /**
  * @param {Object} res - the incoming HTTP request - {uid: database_key, body: information to add }
@@ -87,7 +91,7 @@ router.post("/updateuser", async (req, res) => {
  */
 router.post("/adduser", (req, res) => {
   users.doc(req.body.uid).set(req.body.body);
-  res.send('{"status": 200}');
+  return res.status(200).send('{"status": 200}');
 });
 
 module.exports = router;
