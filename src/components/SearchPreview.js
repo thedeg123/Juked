@@ -16,7 +16,6 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
         console.log("Pressed song " + music_id); // TODO: navigation undefined in lucidchart
         break;
       case "album":
-        //navigation.navigate("Album", { music_id: music_id });
         navigation.navigate("Album", {
           music_id: music_id,
           title: title

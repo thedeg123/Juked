@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet, Button } from "react-native";
 
-const SearchStyle = ({ searchType, setSearchType }) => {
+const SearchStyle = ({ searchType, setSearchType, onChangeButton }) => {
   return (
     <View>
       <View style={styles.backgroundStyle}>
@@ -9,19 +9,25 @@ const SearchStyle = ({ searchType, setSearchType }) => {
           title="Songs"
           style={styles.buttonStyle}
           color={searchType === "track" ? "red" : "#3480eb"}
-          onPress={() => setSearchType("track")}
+          onPress={() => {
+            onChangeButton("track");
+          }}
         />
         <Button
           title="Albums"
           style={styles.buttonStyle}
           color={searchType === "album" ? "red" : "#3480eb"}
-          onPress={() => setSearchType("album")}
+          onPress={() => {
+            onChangeButton("album");
+          }}
         />
         <Button
           title="Artists"
           style={styles.buttonStyle}
           color={searchType === "artist" ? "red" : "#3480eb"}
-          onPress={() => setSearchType("artist")}
+          onPress={() => {
+            onChangeButton("artist");
+          }}
         />
         <Button
           title="Users"
