@@ -7,7 +7,7 @@ const ResultsList = ({ term, searchType, search }) => {
       <View>
         <Text>
           {search
-            ? `${search.songs.items[0].name}: ${search.songs.items[0].id}`
+            ? `${search.tracks.items[0].name}: ${search.tracks.items[0].id}`
             : "none"}
         </Text>
       </View>
