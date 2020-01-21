@@ -1,8 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import AuthForm from "../components/AuthForm";
 import { Context as AuthContext } from "../context/AuthContext";
-import PasswordField from "../components/PasswordField";
 
 const SignUpScreen = ({ navigation }) => {
   const { state, signup, remove_error } = useContext(AuthContext);
