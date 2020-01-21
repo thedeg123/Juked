@@ -5,7 +5,7 @@ import SearchStyle from "../components/SearchStyle";
 import useMusic from "../hooks/useMusic";
 import ResultsList from "../components/ResultsList";
 
-const SearchScreen = () => {
+const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
   const [searchType, setSearchType] = useState("track");
   const { search, searchAPI } = useMusic();
@@ -21,7 +21,12 @@ const SearchScreen = () => {
       />
       <SearchStyle searchType={searchType} setSearchType={setSearchType} />
       <Text>Searching for {searchType}:</Text>
-      <ResultsList term={term} searchType={searchType} search={search} />
+      <ResultsList
+        term={term}
+        searchType={searchType}
+        search={search}
+        navigation={navigation}
+      />
     </View>
   );
 };
