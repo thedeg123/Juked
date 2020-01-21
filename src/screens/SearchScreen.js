@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, Button } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import SearchBar from "../components/SearchBar";
 import SearchStyle from "../components/SearchStyle";
 import useMusic from "../hooks/useMusic";
@@ -17,6 +17,7 @@ const SearchScreen = () => {
         onTermChange={setTerm}
         onTermSubmit={() => {
           searchAPI(term, searchType);
+          //console.log(search.tracks);
         }}
       />
       <SearchStyle searchType={searchType} setSearchType={setSearchType} />
