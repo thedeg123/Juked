@@ -1,10 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const AlbumScreen = () => {
+const AlbumScreen = ({ music_id }) => {
   return (
     <View>
       <Text style={styles.headerStyle}>AlbumScreen</Text>
+      <Text>{music_id}</Text>
     </View>
   );
 };

@@ -1,10 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const ArtistScreen = () => {
+const ArtistScreen = ({ music_id }) => {
   return (
     <View>
       <Text style={styles.headerStyle}>ArtistScreen</Text>
+      <Text>{music_id}</Text>
     </View>
   );
 };

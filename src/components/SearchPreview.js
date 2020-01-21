@@ -13,13 +13,14 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
       case "track":
-        console.log("Pressed song" + music_id); // TODO: navigation undefined in lucidchart
+        console.log("Pressed song " + music_id); // TODO: navigation undefined in lucidchart
         break;
       case "album":
-        navigation.navigate("Album", { music_id });
+        //navigation.navigate("Album", { music_id: music_id });
+        navigation.navigate("Album", { music_id: "testing here" });
         break;
       case "artist":
-        navigation.navigate("Artist", { music_id });
+        navigation.navigate("Artist", { music_id: music_id });
         break;
       default:
         break;
