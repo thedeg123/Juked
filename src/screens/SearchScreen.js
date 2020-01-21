@@ -16,10 +16,22 @@ const SearchScreen = ({ navigation }) => {
         term={term}
         onTermChange={setTerm}
         onTermSubmit={() => {
-          searchAPI(term, searchType);
+          if (term !== "") {
+            searchAPI(term, searchType);
+          }
         }}
       />
-      <SearchStyle searchType={searchType} setSearchType={setSearchType} />
+      <SearchStyle
+        searchType={searchType}
+        setSearchType={setSearchType}
+        term={term}
+        onChangeButton={newSearchType => {
+          setSearchType(newSearchType);
+          if (term !== "") {
+            searchAPI(term, searchType);
+          }
+        }}
+      />
       <Text>Searching for {searchType}:</Text>
       <ResultsList
         term={term}

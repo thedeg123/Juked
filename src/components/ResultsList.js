@@ -1,13 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import SearchPreview from "./SearchPreview";
 
-const ResultsList = ({ term, searchType, search, navigation }) => {
+const ResultsList = ({ searchType, search, navigation }) => {
   if (searchType === "track") {
+    console.log(searchType);
     return (
       <View>
         <SearchPreview
-          //root={search.tracks.items[0]}
           title={search ? `${search.tracks.items[0].name}` : "none"}
           type={searchType}
           music_id={search ? `${search.tracks.items[0].id}` : "none"}
@@ -21,6 +21,7 @@ const ResultsList = ({ term, searchType, search, navigation }) => {
       </View>
     );
   } else if (searchType === "album") {
+    console.log(searchType);
     return (
       <View>
         <SearchPreview
@@ -37,6 +38,7 @@ const ResultsList = ({ term, searchType, search, navigation }) => {
       </View>
     );
   } else if (searchType === "artist") {
+    console.log(searchType);
     return (
       <View>
         <SearchPreview
