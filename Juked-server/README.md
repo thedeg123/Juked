@@ -1,5 +1,10 @@
 # General usage for Juked-server
 
+
+## To start local server
+ - navigate to Juked/Juked-server 
+ - in the command line, enter the command: npm run dev
+
 ## Users
 
 #### /adduser - POST
