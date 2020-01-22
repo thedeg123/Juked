@@ -25,15 +25,15 @@ const AlbumPreview = ({
         styles.overallStyle,
         {
           // override the background color if this song is highlighted
-          backgroundColor: highlighted
-            ? colors.highlight
-            : colors.backgroundColor
+          backgroundColor: highlighted ? colors.highlight : colors.background
         }
       ]}
     >
       <Text style={styles.textStyle}>{title}</Text>
       <Text style={styles.scoreStyle}>{rating}</Text>
-      <Text style={styles.avgScoreStyle}>/ {avg_rating}</Text>
+      <Text style={styles.avgScoreStyle}>
+        {avg_rating ? `/${avg_rating}` : "/-"}
+      </Text>
       <Text style={styles.hint}>average</Text>
       <TouchableOpacity
         onPress={() => navigation.navigate("Review", { title, rid })}
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     height: 50,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.shadow
   },
