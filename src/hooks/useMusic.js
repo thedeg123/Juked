@@ -79,7 +79,6 @@ export default () => {
         break;
       }
       case "search_api":
-        console.log(action);
         updateState(
           await requestAPI(accessToken, `${BASE_PATH}/search`, {
             q: action.searchTerm,
