@@ -8,6 +8,7 @@ const router = express.Router();
 admin.initializeApp({ credential: admin.credential.cert(credentials) });
 let db = admin.firestore();
 let users = db.collection("users");
+
 /**
  * @param {Object} res - the incoming HTTP request - {uid: database_key }
  * @param {Object} req - the outgoing response
