@@ -1,8 +1,11 @@
 import createDataContext from "./CreateDataContext";
 import firebase from "firebase";
+import useFirestore from "../hooks/useFirestore";
 
 const authReducer = (state, action) => {
   switch (action.type) {
+    case "add_uid":
+      return { ...state, uid: action.payload };
     case "add_error":
       return { ...state, errorMessage: action.payload };
     case "remove_error":
@@ -12,71 +15,80 @@ const authReducer = (state, action) => {
   }
 };
 
-const signin = disatch => async (email, password, callback) => {
+const setuid = dispatch => async uid =>
+  dispatch({ type: "add_uid", payload: uid });
+
+const signin = dispatch => async (email, password) => {
   await firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
     .then(() => {
-      disatch({ type: "remove_error" });
-      callback();
+      dispatch({ type: "remove_error" });
     })
     .catch(err => {
       console.log(err, err.code);
       switch (err.code) {
         default:
-          return disatch({
+          return dispatch({
             type: "add_error",
             payload: err.message
           });
       }
     });
 };
-const signup = disatch => async (email, password, verifyPassword, callback) => {
+const signup = dispatch => async (email, password, verifyPassword) => {
   password === verifyPassword
     ? await firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
         .then(() => {
-          disatch({ type: "remove_error" });
-          callback();
+          dispatch({ type: "remove_error" });
+        })
+        .then(() => {
+          useFirestore.addUser(
+            email,
+            (handle = ""),
+            (bio = ""),
+            (profile_url = "")
+          );
         })
         .catch(err => {
           console.log(err, err.code);
           switch (err.code) {
             default:
-              return disatch({
+              return dispatch({
                 type: "add_error",
                 payload: err.message
               });
           }
         })
-    : disatch({
+    : dispatch({
         type: "add_error",
         payload: "Passwords do not Match!"
       });
 };
 
-const signout = disatch => async callback => {
+const signout = dispatch => async callback => {
   await firebase
     .auth()
     .signOut()
     .then(() => {
-      disatch({ type: "remove_error" });
+      dispatch({ type: "remove_error" });
       callback();
     })
     .catch(err => {
       console.log(err, err.code);
       switch (err.code) {
         default:
-          return disatch({
+          return dispatch({
             type: "add_error",
             payload: err.message
           });
       }
     });
 };
-const remove_error = disatch => () => {
-  return disatch({ type: "remove_error" });
+const remove_error = dispatch => () => {
+  return dispatch({ type: "remove_error" });
 };
 //signout,
 //signup,
@@ -84,6 +96,6 @@ const remove_error = disatch => () => {
 //tryLocalSignin;
 export const { Provider, Context } = createDataContext(
   authReducer,
-  { signin, signout, signup, remove_error },
+  { signin, signout, signup, setuid, remove_error },
   { token: null, errorMessage: "" }
 );

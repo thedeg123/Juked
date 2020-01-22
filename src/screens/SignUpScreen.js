@@ -12,9 +12,7 @@ const SignUpScreen = ({ navigation }) => {
         confirmPassword={true}
         headerText="Welcome to Juked!"
         submitButtonAction={(email, password, verifyPassword) =>
-          signup(email, password, verifyPassword, () =>
-            navigation.navigate("Home")
-          )
+          signup(email, password, verifyPassword)
         }
         submitButtonTitle="Sign up"
       ></AuthForm>
