@@ -4,17 +4,18 @@ import { Feather } from "@expo/vector-icons";
 import colors from "../constants/colors";
 /**
  * ReviewPreview Component for ListScreen
- * @param {string} title - title of this artist, album or song
+ * @param {string} title - title of this song
  * @param {integer} rating - your rating
- * @param {string} rid - unique review identifier assigned by database
+ * @param {integer} avg_rating - average rating from users
+ * @param {string} uid - any identifier needed for this song's review, if available
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ReviewPreview = ({ title, rating, rid, navigation }) => {
+const ReviewPreview = ({ title, rating, avg_rating, id, navigation }) => {
   return (
     <View style={styles.overallStyle}>
       <Text style={styles.textStyle}>{title}</Text>
       <Text style={styles.scoreStyle}>{rating}</Text>
-      <TouchableOpacity onPress={() => navigation.navigate("Review", { rid })}>
+      <TouchableOpacity onPress={() => navigation.navigate("Review", { uid })}>
         <Feather name="message-square" style={styles.iconStyle} />
       </TouchableOpacity>
     </View>

@@ -4,17 +4,17 @@ import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 /**
  * UserPreview Component for ListScreen
- * @param {string} username - username of this user
- * @param {Object} avatar - information regards of the image of user's avatar
+ * @param {string} handle - username of this user
+ * @param {Object} profile_url - information regards of the image of user's avatar
  * @param {string} id - user's Id, if needed
  * @param {Object} navigation - navigation objected passed from screen
  */
-const UserPreview = ({ username, avatar, id, navigation }) => {
+const UserPreview = ({ handle, profile_url, uid, navigation }) => {
   return (
     <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{username}</Text>
-      <Image style={styles.imageStyle} source={avatar} />
-      <TouchableOpacity onPress={() => navigation.navigate("Profile", { id })}>
+      <Text style={styles.textStyle}>{handle}</Text>
+      <Image style={styles.imageStyle} source={profile_url} />
+      <TouchableOpacity onPress={() => navigation.navigate("Profile", { uid })}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </TouchableOpacity>
     </View>
