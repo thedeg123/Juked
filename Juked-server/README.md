@@ -84,4 +84,9 @@
 
 #### /getreviewsbycontent/[content_id] - GET
 #### Params:
-- REQUIRED: String:content_id         - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
+- REQUIRED: String:content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
+
+#### /getreviewsbyauthorcontent/[uid]/[content_id] - GET
+#### Params:
+- REQUIRED: String:uid         - the unique id of the author whos reviews we want to get
+- REQUIRED: String:content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
