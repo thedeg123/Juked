@@ -59,7 +59,7 @@ const useFirestore = {
     firestore.post("/addreview", {
       body: {
         text,
-        last_modified=Date.now(),
+        last_modified: Date.now(),
         type,
         content_id,
         title,
