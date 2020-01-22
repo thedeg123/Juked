@@ -29,7 +29,7 @@
 - OPTIONAL: String:follow      - the uid of the user we want this user to follow
 - OPTIONAL: String:unfollow    - the uid of the user we want this user to unfollow
 
-#### /getuser/<uid> - GET
+#### /getuser/[uid] - GET
 #### Params:
 - REQUIRED: String:uid         - a unique key to identify the user we are getting (in our case email).
 
@@ -68,15 +68,15 @@
 #### Params:
 - REQUIRED: String:rid         - the unique id of the review we want to delete
 
-#### /getreviewbyid/<rid> - GET
+#### /getreviewbyid/[rid] - GET
 #### Params:
 - REQUIRED: String:rid         - the unique id of the review we want to delete
 
-#### /getreviewsbyauthor/<uid> - GET
+#### /getreviewsbyauthor/[uid] - GET
 #### Params:
 - REQUIRED: String:uid         - the unique id of the author whos reviews we want to get
 
 
-#### /getreviewsbycontent/:content_id - GET
+#### /getreviewsbycontent/[content_id] - GET
 #### Params:
 - REQUIRED: String:content_id         - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
