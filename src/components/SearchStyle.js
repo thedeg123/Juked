@@ -1,6 +1,8 @@
 import React from "react";
 import { View, StyleSheet, Button } from "react-native";
 
+// import colors
+
 const SearchStyle = ({ searchType, setSearchType, onChangeButton }) => {
   return (
     <View>

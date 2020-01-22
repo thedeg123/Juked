@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import SearchPreview from "./SearchPreview";
+// Switch statement
 
 const ResultsList = ({ searchType, search, navigation }) => {
   if (searchType === "track") {
