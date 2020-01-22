@@ -33,7 +33,7 @@
 #### Params:
 - REQUIRED: String:uid         - a unique key to identify the user we are getting (in our case email).
 
-#### /deleteuser/<uid> - GET
+#### /deleteuser - POST
 #### TODO - *not yet complete do not use!*
 #### Params:
 - REQUIRED: String:uid         - a unique key to identify the user we want to delete (in our case email).
