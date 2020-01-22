@@ -7,15 +7,37 @@ import colors from "../constants/colors";
  * @param {string} title - title of this song
  * @param {integer} rating - your rating
  * @param {integer} avg_rating - average rating from users
- * @param {string} uid - any identifier needed for this song's review, if available
+ * @param {string} rid - any identifier for this song provided by spotify
  * @param {Object} navigation - navigation objected passed from screen
+ * @param {boolean} highlighted - this song will be highlighted or not
  */
-const ReviewPreview = ({ title, rating, avg_rating, id, navigation }) => {
+const AlbumPreview = ({
+  title,
+  rating,
+  avg_rating,
+  rid,
+  navigation,
+  highlighted
+}) => {
   return (
-    <View style={styles.overallStyle}>
+    <View
+      style={[
+        styles.overallStyle,
+        {
+          // override the background color if this song is highlighted
+          backgroundColor: highlighted
+            ? colors.highlight
+            : colors.backgroundColor
+        }
+      ]}
+    >
       <Text style={styles.textStyle}>{title}</Text>
       <Text style={styles.scoreStyle}>{rating}</Text>
-      <TouchableOpacity onPress={() => navigation.navigate("Review", { uid })}>
+      <Text style={styles.avgScoreStyle}>/ {avg_rating}</Text>
+      <Text style={styles.hint}>average</Text>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Review", { title, rid })}
+      >
         <Feather name="message-square" style={styles.iconStyle} />
       </TouchableOpacity>
     </View>
@@ -47,7 +69,15 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: colors.primary,
     fontWeight: "bold"
+  },
+  avgScoreStyle: {
+    fontSize: 30,
+    color: colors.shadow
+  },
+  hint: {
+    fontSize: 10,
+    color: colors.shadow
   }
 });
 
-export default ReviewPreview;
+export default AlbumPreview;
