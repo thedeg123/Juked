@@ -10,6 +10,16 @@ const SearchScreen = ({ navigation }) => {
   const [searchType, setSearchType] = useState("track");
   const { search, searchAPI } = useMusic();
 
+  const displayResults = () => {
+    return (
+      <ResultsList
+        searchType={searchType}
+        search={search}
+        navigation={navigation}
+      />
+    );
+  };
+
   return (
     <View style={styles.container}>
       <SearchBar
@@ -24,31 +34,22 @@ const SearchScreen = ({ navigation }) => {
       <SearchStyle
         searchType={searchType}
         setSearchType={setSearchType}
-        term={term}
-        onChangeButton={newSearchType => {
-          if (newSearchType !== searchType) {
-            setSearchType(newSearchType);
+        onChangeButton={newType => {
+          if (newType !== searchType) {
+            setSearchType(newType);
             if (term !== "") {
-              console.log(term + ": " + searchType);
-              searchAPI(term, searchType);
+              searchAPI(term, newType);
             }
           }
         }}
       />
       <Text>Searching for {searchType}:</Text>
-      <ResultsList
-        term={term}
-        searchType={searchType}
-        search={search}
-        navigation={navigation}
-      />
+      {displayResults()}
     </View>
   );
 };
-//The problem might be that it's somehow going into another return statement
-// because it hasn't really updated the searchType, so even though it does
-// fine with the first part, the ResultsList is getting messed up because it
-// is somehow only getting partially rerendered?
+//The problem is that the search isn't updating, even thought the searchType is.
+// This means that when we try to load the results, we get errors
 
 const styles = StyleSheet.create({
   container: {
