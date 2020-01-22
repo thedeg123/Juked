@@ -10,6 +10,22 @@ let db = admin.firestore();
 let reviews = db.collection("reviews");
 
 /**
+ * @param {Object} res - the incoming HTTP request - {uid: database_key<as given by user id>,content_id: database_key<as given by spotify content> }
+ * @param {Object} req - the outgoing response
+ */
+router.get("/getreviewsbyauthorcontent/:uid/:content_id", async (req, res) => {
+  const content = await reviews
+    .where("author", "==", req.params.uid)
+    .where("content_id", "==", req.params.content_id)
+    .get();
+  let ret = [];
+  content.forEach(element =>
+    ret.push({ id: element.id, review: element.data() })
+  );
+  return res.status(200).send({ query: ret });
+});
+
+/**
  * @param {Object} res - the incoming HTTP request - {content_id: database_key<as given by spotify content> }
  * @param {Object} req - the outgoing response
  */
