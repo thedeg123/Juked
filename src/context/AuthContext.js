@@ -1,5 +1,6 @@
 import createDataContext from "./CreateDataContext";
 import firebase from "firebase";
+import useFirestore from "../hooks/useFirestore";
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -42,6 +43,14 @@ const signup = dispatch => async (email, password, verifyPassword) => {
         .createUserWithEmailAndPassword(email, password)
         .then(() => {
           dispatch({ type: "remove_error" });
+        })
+        .then(() => {
+          useFirestore.addUser(
+            email,
+            (handle = ""),
+            (bio = ""),
+            (profile_url = "")
+          );
         })
         .catch(err => {
           console.log(err, err.code);
