@@ -11,4 +11,5 @@ Log, rate, review, save the world!
 - add delete user functionality to database
 - remove useless installed modules from project
 - take database out of test mode
+- add second form to signup to add profile information
 - host the database
