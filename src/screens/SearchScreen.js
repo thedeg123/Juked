@@ -9,12 +9,13 @@ const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
   const [searchType, setSearchType] = useState("track");
   const { search, searchAPI } = useMusic();
+  const [searchAndType, setSearchAndType] = useState([search, searchType]);
 
   const displayResults = () => {
     return (
       <ResultsList
         searchType={searchType}
-        search={search}
+        search={searchAndType[0]}
         navigation={navigation}
       />
     );
@@ -27,7 +28,9 @@ const SearchScreen = ({ navigation }) => {
         onTermChange={setTerm}
         onTermSubmit={() => {
           if (term !== "") {
-            searchAPI(term, searchType);
+            searchAPI(term, searchType).then(
+              setSearchAndType([search, searchType])
+            );
           }
         }}
       />
@@ -38,7 +41,9 @@ const SearchScreen = ({ navigation }) => {
           if (newType !== searchType) {
             setSearchType(newType);
             if (term !== "") {
-              searchAPI(term, newType);
+              searchAPI(term, newType).then(
+                setSearchAndType([search, newType])
+              );
             }
           }
         }}
