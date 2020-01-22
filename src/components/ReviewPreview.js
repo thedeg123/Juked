@@ -19,7 +19,7 @@ const ReviewPreview = ({ title, rating, id, navigation }) => {
           <TouchableOpacity
             onPress={() => navigation.navigate("Review", { id })}
           >
-            <Feather name="info" style={styles.iconStyle} />
+            <Feather name="message-square" style={styles.iconStyle} />
           </TouchableOpacity>
         ) : null)()}
     </View>
