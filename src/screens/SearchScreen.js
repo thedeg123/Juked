@@ -26,9 +26,12 @@ const SearchScreen = ({ navigation }) => {
         setSearchType={setSearchType}
         term={term}
         onChangeButton={newSearchType => {
-          setSearchType(newSearchType);
-          if (term !== "") {
-            searchAPI(term, searchType);
+          if (newSearchType !== searchType) {
+            setSearchType(newSearchType);
+            if (term !== "") {
+              console.log(term + ": " + searchType);
+              searchAPI(term, searchType);
+            }
           }
         }}
       />
@@ -42,6 +45,10 @@ const SearchScreen = ({ navigation }) => {
     </View>
   );
 };
+//The problem might be that it's somehow going into another return statement
+// because it hasn't really updated the searchType, so even though it does
+// fine with the first part, the ResultsList is getting messed up because it
+// is somehow only getting partially rerendered?
 
 const styles = StyleSheet.create({
   container: {

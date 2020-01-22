@@ -4,7 +4,6 @@ import SearchPreview from "./SearchPreview";
 
 const ResultsList = ({ searchType, search, navigation }) => {
   if (searchType === "track") {
-    console.log(searchType);
     return (
       <View>
         <SearchPreview
@@ -21,7 +20,6 @@ const ResultsList = ({ searchType, search, navigation }) => {
       </View>
     );
   } else if (searchType === "album") {
-    console.log(searchType);
     return (
       <View>
         <SearchPreview
@@ -38,7 +36,6 @@ const ResultsList = ({ searchType, search, navigation }) => {
       </View>
     );
   } else if (searchType === "artist") {
-    console.log(searchType);
     return (
       <View>
         <SearchPreview
