@@ -149,6 +149,7 @@ export default () => {
     findAlbums,
     findArtists,
     findTracks,
-    searchAPI
+    searchAPI,
+    setSearch
   };
 };
