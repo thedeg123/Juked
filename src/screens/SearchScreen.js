@@ -44,7 +44,7 @@ const SearchScreen = ({ navigation }) => {
           }
         }}
       />
-      <Text>Searching for {searchType}:</Text>
+      <Text style={{ marginLeft: 10 }}>Searching for {searchType}:</Text>
       {displayResults()}
     </View>
   );
