@@ -1,11 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import * as firebase from "firebase";
+import { Context as AuthContext } from "../context/AuthContext";
 
 const LoadingScreen = ({ navigation }) => {
+  const { setuid } = useContext(AuthContext);
   useEffect(() => {
     firebase.auth().onAuthStateChanged(user => {
-      user ? navigation.navigate("mainFlow") : navigation.navigate("loginFlow");
+      if (user) {
+        setuid(user.email);
+        navigation.navigate("mainFlow");
+      } else {
+        navigation.navigate("loginFlow");
+      }
     });
   }, []);
 
