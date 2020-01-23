@@ -110,6 +110,10 @@ const useFirestore = {
       `/getreviewsbyauthorcontent/${uid}/${content_id}`
     );
     return response.data.review;
+  },
+  getMostRecentReviews: async limit => {
+    const response = await firestore.get(`/getmostrecentreviews/${limit}`);
+    return response.query;
   }
 };
 export default useFirestore;
