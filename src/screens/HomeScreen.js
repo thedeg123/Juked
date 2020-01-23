@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import useMusic from "../hooks/useMusic";
 
