@@ -10,6 +10,23 @@ let db = admin.firestore();
 let reviews = db.collection("reviews");
 
 /**
+ * @param {Object} res - the incoming HTTP request - {limit: the maximal number of reviews to supply, max 30 }
+ * @param {Object} req - the outgoing response
+ */
+router.get("/getmostrecentreviews/:limit", async (req, res) => {
+  const limit = Math.min(30, Number(req.params.limit));
+  const content = await reviews
+    .orderBy("changed", "desc")
+    .limit(limit)
+    .get();
+  let ret = [];
+  content.forEach(element =>
+    ret.push({ id: element.id, review: element.data() })
+  );
+  return res.status(200).send({ query: ret });
+});
+
+/**
  * @param {Object} res - the incoming HTTP request - {uid: database_key<as given by user id>,content_id: database_key<as given by spotify content> }
  * @param {Object} req - the outgoing response
  */
