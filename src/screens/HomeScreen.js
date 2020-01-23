@@ -1,66 +1,41 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import useMusic from "../hooks/useMusic";
+import Container from "../components/Container";
+import ButtonFilter from "../components/ButtonFilter";
+import HomeScreenItem from "../components/HomeScreenItem";
+import useFirestore from "../hooks/useFirestore";
 
-//Starting tab navigator icon thing
-
-// Another comment
 const HomeScreen = ({ navigation }) => {
-  //a few examples of useMusic in action!
-  //information on returned objects can be found at: https://developer.spotify.com/documentation/web-api/reference/
-  const {
-    tracks,
-    albums,
-    artists,
-    search,
-    findAlbums,
-    findArtists,
-    findTracks,
-    searchAPI
-  } = useMusic();
+  const [Tab1, Tab2] = ["All", "Friends"];
+  const [filter, setFilter] = useState(Tab1);
+  const [stream, setStream] = useState(null);
+  const { tracks, findTracks } = useMusic();
+  useEffect(() => {
+    setStream(null);
+    findTracks("11dFghVXANMlKmJXsNCbNl");
+  }, []);
   return (
-    <View>
-      <Text style={styles.headerStyle}>HomeScreen</Text>
-      <Text>{artists ? `${artists.name}: ${artists.id}` : "none"}</Text>
-      <Button
-        onPress={() => {
-          findArtists("0OdUWJ0sBjDrqHygGUXeCF");
-          if (artists) console.log(Object.keys(artists));
-        }}
-        title="Find Artist ID"
-      ></Button>
-      <Text>{tracks ? `${tracks.name}: ${tracks.id}` : "none"}</Text>
-      <Button
-        onPress={() => {
-          findTracks("11dFghVXANMlKmJXsNCbNl");
-        }}
-        title="Find Track ID"
-      ></Button>
-      <Text>{albums ? `${albums.name}: ${albums.id}` : "none"}</Text>
-      <Button
-        onPress={() => {
-          findAlbums("0sNOF9WDwhWunNAHPD3Baj");
-        }}
-        title="Find Album ID"
-      ></Button>
-      <Text>
-        {search
-          ? `${search.artists.items[0].name}: ${search.artists.items[0].id}`
-          : "none"}
-      </Text>
-      <Button
-        onPress={() => {
-          searchAPI("Bob Dylan", "artist");
-        }}
-        title='Search for "Bob Dylan" in artist'
-      ></Button>
-    </View>
+    <Container>
+      <View>
+        <Text style={styles.headerStyle}>HomeScreen</Text>
+        <ButtonFilter options={[Tab1, Tab2]} setSelected={setFilter} />
+        <HomeScreenItem tracks={tracks} />
+      </View>
+    </Container>
   );
+};
+
+HomeScreen.navigationOptions = () => {
+  return {
+    title: "Stream"
+  };
 };
 
 const styles = StyleSheet.create({
   headerStyle: {
-    fontSize: 60
+    fontSize: 60,
+    alignSelf: "center"
   }
 });
 export default HomeScreen;
