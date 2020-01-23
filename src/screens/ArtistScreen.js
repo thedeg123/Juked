@@ -6,17 +6,21 @@ const ArtistScreen = ({ navigation }) => {
   const title = navigation.getParam("title");
   const result = {};
   const { images, name } = result;
+  const rating;
+  const avg_rating;
 
-  return (
-    <View>
+  const headerComponent = (
+    <View style={{ alignItems: "center" }}>
       <Image
         style={{
           width: "50%",
           aspectRatio: images[0].width / images[0].height
         }}
-        source={{ uri: images[0].url }}
+        source={{
+          uri: images[0].url
+        }}
       />
-      <Text style={styles.title}>{name}</Text>
+      <Text style={styles.title}>World's End Girlfriend</Text>
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.subtitle}>
           Your rating: <Text style={styles.rating}>{rating}</Text>
@@ -25,14 +29,21 @@ const ArtistScreen = ({ navigation }) => {
           Average rating: <Text style={styles.rating}>{avg_rating}</Text>
         </Text>
       </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
       <FlatList
-        data={results}
-        keyExtracter={item => item.name}
+        data={l}
+        keyExtracter={({ item }) => item.name}
         renderItem={({ item }) => {
           return <ListPreview result={item} />;
         }}
         columnWrapperStyle={styles.column}
         numColumns={2}
+        ListHeaderComponent={headerComponent}
+        ListHeaderComponentStyle={{ alignItems: "center" }}
       />
     </View>
   );
@@ -42,8 +53,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#FFF",
     flexDirection: "column",
-    flex: 1,
-    alignItems: "center"
+    flex: 1
   },
   column: { flexShrink: 1, width: "50%" },
   title: { fontSize: 30, color: colors.text },
