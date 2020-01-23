@@ -7,7 +7,10 @@ const Container = ({ children }) => {
 };
 
 const styles = StyleSheet.create({
-  containerStyle: { margin: 10 }
+  containerStyle: {
+    margin: 10,
+    flex: 1
+  }
 });
 
 export default Container;
