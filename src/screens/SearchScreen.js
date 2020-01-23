@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet, ScrollView } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import SearchBar from "../components/SearchBar";
 import SearchStyle from "../components/SearchStyle";
 import useMusic from "../hooks/useMusic";
