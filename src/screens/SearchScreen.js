@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, ScrollView } from "react-native";
 import SearchBar from "../components/SearchBar";
 import SearchStyle from "../components/SearchStyle";
 import useMusic from "../hooks/useMusic";
@@ -8,14 +8,13 @@ import ResultsList from "../components/ResultsList";
 const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
   const [searchType, setSearchType] = useState("track");
-  const { search, searchAPI } = useMusic();
-  const [searchAndType, setSearchAndType] = useState([search, searchType]);
+  const { search, searchAPI, setSearch } = useMusic();
 
   const displayResults = () => {
     return (
       <ResultsList
         searchType={searchType}
-        search={searchAndType[0]}
+        search={search}
         navigation={navigation}
       />
     );
@@ -28,9 +27,7 @@ const SearchScreen = ({ navigation }) => {
         onTermChange={setTerm}
         onTermSubmit={() => {
           if (term !== "") {
-            searchAPI(term, searchType).then(
-              setSearchAndType([search, searchType])
-            );
+            searchAPI(term, searchType);
           }
         }}
       />
@@ -39,11 +36,10 @@ const SearchScreen = ({ navigation }) => {
         setSearchType={setSearchType}
         onChangeButton={newType => {
           if (newType !== searchType) {
+            setSearch(null);
             setSearchType(newType);
             if (term !== "") {
-              searchAPI(term, newType).then(
-                setSearchAndType([search, newType])
-              );
+              searchAPI(term, newType);
             }
           }
         }}
@@ -58,7 +54,8 @@ const SearchScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20
+    marginTop: 20,
+    flex: 1
   }
 });
 
