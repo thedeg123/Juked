@@ -50,8 +50,6 @@ const SearchScreen = ({ navigation }) => {
     </Container>
   );
 };
-//The problem is that the search isn't updating, even thought the searchType is.
-// This means that when we try to load the results, we get errors
 
 const styles = StyleSheet.create({});
 
