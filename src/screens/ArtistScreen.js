@@ -1,26 +1,51 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
+import { requestAccessToken, requestAPI } from "../requestSpotifyAPI";
+import config from "../api/musicConfig";
 
 const ArtistScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
-  const title = navigation.getParam("title");
-  const result = {};
-  const { images, name } = result;
+
+  // get data from spotify
+  const [artists, setArtists] = useState(null);
+  const [albumsList, setAlbumsList] = useState(null);
+  const [rating, setRating] = useState(null);
+  const [avg_rating, setAvg_rating] = useState(null);
+
+  const getSpotifyResult = async music_id => {
+    const accessToken = await requestAccessToken(config.id, config.secret);
+    const artists = await requestAPI(accessToken,"https://api.spotify.com/v1/artists/"+music_id);
+    setArtists(artists.data);
+    const albumsList = await requestAPI(accessToken, `https://api.spotify.com/v1/artists/${music_id}/albums`);
+    setAlbumsList(albumsList.data);
+  };
+
+  const getDatabaseResult = async (uid, music_id) => {};
+
+  // init and get all data needed via api
+  useEffect(() => {
+    getSpotifyResult(music_id);
+    getDatabaseResult();
+  }, []);
+
+  // get data from database
   const rating;
   const avg_rating;
+  
 
+  // render header information component
   const headerComponent = (
     <View style={{ alignItems: "center" }}>
       <Image
         style={{
           width: "50%",
-          aspectRatio: images[0].width / images[0].height
+          aspectRatio: artists.images[0].width / artists.images[0].height
         }}
         source={{
-          uri: images[0].url
+          uri: artists.images[0].url
         }}
       />
-      <Text style={styles.title}>World's End Girlfriend</Text>
+      <Text style={styles.title}>{artists.name}</Text>
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.subtitle}>
           Your rating: <Text style={styles.rating}>{rating}</Text>
@@ -32,13 +57,14 @@ const ArtistScreen = ({ navigation }) => {
     </View>
   );
 
+  // render main component
   return (
     <View style={styles.container}>
       <FlatList
-        data={l}
+        data={albumsList}
         keyExtracter={({ item }) => item.name}
         renderItem={({ item }) => {
-          return <ListPreview result={item} />;
+          return <ArtistPreview result={item} />;
         }}
         columnWrapperStyle={styles.column}
         numColumns={2}
