@@ -1,14 +1,21 @@
 import React from "react";
 import { TextInput, View, StyleSheet } from "react-native";
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
+import colors from "../constants/colors";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const SearchBar = ({ term, onTermChange, onTermSubmit }) => {
   return (
     <View style={styles.backgroundStyle}>
-      <FontAwesome name="search" style={styles.iconStyle} />
+      <FontAwesome
+        name="search"
+        style={styles.iconStyle}
+        color={colors.primary}
+      />
       <TextInput
         style={styles.inputStyle}
         placeholder="Search"
+        placeholderTextColor={colors.shadow}
         value={term}
         onChangeText={onTermChange}
         onEndEditing={onTermSubmit}
@@ -16,6 +23,7 @@ const SearchBar = ({ term, onTermChange, onTermSubmit }) => {
       <AntDesign
         name="close"
         style={styles.iconStyle}
+        color={colors.primary}
         onPress={() => onTermChange("")}
       />
     </View>

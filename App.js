@@ -22,6 +22,7 @@ import { Provider as AuthProvider } from "./src/context/AuthContext";
 import * as firebase from "firebase";
 import firebaseConfig from "./src/api/firebaseConfig";
 import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
+import colors from "./src/constants/colors";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -55,9 +56,13 @@ const switchNavigator = createSwitchNavigator({
         ...exploreFlow
       }),
       navigationOptions: {
-        tabBarLabel: ({ tintColor: color }) => (
-          <Foundation name="home" style={styles.iconStyle} color={color} />
-        )
+        tabBarLabel: ({ tintColor }) => (
+          <Foundation name="home" style={styles.iconStyle} color={tintColor} />
+        ),
+        tabBarOptions: {
+          activeTintColor: colors.primary, // active icon color
+          inactiveTintColor: colors.shadow // inactive icon color
+        }
       }
     },
     searchFlow: {
@@ -66,9 +71,17 @@ const switchNavigator = createSwitchNavigator({
         ...exploreFlow
       }),
       navigationOptions: {
-        tabBarLabel: ({ tintColor: color }) => (
-          <FontAwesome name="search" style={styles.iconStyle} color={color} />
-        )
+        tabBarLabel: ({ tintColor }) => (
+          <FontAwesome
+            name="search"
+            style={styles.iconStyle}
+            color={tintColor}
+          />
+        ),
+        tabBarOptions: {
+          activeTintColor: colors.primary, // active icon color
+          inactiveTintColor: colors.shadow // inactive icon color
+        }
       }
     },
     profileFlow: {
@@ -78,9 +91,13 @@ const switchNavigator = createSwitchNavigator({
         List: ListScreen
       }),
       navigationOptions: {
-        tabBarLabel: ({ tintColor: color }) => (
-          <Octicons name="person" style={styles.iconStyle} color={color} />
-        )
+        tabBarLabel: ({ tintColor }) => (
+          <Octicons name="person" style={styles.iconStyle} color={tintColor} />
+        ),
+        tabBarOptions: {
+          activeTintColor: colors.primary, // active icon color
+          inactiveTintColor: colors.shadow // inactive icon color
+        }
       }
     }
   })
