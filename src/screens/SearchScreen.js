@@ -4,6 +4,7 @@ import SearchBar from "../components/SearchBar";
 import SearchStyle from "../components/SearchStyle";
 import useMusic from "../hooks/useMusic";
 import ResultsList from "../components/ResultsList";
+import Container from "../components/Container";
 
 const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
@@ -21,7 +22,7 @@ const SearchScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <Container>
       <SearchBar
         term={term}
         onTermChange={setTerm}
@@ -46,17 +47,12 @@ const SearchScreen = ({ navigation }) => {
       />
       <Text style={{ marginLeft: 10 }}>Searching for {searchType}:</Text>
       {displayResults()}
-    </View>
+    </Container>
   );
 };
 //The problem is that the search isn't updating, even thought the searchType is.
 // This means that when we try to load the results, we get errors
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 20,
-    flex: 1
-  }
-});
+const styles = StyleSheet.create({});
 
 export default SearchScreen;
