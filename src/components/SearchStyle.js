@@ -1,27 +1,35 @@
 import React from "react";
 import { View, StyleSheet, Button } from "react-native";
 
-const SearchStyle = ({ searchType, setSearchType }) => {
+// import colors
+
+const SearchStyle = ({ searchType, setSearchType, onChangeButton }) => {
   return (
     <View>
       <View style={styles.backgroundStyle}>
         <Button
           title="Songs"
           style={styles.buttonStyle}
-          color={searchType === "song" ? "red" : "#3480eb"}
-          onPress={() => setSearchType("song")}
+          color={searchType === "track" ? "red" : "#3480eb"}
+          onPress={() => {
+            onChangeButton("track");
+          }}
         />
         <Button
           title="Albums"
           style={styles.buttonStyle}
           color={searchType === "album" ? "red" : "#3480eb"}
-          onPress={() => setSearchType("album")}
+          onPress={() => {
+            onChangeButton("album");
+          }}
         />
         <Button
           title="Artists"
           style={styles.buttonStyle}
           color={searchType === "artist" ? "red" : "#3480eb"}
-          onPress={() => setSearchType("artist")}
+          onPress={() => {
+            onChangeButton("artist");
+          }}
         />
         <Button
           title="Users"

@@ -9,17 +9,23 @@ import colors from "../constants/colors";
  * @param {string} music_id - original id from spotify
  * @param {Object} navigation - navigation objected passed from screen
  */
-const UserPreview = ({ username, type, music_id, navigation }) => {
+const UserPreview = ({ title, type, music_id, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
-      case "Song":
-        console.log("Pressed song" + music_id); // TODO: navigation undefined in lucidchart
+      case "track":
+        console.log("Pressed song " + music_id); // TODO: navigation undefined in lucidchart
         break;
-      case "Album":
-        navigation.navigate("Album", { music_id });
+      case "album":
+        navigation.navigate("Album", {
+          music_id: music_id,
+          title: title
+        });
         break;
-      case "Artist":
-        navigation.navigate("Artist", { music_id });
+      case "artist":
+        navigation.navigate("Artist", {
+          music_id: music_id,
+          title: title
+        });
         break;
       default:
         break;
@@ -27,8 +33,10 @@ const UserPreview = ({ username, type, music_id, navigation }) => {
   };
   return (
     <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{username}</Text>
-      <Text style={styles.typeStyle}>{type}</Text>
+      <Text style={styles.textStyle}>{title}</Text>
+      <Text style={styles.typeStyle}>
+        {type.charAt(0).toUpperCase() + type.slice(1)}
+      </Text>
       <TouchableOpacity onPress={handleNavigate}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </TouchableOpacity>
