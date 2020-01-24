@@ -10,6 +10,7 @@ const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
   const [searchType, setSearchType] = useState("track");
   const { search, searchAPI, setSearch } = useMusic();
+  const [Tab1, Tab2, Tab3, Tab4] = ["Songs", "Albums", "Artists", "Users"];
 
   const displayResults = () => {
     return (
@@ -33,6 +34,7 @@ const SearchScreen = ({ navigation }) => {
         }}
       />
       <SearchStyle
+        options={[Tab1, Tab2, Tab3, Tab4]}
         searchType={searchType}
         setSearchType={setSearchType}
         onChangeButton={newType => {
