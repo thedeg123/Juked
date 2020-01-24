@@ -14,7 +14,7 @@ const ListPreview = ({ title, num, id, navigation }) => {
     <View style={styles.overallStyle}>
       <Text style={styles.textStyle}>{title}</Text>
       <Text style={styles.numStyle}>{num}</Text>
-      <TouchableOpacity onPress={console.log("user pressed the song")}>
+      <TouchableOpacity onPress={() => console.log("user pressed the song")}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </TouchableOpacity>
     </View>
@@ -23,8 +23,8 @@ const ListPreview = ({ title, num, id, navigation }) => {
 
 const styles = StyleSheet.create({
   overallStyle: {
-    marginVertical: 10,
-    padding: 10,
+    marginVertical: 5,
+    padding: 5,
     flexDirection: "row",
     alignItems: "center",
     height: 50,
@@ -37,12 +37,12 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 25,
+    fontSize: 20,
     color: colors.text,
     flex: 1
   },
   numStyle: {
-    fontSize: 25,
+    fontSize: 20,
     color: colors.primary
   }
 });
