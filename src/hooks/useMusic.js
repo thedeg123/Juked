@@ -61,39 +61,36 @@ export default () => {
 
   const reducer = async (updateState, action) => {
     const accessToken = await requestAccessToken(config.id, config.secret);
+    let response = null;
     switch (action.RequestType) {
       case "find_tracks":
-        updateState(
-          await requestAPI(accessToken, `${BASE_PATH}/tracks`, {
-            ids: action.ids
-          })
-        );
-        break;
+        response = await requestAPI(accessToken, `${BASE_PATH}/tracks`, {
+          ids: action.ids
+        });
+        updateState(response);
+        return response;
       case "find_albums":
-        updateState(
-          await requestAPI(accessToken, `${BASE_PATH}/albums`, {
-            ids: action.ids
-          })
-        );
-        break;
+        response = await requestAPI(accessToken, `${BASE_PATH}/albums`, {
+          ids: action.ids
+        });
+        updateState(response);
+        return response;
       case "find_artists": {
-        updateState(
-          await requestAPI(accessToken, `${BASE_PATH}/artists`, {
-            ids: action.ids
-          })
-        );
-        break;
+        response = await requestAPI(accessToken, `${BASE_PATH}/artists`, {
+          ids: action.ids
+        });
+        updateState(response);
+        return response;
       }
       case "search_api":
-        updateState(
-          await requestAPI(accessToken, `${BASE_PATH}/search`, {
-            q: action.searchTerm,
-            type: action.catagory
-          })
-        );
-        break;
+        response = await requestAPI(accessToken, `${BASE_PATH}/search`, {
+          q: action.searchTerm,
+          type: action.catagory
+        });
+        updateState(response);
+        return response;
       default:
-        break;
+        return;
     }
   };
   const [tracks, setTracks] = useState(null);
@@ -110,11 +107,12 @@ export default () => {
    * @return {null}
    */
   const findTracks = async ids => {
+    if (!ids) return;
     ids = Array.isArray(ids) ? ids.join(",") : ids;
-    await reducer(setTracks, {
+    return await reducer(setTracks, {
       RequestType: "find_tracks",
       ids
-    });
+    }).then(tracks => tracks.tracks);
   };
   /**
    * @async
@@ -124,11 +122,12 @@ export default () => {
    * @return {null}
    */
   const findAlbums = async ids => {
+    if (!ids) return;
     ids = Array.isArray(ids) ? ids.join(",") : ids;
-    await reducer(setAlbums, {
+    return await reducer(setAlbums, {
       RequestType: "find_albums",
       ids
-    });
+    }).then(albums => albums.albums);
   };
   /**
    * @async
@@ -138,11 +137,12 @@ export default () => {
    * @return {null}
    */
   const findArtists = async ids => {
+    if (!ids) return;
     ids = Array.isArray(ids) ? ids.join(",") : ids;
-    await reducer(setArtists, {
+    return await reducer(setArtists, {
       RequestType: "find_artists",
       ids
-    });
+    }).then(artists => artists.artists);
   };
   /**
    * @async
@@ -153,7 +153,8 @@ export default () => {
    * @return {null}
    */
   const searchAPI = async (searchTerm, catagory) => {
-    await reducer(setSearch, {
+    if (!searchTerm) return;
+    return await reducer(setSearch, {
       RequestType: "search_api",
       searchTerm: searchTerm.replace(/ /g, "+"), //because the api must have searches replaced with +
       catagory

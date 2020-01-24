@@ -13,3 +13,4 @@ Log, rate, review, save the world!
 - take database out of test mode
 - add second form to signup to add profile information
 - host the database
+- add support for multi-artist albums
