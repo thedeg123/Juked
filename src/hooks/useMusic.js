@@ -64,17 +64,23 @@ export default () => {
     switch (action.RequestType) {
       case "find_tracks":
         updateState(
-          await requestAPI(accessToken, `${BASE_PATH}/tracks/${action.id}`, {})
+          await requestAPI(accessToken, `${BASE_PATH}/tracks`, {
+            ids: action.ids
+          })
         );
         break;
       case "find_albums":
         updateState(
-          await requestAPI(accessToken, `${BASE_PATH}/albums/${action.id}`, {})
+          await requestAPI(accessToken, `${BASE_PATH}/albums`, {
+            ids: action.ids
+          })
         );
         break;
       case "find_artists": {
         updateState(
-          await requestAPI(accessToken, `${BASE_PATH}/artists/${action.id}`, {})
+          await requestAPI(accessToken, `${BASE_PATH}/artists`, {
+            ids: action.ids
+          })
         );
         break;
       }
@@ -99,32 +105,44 @@ export default () => {
   /**
    * @async
    * @function findTracks
-   * @param {Object} id - a song's unique ID
+   * @param {Array} ids - an array of 1+ unique IDs for tracks
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findTracks = async id => {
-    await reducer(setTracks, { RequestType: "find_tracks", id });
+  const findTracks = async ids => {
+    ids = Array.isArray(ids) ? ids.join(",") : ids;
+    await reducer(setTracks, {
+      RequestType: "find_tracks",
+      ids
+    });
   };
   /**
    * @async
    * @function findAlbums
-   * @param {Object} id - a song's unique ID
+   * @param {Array} ids - an array of 1+ unique IDs for albums
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findAlbums = async id => {
-    await reducer(setAlbums, { RequestType: "find_albums", id });
+  const findAlbums = async ids => {
+    ids = Array.isArray(ids) ? ids.join(",") : ids;
+    await reducer(setAlbums, {
+      RequestType: "find_albums",
+      ids
+    });
   };
   /**
    * @async
    * @function findArtists
-   * @param {Object} id - a song's unique ID
+   * @param {Array} ids - an array of 1+ unique IDs for artists
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findArtists = async id => {
-    await reducer(setArtists, { RequestType: "find_artists", id });
+  const findArtists = async ids => {
+    ids = Array.isArray(ids) ? ids.join(",") : ids;
+    await reducer(setArtists, {
+      RequestType: "find_artists",
+      ids
+    });
   };
   /**
    * @async
