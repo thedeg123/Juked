@@ -13,30 +13,39 @@ import colors from "../constants/colors";
 import * as firebase from "firebase";
 import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
+import useFirestore from "../hooks/useFirestore";
 
 const UserProfileScreen = ({ navigation }) => {
-  var user = firebase.auth().currentUser;
+  const { email } = useContext(AuthContext);
+  //const user = firebase.auth().currentUser;
+
+  const user = useFirestore.getUser(email);
 
   const { signout } = useContext(AuthContext);
   return (
     <Container>
-      {/* <Text style={styles.headerStyle}>ProfileScreen</Text> */}
-      {/* <Button
-        title="Go to List"
-        onPress={() => navigation.navigate("List")}
-      ></Button> */}
-
-      {/* {user.URL ? (
-        <Image source={{ uri: user.photoURL }} style={styles.image} />
+      {user.profile_url ? (
+        <Image
+          source={{
+            uri: user.profile_url
+          }}
+          style={styles.imageStyle}
+        />
       ) : (
         <Octicons
           name="person"
           color={colors.primary}
-          style={{ fontSize: 50 }}
+          style={styles.holderImageStyle}
         />
-      )} */}
+      )}
 
-      {user.URL ? (
+      {user.handle !== "" ? (
+        <Text style={styles.handleStyle}>@{user.handle}</Text>
+      ) : (
+        <Text style={styles.handleStyle}>@{user.email}</Text>
+      )}
+
+      {/* {user.URL ? (
         <Image
           source={{
             uri:
@@ -50,9 +59,13 @@ const UserProfileScreen = ({ navigation }) => {
           color={colors.primary}
           style={styles.holderImageStyle}
         />
-      )}
+      )} */}
 
-      <Text style={styles.handleStyle}>@Handle</Text>
+      {/* {user.displayName !== "" ? (
+        <Text style={styles.handleStyle}>@{user.displayName}</Text>
+      ) : (
+        <Text style={styles.handleStyle}>@{user.email}</Text>
+      )} */}
 
       <View style={styles.numberStyle}>
         <Text style={styles.followStyle}># Followers</Text>
@@ -91,6 +104,11 @@ const UserProfileScreen = ({ navigation }) => {
         //id
         navigation={navigation}
       />
+
+      <Button
+        title="Go to List"
+        onPress={() => navigation.navigate("List")}
+      ></Button>
     </Container>
   );
 };
