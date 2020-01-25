@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 25,
+    fontSize: 20,
     color: colors.text,
     flex: 1
   },

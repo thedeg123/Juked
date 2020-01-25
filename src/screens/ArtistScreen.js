@@ -64,7 +64,7 @@ const ArtistScreen = ({ navigation }) => {
         data={albumsList}
         keyExtracter={({ item }) => item.name}
         renderItem={({ item }) => {
-          return <ArtistPreview result={item} />;
+          return <ArtistPreview result={item} navigation={navigation}/>;
         }}
         columnWrapperStyle={styles.column}
         numColumns={2}
