@@ -13,10 +13,10 @@ const UserPreview = ({ username, type, music_id, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
       case "Song":
-        console.log("Pressed song" + music_id); // TODO: navigation undefined in lucidchart
+        navigation.navigate("Album", { music_id: "", highlighted: musci_id });
         break;
       case "Album":
-        navigation.navigate("Album", { music_id });
+        navigation.navigate("Album", { music_id, highlighted: "" });
         break;
       case "Artist":
         navigation.navigate("Artist", { music_id });

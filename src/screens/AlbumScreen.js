@@ -2,15 +2,25 @@ import React from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 
+// if redirect from an album: music_id(album spotify ID), highlighted("")
+// if redirect from a song: music_id(""), highlighted(song spotify ID)
 const AlbumScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
   const title = navigation.getParam("title");
+  const highlighted = navigation.getParam("highlighted");
   const { albums, findAlbums } = useMusic();
 
   // get basic knowledge from spotify
   useEffect(() => {
-    findAlbums(music_id);
+    if (music_id) findAlbums(music_id);
+    else {
+      // if redirect from a song
+      findAlbumsOfATrack(music_id);
+    }
   });
+
+  // suppose we have the states imported from useMusic
+  // albums (spotify API documentation for more details)
 
   const headerComponent = (
     <View style={styles.headerContainer}>
@@ -18,16 +28,18 @@ const AlbumScreen = ({ navigation }) => {
         <Image
           style={{
             width: "50%",
-            aspectRatio: images[0].width / images[0].height
+            aspectRatio: albums.images[0].width / albums.images[0].height
           }}
           source={{
-            uri: images[0].url
+            uri: albums.images[0].url
           }}
         />
         <View style={{ alignItems: "center", width: "50%" }}>
-          <Text style={styles.title}>World's End Girlfriend</Text>
-          <Text style={styles.text}>By Artist</Text>
-          <Text style={styles.text}>1999</Text>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.text}>
+            {albums.artists.reduce((acc, cur) => `${acc}; ${cur}`)}
+          </Text>
+          <Text style={styles.text}>{`${albums.release_date}`}</Text>
         </View>
       </View>
       <View style={{ flexDirection: "row" }}>
@@ -44,7 +56,7 @@ const AlbumScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={l}
+        data={albums.tracks}
         keyExtracter={({ item }) => item.track_number}
         renderItem={({ item }) => {
           return (
@@ -85,7 +97,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 15,
-    marginTop: 5
+    marginTop: 5,
+    textAlign: "center"
   },
   rating: {
     color: colors.primary,
