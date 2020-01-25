@@ -1,12 +1,13 @@
 //Provides margin on components
 import React from "react";
 import { View, StyleSheet, Text } from "react-native";
+import colors from "../../constants/colors";
 
 const HomeScreenItem = ({ tracks }) => {
   return (
     <>
       {tracks ? (
-        <View>
+        <View style={styles.boxStyle}>
           <Text style={styles.titleStyle}>{tracks.name}</Text>
         </View>
       ) : null}
@@ -15,8 +16,14 @@ const HomeScreenItem = ({ tracks }) => {
 };
 
 const styles = StyleSheet.create({
-  titleStyle: {
-    fontSize: 26
+  boxStyle: {
+    alignSelf: "stretch",
+    marginVertical: 10,
+    backgroundColor: colors.backgroundColor,
+    borderColor: colors.primary,
+    borderWidth: 2,
+    height: 150,
+    padding: 5
   }
 });
 

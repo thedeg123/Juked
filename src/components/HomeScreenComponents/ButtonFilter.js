@@ -1,7 +1,7 @@
 //Provides margin on child components
 import React from "react";
 import { useState } from "react";
-import colors from "../constants/colors";
+import colors from "../../constants/colors";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 const ButtonFilter = ({ options, setSelected }) => {
