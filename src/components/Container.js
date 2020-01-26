@@ -10,7 +10,8 @@ const Container = ({ children }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     flex: 1,
-    margin: 10
+    margin: 10,
+    marginBottom: 0
   }
 });
 
