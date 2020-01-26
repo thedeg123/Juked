@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { View, Text, StyleSheet, Button, FlatList } from "react-native";
 import Container from "../components/Container";
 import ButtonFilter from "../components/HomeScreenComponents/ButtonFilter";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import useFirestore from "../hooks/useFirestore";
 import useMusic from "../hooks/useMusic";
 import zip from "../helpers/zip";
+import LoadingIndicator from "../components/LoadingIndicator";
 
 const HomeScreen = ({ navigation }) => {
   const [Tab1, Tab2] = ["All", "Friends"];
@@ -136,7 +137,9 @@ const HomeScreen = ({ navigation }) => {
           content={homeScreenData[1][1]}
           author={homeScreenData[1][2]}
         />
-      ) : null}
+      ) : (
+        <LoadingIndicator></LoadingIndicator>
+      )}
     </Container>
   );
 };

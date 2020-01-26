@@ -2,22 +2,18 @@ import React from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import colors from "../../constants/colors";
 
-const ContentPic = ({ children, navigate }) => {
-  return (
-    <>
-      {navigate ? (
-        <TouchableOpacity
-          style={styles.boxStyle}
-          onPress={() => {
-            console.log("We will navigate to review:", navigate);
-          }}
-        >
-          {children}
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.boxStyle}>{children}</View>
-      )}
-    </>
+const HomeScreenBorder = ({ children, navigate }) => {
+  return navigate ? (
+    <TouchableOpacity
+      style={styles.boxStyle}
+      onPress={() => {
+        console.log("We will navigate to review:", navigate);
+      }}
+    >
+      {children}
+    </TouchableOpacity>
+  ) : (
+    <View style={styles.boxStyle}>{children}</View>
   );
 };
 
@@ -34,4 +30,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ContentPic;
+export default HomeScreenBorder;
