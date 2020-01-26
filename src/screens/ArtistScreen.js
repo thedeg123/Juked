@@ -1,9 +1,12 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import useMusic from "../hooks/useMusic";
+import useFirestore from "../hooks/useFirestore";
+import { Context as AuthContext } from "../context/AuthContext";
 
 const ArtistScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
+  const { email } = useContext(AuthContext);
 
   // data from spotify
   const { albums, artists, findArtists, findAlbumsOfAnArtist } = useMusic();
@@ -11,13 +14,17 @@ const ArtistScreen = ({ navigation }) => {
   // data from review database
   const [rating, setRating] = useState(null);
   const [avg_rating, setAvg_rating] = useState(null);
-  const getDatabaseResult = async (uid, music_id) => {};
+  const getDatabaseResult = async (uid, music_id) => {
+    const artistReview = useFirestore.getReviewsByAuthorContent(uid, music_id);
+    setRating(artistReview.rating);
+    setAvg_rating(5);
+  };
 
   // init and get all data needed via api
   useEffect(() => {
     findArtists(music_id);
     findAlbumsOfAnArtist(music_id);
-    getDatabaseResult();
+    getDatabaseResult(email, music_id);
   }, []);
 
   // render header information component
