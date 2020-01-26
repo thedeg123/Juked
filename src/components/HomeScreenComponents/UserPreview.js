@@ -4,12 +4,15 @@ import colors from "../../constants/colors";
 import images from "../../constants/images";
 
 const UserPreview = ({ img, username, uid }) => {
+  img = img || images.profileDefault; //becuase we cant set a default val from another file
   return (
-    <TouchableOpacity style={styles.containerStyle} onPress={() => {}}>
-      <Image
-        style={styles.imageStyle}
-        source={{ uri: img || images.profileDefault }}
-      ></Image>
+    <TouchableOpacity
+      style={styles.containerStyle}
+      onPress={() => {
+        console.log("We will navigate to user:", uid);
+      }}
+    >
+      <Image style={styles.imageStyle} source={{ uri: img }}></Image>
       <Text style={styles.textStyle}>@{username}</Text>
     </TouchableOpacity>
   );

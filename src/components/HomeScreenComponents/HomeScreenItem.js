@@ -7,35 +7,26 @@ import Rating from "./Rating";
 import ReviewTitle from "./ReviewTitle";
 import ContentPic from "./ContentPic";
 import ContentTitle from "./ContentTitle";
+import HomeScreenBorder from "./HomeScreenBorder";
 
-const HomeScreenItem = ({ review, content, type }) => {
+const HomeScreenItem = ({ review, content, author }) => {
   return (
     <>
-      <TouchableOpacity style={styles.boxStyle}>
-        <UserPreview username="Test"></UserPreview>
-        <Rating number={10}></Rating>
-        <ReviewTitle title="WWWWWWWWWWWWWWWWWWWWWWWW"></ReviewTitle>
-        <ContentTitle
-          header="An Album ljhjhlh lkjkjsf"
-          subheader="An artist"
-        ></ContentTitle>
-        <ContentPic></ContentPic>
-      </TouchableOpacity>
+      <HomeScreenBorder navigate={review.text.length ? review.rid : null}>
+        <UserPreview
+          username={author.handle}
+          img={author.profile_url}
+          uid={review.author}
+        ></UserPreview>
+        <Rating number={review.rating}></Rating>
+        <ReviewTitle title={review.title}>></ReviewTitle>
+        <ContentTitle header={content.name}></ContentTitle>
+        <ContentPic img={content.image} cid={content.id}></ContentPic>
+      </HomeScreenBorder>
     </>
   );
 };
 
-const styles = StyleSheet.create({
-  boxStyle: {
-    alignSelf: "stretch",
-    marginTop: 15,
-    backgroundColor: colors.backgroundColor,
-    borderColor: colors.primary,
-    borderWidth: 2,
-    height: 180,
-    padding: 10
-  },
-  titleStyle: {}
-});
+const styles = StyleSheet.create({});
 
 export default HomeScreenItem;

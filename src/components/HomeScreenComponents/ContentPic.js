@@ -4,12 +4,15 @@ import colors from "../../constants/colors";
 import images from "../../constants/images";
 
 const ContentPic = ({ img, cid }) => {
+  img = img || images.artistDefault; //becuase we cant set a default val from another file
   return (
-    <TouchableOpacity style={styles.contentStyle} onPress={() => {}}>
-      <Image
-        style={styles.imageStyle}
-        source={{ uri: img || images.artistDefault }}
-      ></Image>
+    <TouchableOpacity
+      style={styles.contentStyle}
+      onPress={() => {
+        console.log("We will navigate to content:", cid);
+      }}
+    >
+      <Image style={styles.imageStyle} source={{ uri: img }}></Image>
     </TouchableOpacity>
   );
 };
