@@ -1,6 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
+import useFirestore from "../hooks/useFirestore";
+import { Context as AuthContext } from "../context/AuthContext";
+import AlbumPreview from "../components/AlbumPreview";
 
 // if redirect from an album: music_id(album spotify ID), highlighted("")
 // if redirect from a song: music_id(""), highlighted(song spotify ID)
@@ -8,6 +11,7 @@ const AlbumScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
   const title = navigation.getParam("title");
   const highlighted = navigation.getParam("highlighted");
+  const { email } = useContext(AuthContext);
 
   // data from spotify
   const { albums, findAlbums, findAlbumsOfATrack } = useMusic();
