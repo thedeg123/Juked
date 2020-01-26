@@ -16,10 +16,13 @@ const AccountScreen = ({ navigation }) => {
         <TextInput
           style={styles.inputStyle}
           placeholder="Change Handle"
+          autocorrect="false"
+          autoCapitalize="none"
           placeholderTextColor={colors.shadow}
           value={handle}
           onChangeText={setHandle}
           onEndEditing={() => {
+            // Unhandled promise rejection error
             useFirestore.updateUser({ uid: email, handle: handle });
           }}
         />

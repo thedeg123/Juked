@@ -1,6 +1,6 @@
 const express = require("express");
 const admin = require("firebase-admin");
-const credentials = require("../../api/juked-1-firebase-admin-cred.json");
+const credentials = require("../../../src/api/juked-1-firebase-admin-cred.json");
 
 const router = express.Router();
 
