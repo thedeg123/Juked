@@ -1,37 +1,24 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
-import { requestAccessToken, requestAPI } from "../requestSpotifyAPI";
-import config from "../api/musicConfig";
+import useMusic from "../hooks/useMusic";
 
 const ArtistScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
 
-  // get data from spotify
-  const [artists, setArtists] = useState(null);
-  const [albumsList, setAlbumsList] = useState(null);
+  // data from spotify
+  const { albums, artists, findArtists, findAlbumsOfAnArtist } = useMusic();
+
+  // data from review database
   const [rating, setRating] = useState(null);
   const [avg_rating, setAvg_rating] = useState(null);
-
-  const getSpotifyResult = async music_id => {
-    const accessToken = await requestAccessToken(config.id, config.secret);
-    const artists = await requestAPI(accessToken,"https://api.spotify.com/v1/artists/"+music_id);
-    setArtists(artists.data);
-    const albumsList = await requestAPI(accessToken, `https://api.spotify.com/v1/artists/${music_id}/albums`);
-    setAlbumsList(albumsList.data);
-  };
-
   const getDatabaseResult = async (uid, music_id) => {};
 
   // init and get all data needed via api
   useEffect(() => {
-    getSpotifyResult(music_id);
+    findArtists(music_id);
+    findAlbumsOfAnArtist(music_id);
     getDatabaseResult();
   }, []);
-
-  // get data from database
-  const rating;
-  const avg_rating;
-  
 
   // render header information component
   const headerComponent = (
@@ -61,10 +48,10 @@ const ArtistScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={albumsList}
+        data={albums}
         keyExtracter={({ item }) => item.name}
         renderItem={({ item }) => {
-          return <ArtistPreview result={item} navigation={navigation}/>;
+          return <ArtistPreview result={item} navigation={navigation} />;
         }}
         columnWrapperStyle={styles.column}
         numColumns={2}

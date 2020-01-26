@@ -8,16 +8,24 @@ const AlbumScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
   const title = navigation.getParam("title");
   const highlighted = navigation.getParam("highlighted");
+
+  // data from spotify
   const { albums, findAlbums, findAlbumsOfATrack } = useMusic();
 
-  // get basic knowledge from spotify
+  // data from review database
+  const [ratings, setRatings] = useState(null);
+  const [avg_ratings, setAvg_ratings] = useState(null);
+  const getDatabaseResult = async (uid, music_id) => {};
+
+  // initialization
   useEffect(() => {
     if (music_id) findAlbums(music_id);
     else {
       // if redirect from a song, save the album object to albums
       findAlbumsOfATrack(music_id);
     }
-  });
+    getDatabaseResult();
+  }, []);
 
   // suppose we have the states imported from useMusic
   // albums (spotify API documentation for more details)
