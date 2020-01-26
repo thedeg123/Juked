@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  TouchableOpacity,
-  ImageBackground
-} from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import colors from "../../constants/colors";
 
 const ContentPic = ({ children, navigate }) => {
@@ -28,6 +23,7 @@ const ContentPic = ({ children, navigate }) => {
 
 const styles = StyleSheet.create({
   boxStyle: {
+    borderRadius: 5,
     alignSelf: "stretch",
     marginTop: 15,
     backgroundColor: colors.backgroundColor,

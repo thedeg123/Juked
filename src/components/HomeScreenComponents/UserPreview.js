@@ -28,7 +28,8 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderColor: colors.shadow,
-    borderWidth: 1
+    borderWidth: 1,
+    borderRadius: 5
   },
   textStyle: {
     marginVertical: 1,
