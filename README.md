@@ -14,3 +14,7 @@ Log, rate, review, save the world!
 - add second form to signup to add profile information
 - host the database
 - add support for multi-artist albums
+
+### NOTES:
+
+- limit review titles to 24 chars
