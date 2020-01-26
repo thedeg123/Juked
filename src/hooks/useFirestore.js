@@ -42,7 +42,7 @@ const useFirestore = {
   },
   getUser: async uid => {
     const response = await firestore.get(`/getuser/${uid}`);
-    return response.data.user;
+    return response.data;
   },
   addReview: (
     text = "",
