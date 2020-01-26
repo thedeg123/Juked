@@ -4,17 +4,40 @@ import { Feather } from "@expo/vector-icons";
 import colors from "../constants/colors";
 /**
  * ReviewPreview Component for ListScreen
- * @param {string} title - title of this artist, album or song
+ * @param {string} title - title of this song
  * @param {integer} rating - your rating
- * @param {string} rid - unique review identifier assigned by database
+ * @param {integer} avg_rating - average rating from users
+ * @param {string} rid - any identifier for this song provided by spotify
  * @param {Object} navigation - navigation objected passed from screen
+ * @param {boolean} highlighted - this song will be highlighted or not
  */
-const ReviewPreview = ({ title, rating, rid, navigation }) => {
+const AlbumPreview = ({
+  title,
+  rating,
+  avg_rating,
+  rid,
+  navigation,
+  highlighted
+}) => {
   return (
-    <View style={styles.overallStyle}>
+    <View
+      style={[
+        styles.overallStyle,
+        {
+          // override the background color if this song is highlighted
+          backgroundColor: highlighted ? colors.highlight : colors.background
+        }
+      ]}
+    >
       <Text style={styles.textStyle}>{title}</Text>
       <Text style={styles.scoreStyle}>{rating}</Text>
-      <TouchableOpacity onPress={() => navigation.navigate("Review", { rid })}>
+      <Text style={styles.avgScoreStyle}>
+        {avg_rating ? `/${avg_rating}` : "/-"}
+      </Text>
+      <Text style={styles.hint}>average</Text>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Review", { title, rid })}
+      >
         <Feather name="message-square" style={styles.iconStyle} />
       </TouchableOpacity>
     </View>
@@ -38,7 +61,7 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 25,
+    fontSize: 20,
     color: colors.text,
     flex: 1
   },
@@ -46,7 +69,15 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: colors.primary,
     fontWeight: "bold"
+  },
+  avgScoreStyle: {
+    fontSize: 30,
+    color: colors.shadow
+  },
+  hint: {
+    fontSize: 10,
+    color: colors.shadow
   }
 });
 
-export default ReviewPreview;
+export default AlbumPreview;
