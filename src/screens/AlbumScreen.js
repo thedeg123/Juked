@@ -14,7 +14,7 @@ const AlbumScreen = ({ navigation }) => {
   useEffect(() => {
     if (music_id) findAlbums(music_id);
     else {
-      // if redirect from a song
+      // if redirect from a song, save the album object to albums
       findAlbumsOfATrack(music_id);
     }
   });
@@ -62,10 +62,10 @@ const AlbumScreen = ({ navigation }) => {
           return (
             <AlbumPreview
               title={item.title}
-              rating={4}
-              avg_rating={5}
-              rid={"23452"}
-              highlighted={false}
+              rating={ratings[item.track_number].rating}
+              avg_rating={avg_ratings[item.track_number]}
+              rid={ratings[item.track_number].rid}
+              highlighted={highlighted == item.id}
             />
           );
         }}
