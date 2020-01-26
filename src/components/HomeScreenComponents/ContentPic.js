@@ -17,7 +17,7 @@ const ContentPic = ({ img, cid }) => {
 const styles = StyleSheet.create({
   contentStyle: {
     alignSelf: "flex-start",
-    bottom: 254
+    bottom: 250
   },
   imageStyle: {
     width: 84,

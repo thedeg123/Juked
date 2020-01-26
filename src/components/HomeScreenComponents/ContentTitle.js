@@ -13,10 +13,11 @@ const ArtistContent = ({ header, subheader }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    bottom: 252, //224 - marginTop = 214
+    bottom: 250, //224 - marginTop = 214
     borderWidth: 1,
     height: 76, //180 - marginTop-marginBottom -picHeight= 76
     justifyContent: "space-between",
+    paddingBottom: 2,
     marginRight: 150
   },
   headerStyle: {
