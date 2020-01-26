@@ -86,6 +86,15 @@ export default () => {
           )
         );
         break;
+      case "find_albums_of_an_artist":
+        updateState(
+          await requestAPI(
+            accessToken,
+            `${BASE_PATH}/artists/${action.id}/albums`,
+            {}
+          )
+        );
+        break;
       case "find_artists": {
         updateState(
           await requestAPI(accessToken, `${BASE_PATH}/artists/${action.id}`, {})
@@ -134,6 +143,9 @@ export default () => {
   const findAlbumsOfATrack = async id => {
     await reducer(setAlbums, { RequestType: "find_albums_of_a_track", id });
   };
+  const findAlbumsOfAnArtist = async id => {
+    await reducer(setTracks, { RequestType: "find_albums_of_an_artist", id });
+  };
   /**
    * @async
    * @function findArtists
@@ -166,6 +178,7 @@ export default () => {
     search,
     findAlbums,
     findAlbumsOfATrack,
+    findAlbumsOfAnArtist,
     findArtists,
     findTracks,
     searchAPI
