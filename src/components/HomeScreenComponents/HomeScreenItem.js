@@ -1,6 +1,6 @@
 //Provides margin on components
 import React from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import colors from "../../constants/colors";
 import UserPreview from "./UserPreview";
 import Rating from "./Rating";
@@ -28,7 +28,7 @@ const HomeScreenItem = ({ review, content, type }) => {
 const styles = StyleSheet.create({
   boxStyle: {
     alignSelf: "stretch",
-    marginVertical: 10,
+    marginTop: 15,
     backgroundColor: colors.backgroundColor,
     borderColor: colors.primary,
     borderWidth: 2,
