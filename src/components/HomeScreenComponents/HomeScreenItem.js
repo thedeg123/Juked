@@ -20,7 +20,10 @@ const HomeScreenItem = ({ review, content, author }) => {
         ></UserPreview>
         <Rating number={review.rating}></Rating>
         <ReviewTitle title={review.title}>></ReviewTitle>
-        <ContentTitle header={content.name}></ContentTitle>
+        <ContentTitle
+          header={content.name}
+          subheader={content.artist_name || ""}
+        ></ContentTitle>
         <ContentPic img={content.image} cid={content.id}></ContentPic>
       </HomeScreenBorder>
     </>

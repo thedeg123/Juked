@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 
-const ReviewTitle = ({ title = "" }) => {
+const ReviewTitle = ({ title }) => {
   return (
     <View style={styles.containerStyle}>
       <Text style={styles.textStyle}>{title}</Text>
@@ -28,4 +28,7 @@ const styles = StyleSheet.create({
   }
 });
 
+ReviewTitle.defaultProps = {
+  title: ""
+};
 export default ReviewTitle;

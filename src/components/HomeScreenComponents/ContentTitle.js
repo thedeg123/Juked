@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 
-const ArtistContent = ({ header, subheader = "" }) => {
+const ContentTitle = ({ header, subheader }) => {
   return (
     <View style={styles.containerStyle} onPress={() => {}}>
       <Text style={styles.headerStyle}>{header}</Text>
@@ -30,4 +30,9 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ArtistContent;
+ContentTitle.defaultProps = {
+  header: "",
+  subheader: ""
+};
+
+export default ContentTitle;

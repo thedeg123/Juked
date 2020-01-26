@@ -38,4 +38,9 @@ const styles = StyleSheet.create({
   }
 });
 
+UserPreview.defaultProps = {
+  img: images.profileDefault,
+  username: "",
+  uid: ""
+};
 export default UserPreview;

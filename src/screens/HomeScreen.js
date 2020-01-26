@@ -126,17 +126,27 @@ const HomeScreen = ({ navigation }) => {
     // ];
   };
   useEffect(() => {
-    fetchHomeScreenData(2).then(res => setHomeScreenData(res));
+    fetchHomeScreenData(3).then(res => setHomeScreenData(res));
   }, []);
   return (
     <Container>
       <ButtonFilter options={[Tab1, Tab2]} setSelected={setFilter} />
       {homeScreenData ? (
-        <HomeScreenItem
-          review={homeScreenData[1][0]}
-          content={homeScreenData[1][1]}
-          author={homeScreenData[1][2]}
-        />
+        <FlatList
+          keyExtractor={reviewItem =>
+            reviewItem[0].author + reviewItem[1].id + reviewItem[0].rid
+          }
+          data={homeScreenData}
+          renderItem={({ item }) => {
+            return (
+              <HomeScreenItem
+                review={item[0]}
+                content={item[1]}
+                author={item[2]}
+              ></HomeScreenItem>
+            );
+          }}
+        ></FlatList>
       ) : (
         <LoadingIndicator></LoadingIndicator>
       )}
