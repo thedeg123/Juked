@@ -137,6 +137,7 @@ const HomeScreen = ({ navigation }) => {
             reviewItem[0].author + reviewItem[1].id + reviewItem[0].rid
           }
           data={homeScreenData}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
             return (
               <HomeScreenItem
