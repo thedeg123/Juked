@@ -19,7 +19,19 @@ const AlbumScreen = ({ navigation }) => {
   // data from review database
   const [ratings, setRatings] = useState(null);
   const [avg_ratings, setAvg_ratings] = useState(null);
-  const getDatabaseResult = async (uid, music_id) => {};
+  const [albumRating, setAlbumRating] = useState(null);
+  const [albumAvg_rating, setAlbumAvg_rating] = useState(null);
+  const getDatabaseResult = async (uid, album_id, track_ids) => {
+    const albumReview = useFirestore.getReviewsByAuthorContent(uid, album_id);
+    const trackReviews = track_ids.map(obj =>
+      useFirestore.getReviewsByAuthorContent(uid, track_ids)
+    );
+    setAlbumRating(albumReview.rating);
+    setRatings(trackReviews.rating);
+    // haven't decided how to deal with avg ratings yet!
+    setAvg_ratings(5);
+    setAlbumAvg_rating(5);
+  };
 
   // initialization
   useEffect(() => {
@@ -28,7 +40,8 @@ const AlbumScreen = ({ navigation }) => {
       // if redirect from a song, save the album object to albums
       findAlbumsOfATrack(music_id);
     }
-    getDatabaseResult();
+    const track_ids = albums.tracks.map(obj => obj.id);
+    getDatabaseResult(email, music_id, track_ids);
   }, []);
 
   // suppose we have the states imported from useMusic
