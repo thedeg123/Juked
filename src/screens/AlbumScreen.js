@@ -8,7 +8,7 @@ const AlbumScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
   const title = navigation.getParam("title");
   const highlighted = navigation.getParam("highlighted");
-  const { albums, findAlbums } = useMusic();
+  const { albums, findAlbums, findAlbumsOfATrack } = useMusic();
 
   // get basic knowledge from spotify
   useEffect(() => {
