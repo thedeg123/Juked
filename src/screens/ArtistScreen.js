@@ -4,6 +4,7 @@ import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
 import { Context as AuthContext } from "../context/AuthContext";
 import ArtistPreview from "../components/ArtistPreview";
+import colors from "../constants/colors";
 
 const ArtistScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");

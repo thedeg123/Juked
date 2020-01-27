@@ -4,6 +4,7 @@ import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
 import { Context as AuthContext } from "../context/AuthContext";
 import AlbumPreview from "../components/AlbumPreview";
+import colors from "../constants/colors";
 
 // if redirect from an album: music_id(album spotify ID), highlighted("")
 // if redirect from a song: music_id(""), highlighted(song spotify ID)
