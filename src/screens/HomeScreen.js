@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Button, FlatList } from "react-native";
+import { StyleSheet, FlatList } from "react-native";
 import Container from "../components/Container";
 import ButtonFilter from "../components/HomeScreenComponents/ButtonFilter";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
@@ -13,7 +13,6 @@ const HomeScreen = ({ navigation }) => {
   const [filter, setFilter] = useState(Tab1);
   const [homeScreenData, setHomeScreenData] = useState(null);
   const { findTracks, findAlbums, findArtists } = useMusic();
-
   // if yk sql, this is what were doing here:
   // select * from (select * from (select content_id from Reviews sortby changed limit 1)
   // groupby type theta join type==content_id on (select * from Music)) natural join Users;
@@ -96,37 +95,9 @@ const HomeScreen = ({ navigation }) => {
       content[i].push(await useFirestore.getUser(content[i][0].author));
     }
     return content;
-    // return [
-    //   [
-    //     {
-    //       author: "test8@test.com",
-    //       changed: Date("2020-01-22"),
-    //       content_id: "0oSGxfWSnnOXhD2fKuz2Gy",
-    //       rating: 0,
-    //       rid: "FsMv805TUskATMNTK0cL",
-    //       text: "d",
-    //       title: "d",
-    //       type: "artist"
-    //     },
-    //     {
-    //       id: "0oSGxfWSnnOXhD2fKuz2Gy",
-    //       image:
-    //         "https://i.scdn.co/image/30eb99590bd150728b1287f103d61c9dc5375189",
-    //       name: "David Bowie"
-    //     },
-    //     {
-    //       bio: "heres a bio",
-    //       email: "test8@test.com",
-    //       followers: [],
-    //       following: [],
-    //       handle: "mytest",
-    //       profile_url: "https://i.ytimg.com/vi/MPV2METPeJU/maxresdefault.jpg"
-    //     }
-    //   ]
-    // ];
   };
   useEffect(() => {
-    fetchHomeScreenData(3).then(res => setHomeScreenData(res));
+    fetchHomeScreenData(10).then(res => setHomeScreenData(res));
   }, []);
   return (
     <Container>
