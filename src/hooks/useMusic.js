@@ -81,7 +81,7 @@ export default () => {
           `${BASE_PATH}/tracks/${action.id}`,
           {}
         );
-        const response = await requestAPI(
+        response = await requestAPI(
           accessToken,
           `${BASE_PATH}/albums/${track.album.id}`,
           {}
@@ -89,7 +89,7 @@ export default () => {
         updateState(response);
         return response;
       case "find_albums_of_an_artist":
-        const response = await requestAPI(
+        response = await requestAPI(
           accessToken,
           `${BASE_PATH}/artists/${action.id}/albums`,
           {}
