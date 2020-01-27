@@ -2,13 +2,13 @@ import React from "react";
 import { View, Text, StyleSheet, Image, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
-import { Context as AuthContext } from "../context/AuthContext";
+import { auth } from "firebase";
 import ArtistPreview from "../components/ArtistPreview";
 import colors from "../constants/colors";
 
 const ArtistScreen = ({ navigation }) => {
   const music_id = navigation.getParam("content_id");
-  const { email } = useContext(AuthContext);
+  const email = auth().currentUser.email;
 
   // data from spotify
   const { albums, artists, findArtists, findAlbumsOfAnArtist } = useMusic();

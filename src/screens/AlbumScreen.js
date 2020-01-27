@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
-import { Context as AuthContext } from "../context/AuthContext";
+import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
 
@@ -12,7 +12,7 @@ const AlbumScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
   const title = navigation.getParam("title");
   const highlighted = navigation.getParam("highlighted");
-  const { email } = useContext(AuthContext);
+  const email = auth().currentUser.email;
 
   // data from spotify
   const { albums, findAlbums, findAlbumsOfATrack } = useMusic();
