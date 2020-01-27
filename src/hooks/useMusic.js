@@ -61,36 +61,57 @@ export default () => {
 
   const reducer = async (updateState, action) => {
     const accessToken = await requestAccessToken(config.id, config.secret);
-    let response = null;
     switch (action.RequestType) {
       case "find_tracks":
-        response = await requestAPI(accessToken, `${BASE_PATH}/tracks`, {
-          ids: action.ids
-        });
-        updateState(response);
-        return response;
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/tracks/${action.id}`, {})
+        );
+        break;
       case "find_albums":
-        response = await requestAPI(accessToken, `${BASE_PATH}/albums`, {
-          ids: action.ids
-        });
-        updateState(response);
-        return response;
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/albums/${action.id}`, {})
+        );
+        break;
+      case "find_albums_of_a_track":
+        const track = await requestAPI(
+          accessToken,
+          `${BASE_PATH}/tracks/${action.id}`,
+          {}
+        );
+        updateState(
+          await requestAPI(
+            accessToken,
+            `${BASE_PATH}/albums/${track.album.id}`,
+            {}
+          )
+        );
+        break;
+      case "find_albums_of_an_artist":
+        updateState(
+          await requestAPI(
+            accessToken,
+            `${BASE_PATH}/artists/${action.id}/albums`,
+            {}
+          )
+        );
+        break;
       case "find_artists": {
-        response = await requestAPI(accessToken, `${BASE_PATH}/artists`, {
-          ids: action.ids
-        });
-        updateState(response);
-        return response;
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/artists/${action.id}`, {})
+        );
+        break;
       }
       case "search_api":
-        response = await requestAPI(accessToken, `${BASE_PATH}/search`, {
-          q: action.searchTerm,
-          type: action.catagory
-        });
-        updateState(response);
-        return response;
+        console.log(action);
+        updateState(
+          await requestAPI(accessToken, `${BASE_PATH}/search`, {
+            q: action.searchTerm,
+            type: action.catagory
+          })
+        );
+        break;
       default:
-        return;
+        break;
     }
   };
   const [tracks, setTracks] = useState(null);
@@ -102,47 +123,38 @@ export default () => {
   /**
    * @async
    * @function findTracks
-   * @param {Array} ids - an array of 1+ unique IDs for tracks
+   * @param {Object} id - a song's unique ID
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findTracks = async ids => {
-    if (!ids) return;
-    ids = Array.isArray(ids) ? ids.join(",") : ids;
-    return await reducer(setTracks, {
-      RequestType: "find_tracks",
-      ids
-    }).then(tracks => tracks.tracks);
+  const findTracks = async id => {
+    await reducer(setTracks, { RequestType: "find_tracks", id });
   };
   /**
    * @async
    * @function findAlbums
-   * @param {Array} ids - an array of 1+ unique IDs for albums
+   * @param {Object} id - a song's unique ID
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findAlbums = async ids => {
-    if (!ids) return;
-    ids = Array.isArray(ids) ? ids.join(",") : ids;
-    return await reducer(setAlbums, {
-      RequestType: "find_albums",
-      ids
-    }).then(albums => albums.albums);
+  const findAlbums = async id => {
+    await reducer(setAlbums, { RequestType: "find_albums", id });
+  };
+  const findAlbumsOfATrack = async id => {
+    await reducer(setAlbums, { RequestType: "find_albums_of_a_track", id });
+  };
+  const findAlbumsOfAnArtist = async id => {
+    await reducer(setTracks, { RequestType: "find_albums_of_an_artist", id });
   };
   /**
    * @async
    * @function findArtists
-   * @param {Array} ids - an array of 1+ unique IDs for artists
+   * @param {Object} id - a song's unique ID
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findArtists = async ids => {
-    if (!ids) return;
-    ids = Array.isArray(ids) ? ids.join(",") : ids;
-    return await reducer(setArtists, {
-      RequestType: "find_artists",
-      ids
-    }).then(artists => artists.artists);
+  const findArtists = async id => {
+    await reducer(setArtists, { RequestType: "find_artists", id });
   };
   /**
    * @async
@@ -153,8 +165,7 @@ export default () => {
    * @return {null}
    */
   const searchAPI = async (searchTerm, catagory) => {
-    if (!searchTerm) return;
-    return await reducer(setSearch, {
+    await reducer(setSearch, {
       RequestType: "search_api",
       searchTerm: searchTerm.replace(/ /g, "+"), //because the api must have searches replaced with +
       catagory
@@ -170,7 +181,6 @@ export default () => {
     findAlbumsOfAnArtist,
     findArtists,
     findTracks,
-    searchAPI,
-    setSearch
+    searchAPI
   };
 };
