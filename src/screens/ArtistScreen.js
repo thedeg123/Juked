@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
@@ -7,27 +7,37 @@ import ArtistPreview from "../components/ArtistPreview";
 import colors from "../constants/colors";
 
 const ArtistScreen = ({ navigation }) => {
-  const music_id = navigation.getParam("content_id");
+  const music_id = navigation.getParam("music_id");
   const email = auth().currentUser.email;
 
   // data from spotify
-  const { albums, artists, findArtists, findAlbumsOfAnArtist } = useMusic();
+  const { findArtists, findAlbumsOfAnArtist } = useMusic();
+  const [albums, setAlbums] = useState(null);
+  const [artist, setArtist] = useState(null);
 
   // data from review database
   const [rating, setRating] = useState(null);
   const [avg_rating, setAvg_rating] = useState(null);
-  const getDatabaseResult = async (uid, music_id) => {
-    const artistReview = useFirestore.getReviewsByAuthorContent(uid, music_id);
-    setRating(artistReview.rating);
-    setAvg_rating(5);
-  };
 
-  // init and get all data needed via api
   useEffect(() => {
-    findArtists(music_id);
-    findAlbumsOfAnArtist(music_id);
-    getDatabaseResult(email, music_id);
+    // init and get all data needed via api
+    const getDatabaseResult = async (uid, music_id) => {
+      const artistReview = useFirestore.getReviewsByAuthorContent(
+        uid,
+        music_id
+      );
+      setRating(artistReview.rating);
+      setAvg_rating(5);
+    };
+
+    findArtists(music_id).then(artists => setArtist(artists[0]));
+    findAlbumsOfAnArtist(music_id).then(result => {
+      setAlbums(result.items);
+    });
+    //getDatabaseResult(email, music_id);
   }, []);
+
+  if (!artist) return <View></View>;
 
   // render header information component
   const headerComponent = (
@@ -35,13 +45,13 @@ const ArtistScreen = ({ navigation }) => {
       <Image
         style={{
           width: "50%",
-          aspectRatio: artists.images[0].width / artists.images[0].height
+          aspectRatio: artist.images[0].width / artist.images[0].height
         }}
         source={{
-          uri: artists.images[0].url
+          uri: artist.images[0].url
         }}
       />
-      <Text style={styles.title}>{artists.name}</Text>
+      <Text style={styles.title}>{artist.name}</Text>
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.subtitle}>
           Your rating: <Text style={styles.rating}>{rating}</Text>
