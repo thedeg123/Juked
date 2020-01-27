@@ -15,7 +15,6 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     justifyContent: "center",
     marginLeft: 84,
-    borderWidth: 1,
     bottom: 100,
     height: 75
   },

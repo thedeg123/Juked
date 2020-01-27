@@ -21,8 +21,7 @@ const UserPreview = ({ img, username, uid }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     alignItems: "flex-end",
-    alignSelf: "flex-end",
-    borderWidth: 1
+    alignSelf: "flex-end"
   },
   imageStyle: {
     width: 64,

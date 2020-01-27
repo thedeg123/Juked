@@ -16,7 +16,6 @@ const styles = StyleSheet.create({
   containerStyle: {
     alignSelf: "flex-end",
     bottom: 95, //we get it centered by taking (180/2) - (72/2) = 54
-    borderWidth: 1,
     marginRight: 74 //margin right = the width of user image + padding of box
   },
   numberStyle: {

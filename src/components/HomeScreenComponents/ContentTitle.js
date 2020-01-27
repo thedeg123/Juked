@@ -14,7 +14,6 @@ const ContentTitle = ({ header, subheader }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     bottom: 250, //224 - marginTop = 214
-    borderWidth: 1,
     height: 66, //180 - marginTop-marginBottom -picHeight= 76
     justifyContent: "space-between",
     paddingBottom: 2,

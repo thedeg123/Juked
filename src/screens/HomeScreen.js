@@ -97,7 +97,7 @@ const HomeScreen = ({ navigation }) => {
     return content;
   };
   useEffect(() => {
-    fetchHomeScreenData(10).then(res => setHomeScreenData(res));
+    fetchHomeScreenData(5).then(res => setHomeScreenData(res));
   }, []);
   return (
     <Container>
