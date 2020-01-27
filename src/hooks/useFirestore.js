@@ -42,7 +42,7 @@ const useFirestore = {
   },
   getUser: async uid => {
     const response = await firestore.get(`/getuser/${uid}`);
-    return response.data.user;
+    return response.data;
   },
   addReview: (
     text = "",
@@ -113,7 +113,7 @@ const useFirestore = {
   },
   getMostRecentReviews: async limit => {
     const response = await firestore.get(`/getmostrecentreviews/${limit}`);
-    return response.query;
+    return response.data.query;
   }
 };
 

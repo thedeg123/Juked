@@ -4,5 +4,6 @@ export default {
   background: "#FFF",
   shadow: "#91989F",
   text: "#1C1C1C",
-  highlight: "#FAD689"
+  highlight: "#FAD689",
+  textLight: "#37373b"
 };
