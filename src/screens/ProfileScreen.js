@@ -10,18 +10,18 @@ import {
 } from "react-native";
 import { AntDesign, Octicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
-import * as firebase from "firebase";
+// Change this
+import firebase from "firebase";
 import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
 import useFirestore from "../hooks/useFirestore";
 
-const UserProfileScreen = ({ navigation }) => {
-  const { email } = useContext(AuthContext);
-  //const user = firebase.auth().currentUser;
+const UserProfileScreen = ({ navigation, uid }) => {
+  // No matter what, we will load the profile page for the person
+  // who has the id of uid
+  const user = useFirestore.getUser(uid);
 
-  const user = useFirestore.getUser(email);
-
-  const { signout } = useContext(AuthContext);
+  //const { signout } = useContext(AuthContext);
   return (
     <Container>
       {user.profile_url ? (
@@ -45,31 +45,14 @@ const UserProfileScreen = ({ navigation }) => {
         <Text style={styles.handleStyle}>@{user.email}</Text>
       )}
 
-      {/* {user.URL ? (
-        <Image
-          source={{
-            uri:
-              "http://www.morrishospital.org/wp-content/uploads/2018/12/penguin2_2-1024x768.jpg"
-          }}
-          style={styles.imageStyle}
-        />
-      ) : (
-        <Octicons
-          name="person"
-          color={colors.primary}
-          style={styles.holderImageStyle}
-        />
-      )} */}
-
-      {/* {user.displayName !== "" ? (
-        <Text style={styles.handleStyle}>@{user.displayName}</Text>
-      ) : (
-        <Text style={styles.handleStyle}>@{user.email}</Text>
-      )} */}
-
+      {/* Not working */}
       <View style={styles.numberStyle}>
-        <Text style={styles.followStyle}># Followers</Text>
-        <Text style={styles.followStyle}># Following</Text>
+        <Text style={styles.followStyle}>
+          {user.followers.length} Followers
+        </Text>
+        <Text style={styles.followStyle}>
+          {user.following.length} Following
+        </Text>
       </View>
 
       <Text style={styles.bioStyle}>
@@ -113,20 +96,22 @@ const UserProfileScreen = ({ navigation }) => {
   );
 };
 
-UserProfileScreen.navigationOptions = ({ navigation }) => {
-  var user = firebase.auth().currentUser;
+UserProfileScreen.navigationOptions = ({ navigation, uid }) => {
+  const email = firebase.auth().currentUser.email;
+  const user = useFirestore.getUser(uid);
 
   return {
-    title: user.displayName !== null ? user.displayName : user.email,
-    headerRight: () => (
-      <TouchableOpacity onPress={() => navigation.navigate("Account")}>
-        <AntDesign
-          style={styles.headerRightStyle}
-          name="setting"
-          color={colors.primary}
-        ></AntDesign>
-      </TouchableOpacity>
-    )
+    title: user.handle !== null ? user.handle : user.email,
+    headerRight: () =>
+      uid === email ? (
+        <TouchableOpacity onPress={() => navigation.navigate("Account")}>
+          <AntDesign
+            style={styles.headerRightStyle}
+            name="setting"
+            color={colors.primary}
+          ></AntDesign>
+        </TouchableOpacity>
+      ) : null
   };
 };
 
