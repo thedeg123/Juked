@@ -17,4 +17,4 @@ Log, rate, review, save the world!
 
 ### NOTES:
 
-- limit review titles to 24 chars
+- limit review titles to 20 chars

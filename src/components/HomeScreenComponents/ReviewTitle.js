@@ -16,12 +16,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginLeft: 84,
     borderWidth: 1,
-    bottom: 90,
-    height: 65
+    bottom: 100,
+    height: 75
   },
   textStyle: {
-    fontSize: 20,
-    textAlign: "right",
+    fontSize: 24,
+    textAlign: "center",
     fontWeight: "bold",
     textDecorationLine: "underline",
     color: colors.primary
