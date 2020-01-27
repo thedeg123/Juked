@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context as AuthContext } from "../context/AuthContext";
 import {
   View,
@@ -16,13 +16,24 @@ import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
 import useFirestore from "../hooks/useFirestore";
 
-const UserProfileScreen = ({ navigation, uid }) => {
+const UserProfileScreen = ({
+  navigation,
+  uid = firebase.auth().currentUser.email
+}) => {
   // No matter what, we will load the profile page for the person
   // who has the id of uid
-  const user = useFirestore.getUser(uid);
 
-  //const { signout } = useContext(AuthContext);
-  return (
+  const { signout } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    useFirestore.getUser(uid).then(myUser => {
+      console.log(myUser);
+      setUser(myUser);
+    });
+  }, []);
+
+  return user ? (
     <Container>
       {user.profile_url ? (
         <Image
@@ -46,14 +57,14 @@ const UserProfileScreen = ({ navigation, uid }) => {
       )}
 
       {/* Not working */}
-      <View style={styles.numberStyle}>
+      {/* <View style={styles.numberStyle}>
         <Text style={styles.followStyle}>
           {user.followers.length} Followers
         </Text>
         <Text style={styles.followStyle}>
           {user.following.length} Following
         </Text>
-      </View>
+      </View> */}
 
       <Text style={styles.bioStyle}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
@@ -93,17 +104,19 @@ const UserProfileScreen = ({ navigation, uid }) => {
         onPress={() => navigation.navigate("List")}
       ></Button>
     </Container>
-  );
+  ) : null;
 };
 
-UserProfileScreen.navigationOptions = ({ navigation, uid }) => {
-  const email = firebase.auth().currentUser.email;
+UserProfileScreen.navigationOptions = ({
+  navigation,
+  uid = firebase.auth().currentUser.email
+}) => {
   const user = useFirestore.getUser(uid);
 
   return {
-    title: user.handle !== null ? user.handle : user.email,
+    title: user.handle ? user.handle : user.email,
     headerRight: () =>
-      uid === email ? (
+      uid === firebase.auth().currentUser.email ? (
         <TouchableOpacity onPress={() => navigation.navigate("Account")}>
           <AntDesign
             style={styles.headerRightStyle}
