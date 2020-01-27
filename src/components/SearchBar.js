@@ -16,6 +16,7 @@ const SearchBar = ({ term, onTermChange, onTermSubmit }) => {
         placeholder="Search"
         placeholderTextColor={colors.shadow}
         value={term}
+        keyboardType="web-search"
         onChangeText={onTermChange}
         onEndEditing={onTermSubmit}
       />
