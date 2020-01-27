@@ -20,15 +20,11 @@ const UserProfileScreen = ({
   navigation,
   uid = firebase.auth().currentUser.email
 }) => {
-  // No matter what, we will load the profile page for the person
-  // who has the id of uid
-
   const { signout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     useFirestore.getUser(uid).then(myUser => {
-      console.log(myUser);
       setUser(myUser);
     });
   }, []);
@@ -56,22 +52,25 @@ const UserProfileScreen = ({
         <Text style={styles.handleStyle}>@{user.email}</Text>
       )}
 
-      {/* Not working */}
-      {/* <View style={styles.numberStyle}>
+      <View style={styles.numberStyle}>
         <Text style={styles.followStyle}>
           {user.followers.length} Followers
         </Text>
         <Text style={styles.followStyle}>
           {user.following.length} Following
         </Text>
-      </View> */}
+      </View>
 
-      <Text style={styles.bioStyle}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat.
-      </Text>
+      {user.bio ? (
+        <Text style={styles.bioStyle}>{user.bio}</Text>
+      ) : (
+        <Text style={styles.bioStyle}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat.
+        </Text>
+      )}
 
       <Text style={styles.reviewTitleStyle}>Reviews</Text>
       <ListPreview
@@ -111,7 +110,7 @@ UserProfileScreen.navigationOptions = ({
   navigation,
   uid = firebase.auth().currentUser.email
 }) => {
-  const user = useFirestore.getUser(uid);
+  const user = useFirestore.getUser(uid).then(console.log(user));
 
   return {
     title: user.handle ? user.handle : user.email,
