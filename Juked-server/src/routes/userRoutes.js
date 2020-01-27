@@ -18,7 +18,7 @@ router.get("/getuser/:uid", async (req, res) => {
     .doc(req.params.uid)
     .get()
     .then(user => user.data());
-  return res.status(200).send(`{user: ${JSON.stringify(user)}}`);
+  return res.status(200).send(user);
 });
 /**
  * @param {Object} res - the incoming HTTP request - {uid: database_key }

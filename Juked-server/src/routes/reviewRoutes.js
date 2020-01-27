@@ -73,12 +73,8 @@ router.get("/getreviewsbyauthor/:uid", async (req, res) => {
  * @param {Object} req - the outgoing response
  */
 router.get("/getreviewbyid/:rid", async (req, res) => {
-  reviews
-    .doc(req.params.rid)
-    .get()
-    .then(review =>
-      res.status(200).send(`{review: ${JSON.stringify(review.data())}}`)
-    );
+  const content = await reviews.doc(req.params.rid).get();
+  return res.status(200).send(`{review: ${review.data()}}`);
 });
 /**
  * @param {Object} res - the incoming HTTP request - {rid: database_key }

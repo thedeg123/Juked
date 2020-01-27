@@ -2,6 +2,9 @@ import React, { useEffect, useContext } from "react";
 import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import * as firebase from "firebase";
 import { Context as AuthContext } from "../context/AuthContext";
+import LoadingIndicator from "../components/LoadingIndicator";
+import colors from "../constants/colors";
+import Container from "../components/Container";
 
 const LoadingScreen = ({ navigation }) => {
   const { setuid } = useContext(AuthContext);
@@ -17,19 +20,15 @@ const LoadingScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <ActivityIndicator size="large" />
-      <Text>Loading</Text>
-    </View>
+    <Container>
+      <LoadingIndicator></LoadingIndicator>
+    </Container>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center"
+  style: {
+    backgroundColor: colors.background
   }
 });
 

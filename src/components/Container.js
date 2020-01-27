@@ -8,8 +8,9 @@ const Container = ({ children }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
+    flex: 1,
     margin: 10,
-    flex: 1
+    marginBottom: 0
   }
 });
 
