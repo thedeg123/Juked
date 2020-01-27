@@ -14,6 +14,7 @@ import ReviewScreen from "./src/screens/ReviewScreen";
 import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
+import MakeProfileScreen from "./src/screens/MakeProfileScreen";
 import * as firebase from "firebase";
 import firebaseConfig from "./src/api/firebaseConfig";
 import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
@@ -35,7 +36,8 @@ const switchNavigator = createSwitchNavigator({
   loginFlow: createSwitchNavigator(
     {
       SignIn: SignInScreen,
-      SignUp: SignUpScreen
+      SignUp: SignUpScreen,
+      MakeProfile: MakeProfileScreen
     },
     {
       defaultNavigationOptions: {
