@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
-import { Context as AuthContext } from "../context/AuthContext";
+import React from "react";
 import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import useAuth from "../hooks/useAuth";
 
 const UserProfileScreen = ({ navigation }) => {
-  const { signout } = useContext(AuthContext);
+  const { signout } = useAuth();
   return (
     <View>
       <Text style={styles.headerStyle}>ProfileScreen</Text>

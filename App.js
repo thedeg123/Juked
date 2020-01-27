@@ -1,10 +1,6 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import {
-  createAppNavigator,
-  createSwitchNavigator,
-  createAppContainer
-} from "react-navigation";
+import { StyleSheet } from "react-native";
+import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import AccountScreen from "./src/screens/AccountScreen";
@@ -18,7 +14,6 @@ import ReviewScreen from "./src/screens/ReviewScreen";
 import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
-import { Provider as AuthProvider } from "./src/context/AuthContext";
 import * as firebase from "firebase";
 import firebaseConfig from "./src/api/firebaseConfig";
 import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
@@ -112,9 +107,5 @@ const styles = StyleSheet.create({
 });
 
 export default () => {
-  return (
-    <AuthProvider>
-      <App></App>
-    </AuthProvider>
-  );
+  return <App></App>;
 };

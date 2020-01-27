@@ -1,9 +1,9 @@
-import React, { useContext } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
-import { Context as AuthContext } from "../context/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 const AccountScreen = ({ navigation }) => {
-  const { signout, errorMessage } = useContext(AuthContext);
+  const { error, signout } = useAuth();
   return (
     <View>
       <Text style={styles.headerStyle}>AccountScreen</Text>
@@ -11,7 +11,7 @@ const AccountScreen = ({ navigation }) => {
         title="Sign out"
         onPress={() => signout(() => navigation.navigate("loginFlow"))}
       ></Button>
-      <Text>{errorMessage}</Text>
+      <Text>{error}</Text>
     </View>
   );
 };

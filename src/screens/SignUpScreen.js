@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
 import AuthForm from "../components/AuthForm";
-import { Context as AuthContext } from "../context/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 const SignUpScreen = ({ navigation }) => {
-  const { state, signup, remove_error } = useContext(AuthContext);
+  const { error, signup, remove_error } = useAuth();
 
   return (
     <View style={styles.containerStyle}>
@@ -16,7 +16,7 @@ const SignUpScreen = ({ navigation }) => {
         }
         submitButtonTitle="Sign up"
       ></AuthForm>
-      {state.errorMessage ? <Text>{state.errorMessage}</Text> : null}
+      {error ? <Text>{error}</Text> : null}
       <Button
         onPress={() => {
           remove_error();
