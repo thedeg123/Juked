@@ -5,6 +5,7 @@ import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
 import ArtistPreview from "../components/ArtistPreview";
 import colors from "../constants/colors";
+import Container from "../components/Container";
 
 const ArtistScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
@@ -65,7 +66,7 @@ const ArtistScreen = ({ navigation }) => {
 
   // render main component
   return (
-    <View style={styles.container}>
+    <Container style={styles.container}>
       <FlatList
         data={albums}
         keyExtracter={({ item }) => item.name}
@@ -77,7 +78,7 @@ const ArtistScreen = ({ navigation }) => {
         ListHeaderComponent={headerComponent}
         ListHeaderComponentStyle={{ alignItems: "center" }}
       />
-    </View>
+    </Container>
   );
 };
 

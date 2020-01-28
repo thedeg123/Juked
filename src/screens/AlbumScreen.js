@@ -5,6 +5,7 @@ import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
+import Container from "../components/Container";
 
 // if redirect from an album: music_id(album spotify ID), highlighted("")
 // if redirect from a song: music_id(""), highlighted(song spotify ID)
@@ -41,9 +42,13 @@ const AlbumScreen = ({ navigation }) => {
       : await findAlbumsOfATrack(music_id);
     setAlbum(album[0]);
 
-    if (album) {
-      const track_ids = album.tracks.items.map(obj => obj.id);
-      getDatabaseResult(email, music_id, track_ids);
+    try {
+      if (album) {
+        const track_ids = album.tracks.items.map(obj => obj.id);
+        getDatabaseResult(email, music_id, track_ids);
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -93,7 +98,7 @@ const AlbumScreen = ({ navigation }) => {
               highlighted={highlighted == item.id}
   */
   return (
-    <View style={styles.container}>
+    <Container style={styles.container}>
       <FlatList
         data={album.tracks.items}
         keyExtracter={({ item }) => item.track_number}
@@ -112,7 +117,7 @@ const AlbumScreen = ({ navigation }) => {
         ListHeaderComponent={headerComponent}
         ListHeaderComponentStyle={{ alignItems: "center" }}
       />
-    </View>
+    </Container>
   );
 };
 
