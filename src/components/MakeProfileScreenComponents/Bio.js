@@ -1,17 +1,38 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, Text } from "react-native";
+import { Input } from "react-native-elements";
+import colors from "../../constants/colors";
 
-const Bio = () => {
+const Bio = ({ bio, setBio }) => {
+  const [error, setError] = useState("");
   return (
     <View>
-      <Text style={styles.headerStyle}>Bio</Text>
+      <Input
+        label="Anything else to add?"
+        value={bio}
+        multiline
+        blurOnSubmit
+        onChangeText={text => {
+          if (bio.length < 400) {
+            setError("");
+            setBio(text);
+          } else {
+            setError("Be shwifty! Bios are limited to 500 characters.");
+            setBio(text.substring(0, 500));
+          }
+        }}
+        errorMessage={error}
+        errorStyle={styles.errorText}
+      ></Input>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  headerStyle: {
-    fontSize: 10
+  errorText: {
+    fontSize: 18,
+    textAlign: "center",
+    color: colors.errorText
   }
 });
 

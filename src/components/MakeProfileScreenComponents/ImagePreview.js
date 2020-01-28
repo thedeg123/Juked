@@ -12,7 +12,7 @@ const ImagePreview = ({ imageURL, setImageUrl }) => {
         ) : null}
       </View>
       <Input
-        label="Profile Picture URl:"
+        label="Paste a URL for a profile pic,"
         value={imageURL}
         onChangeText={text => {
           setShowImage(false);

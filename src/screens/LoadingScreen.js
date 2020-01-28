@@ -10,8 +10,8 @@ const LoadingScreen = ({ navigation }) => {
   useEffect(() => {
     auth().onAuthStateChanged(async user => {
       if (user) {
-        return navigation.navigate("MakeProfile");
         const response = await useFirestore.getUser(user.email);
+        console.log("RESPONSE is:", response);
         return response.handle.length
           ? navigation.navigate("mainFlow")
           : navigation.navigate("MakeProfile"); //if the user quits the app before making the profile.
