@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { View, StyleSheet, Button, Text } from "react-native";
+import { StyleSheet, Button, Text, KeyboardAvoidingView } from "react-native";
 import useAuth from "../hooks/useAuth";
 import AuthForm from "../components/AuthForm";
 
@@ -7,7 +7,7 @@ const SignInScreen = ({ navigation }) => {
   const { error, signin, remove_error } = useAuth();
 
   return (
-    <View style={styles.containerStyle}>
+    <KeyboardAvoidingView behavior="padding" style={styles.containerStyle}>
       <AuthForm
         headerText="Welcome back!"
         submitButtonAction={(email, password) => signin(email, password)}
@@ -21,7 +21,7 @@ const SignInScreen = ({ navigation }) => {
         }}
         title="Don't have an account? Sign up."
       ></Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

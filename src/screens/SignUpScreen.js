@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { Text, StyleSheet, Button, KeyboardAvoidingView } from "react-native";
 import AuthForm from "../components/AuthForm";
 import useAuth from "../hooks/useAuth";
 
@@ -7,7 +7,7 @@ const SignUpScreen = ({ navigation }) => {
   const { error, signup, remove_error } = useAuth();
 
   return (
-    <View style={styles.containerStyle}>
+    <KeyboardAvoidingView behavior="padding" style={styles.containerStyle}>
       <AuthForm
         confirmPassword={true}
         headerText="Welcome to Juked!"
@@ -24,7 +24,7 @@ const SignUpScreen = ({ navigation }) => {
         }}
         title="Already have an account? Sign in."
       ></Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
