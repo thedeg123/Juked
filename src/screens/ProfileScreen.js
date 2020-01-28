@@ -8,19 +8,24 @@ import {
   TouchableOpacity,
   Image
 } from "react-native";
-import { AntDesign, Octicons } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
 import useFirestore from "../hooks/useFirestore";
+import images from "../constants/images";
 
-const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
+const UserProfileScreen = ({ navigation }) => {
+  var uid = navigation.getParam("uid");
   const { signout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
 
   useEffect(() => {
+    if (!uid) {
+      uid = auth().currentUser.email;
+    }
     useFirestore.getReviewsByAuthor(uid).then(allReviews => {
       setReviews(allReviews);
     });
@@ -49,10 +54,9 @@ const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
           style={styles.imageStyle}
         />
       ) : (
-        <Octicons
-          name="person"
-          color={colors.primary}
-          style={styles.holderImageStyle}
+        <Image
+          source={{ uri: images.profileDefault }}
+          style={styles.imageStyle}
         />
       )}
 
@@ -149,7 +153,10 @@ const styles = StyleSheet.create({
   imageStyle: {
     height: 175,
     width: 175,
-    alignSelf: "center"
+    alignSelf: "center",
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: colors.shadow
   },
   holderImageStyle: {
     alignSelf: "center",

@@ -9,7 +9,7 @@ import colors from "../constants/colors";
  * @param {string} music_id - original id from spotify
  * @param {Object} navigation - navigation objected passed from screen
  */
-const UserPreview = ({ title, type, music_id, navigation }) => {
+const UserPreview = ({ uid, title, type, music_id, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
       case "track":
@@ -27,6 +27,10 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
           title: title
         });
         break;
+      case "user":
+        navigation.navigate("Profile", {
+          uid: uid
+        });
       default:
         break;
     }

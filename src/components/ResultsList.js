@@ -2,8 +2,8 @@ import React from "react";
 import { Text, View, StyleSheet, FlatList } from "react-native";
 import SearchPreview from "./SearchPreview";
 
-const ResultsList = ({ searchType, search, navigation }) => {
-  if (search === null) {
+const ResultsList = ({ user, searchType, search, navigation }) => {
+  if (search === null && searchType !== "user") {
     return null;
   } else {
     switch (searchType) {
@@ -71,11 +71,17 @@ const ResultsList = ({ searchType, search, navigation }) => {
           </View>
         );
       case "user":
-        return (
+        return user ? (
           <View>
-            <Text>User List</Text>
+            <Text>{user.handle}</Text>
+            <SearchPreview
+              title={user.handle ? `${user.handle}` : `${user.email}`}
+              type={searchType}
+              navigation={navigation}
+              uid={user.email}
+            />
           </View>
-        );
+        ) : null;
       default:
         return null;
     }
