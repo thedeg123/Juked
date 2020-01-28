@@ -75,7 +75,7 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
           <View>
             <Text>{user.handle}</Text>
             <SearchPreview
-              title={user.handle ? `${user.handle}` : `${user.email}`}
+              title={user.handle ? `@${user.handle}` : `${user.email}`}
               type={searchType}
               navigation={navigation}
               uid={user.email}

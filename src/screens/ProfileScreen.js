@@ -120,17 +120,15 @@ const UserProfileScreen = ({ navigation }) => {
   ) : null;
 };
 
-UserProfileScreen.navigationOptions = ({
-  navigation,
-  uid = auth().currentUser.email
-}) => {
-  const user = useFirestore.getUser(uid);
+UserProfileScreen.navigationOptions = ({ navigation }) => {
+  var uid = navigation.getParam("uid");
+  //const user = useFirestore.getUser(uid);
 
   return {
     // Right now, having problems with this
-    title: user.handle ? user.handle : <Text>Profile</Text>,
+    //title: user.handle ? user.handle : <Text>Profile</Text>,
     headerRight: () =>
-      uid === auth().currentUser.email ? (
+      uid === auth().currentUser.email || !uid ? (
         <TouchableOpacity onPress={() => navigation.navigate("Account")}>
           <AntDesign
             style={styles.headerRightStyle}
