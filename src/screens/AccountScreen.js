@@ -7,10 +7,7 @@ const AccountScreen = ({ navigation }) => {
   return (
     <View>
       <Text style={styles.headerStyle}>AccountScreen</Text>
-      <Button
-        title="Sign out"
-        onPress={() => signout(() => navigation.navigate("loginFlow"))}
-      ></Button>
+      <Button title="Sign out" onPress={() => signout()}></Button>
       <Text>{error}</Text>
     </View>
   );
