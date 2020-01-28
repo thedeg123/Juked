@@ -10,11 +10,16 @@ const LoadingScreen = ({ navigation }) => {
   useEffect(() => {
     auth().onAuthStateChanged(async user => {
       if (user) {
-        const response = await useFirestore.getUser(user.email);
-        console.log("RESPONSE is:", response);
+        let response = null;
+        //we  can get into a nasty situation where we navigate to this page before firestore has finished adding
+        //the user to the database. Because of this if we cant find the user, we try,try,try again!
+        do {
+          console.log("waiting on:", user.email);
+          response = await useFirestore.getUser(user.email);
+        } while (!response);
         return response.handle.length
           ? navigation.navigate("mainFlow")
-          : navigation.navigate("MakeProfile"); //if the user quits the app before making the profile.
+          : navigation.navigate("MakeProfile");
       }
       return navigation.navigate("loginFlow");
     });
