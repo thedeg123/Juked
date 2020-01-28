@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
@@ -15,7 +15,8 @@ const AlbumScreen = ({ navigation }) => {
   const email = auth().currentUser.email;
 
   // data from spotify
-  const { albums, findAlbums, findAlbumsOfATrack } = useMusic();
+  const { findAlbums, findAlbumsOfATrack } = useMusic();
+  const [album, setAlbum] = useState();
 
   // data from review database
   const [ratings, setRatings] = useState(null);
@@ -35,37 +36,42 @@ const AlbumScreen = ({ navigation }) => {
   };
 
   // initialization
-  useEffect(() => {
-    if (music_id) findAlbums(music_id);
-    else {
-      // if redirect from a song, save the album object to albums
-      findAlbumsOfATrack(music_id);
+  const init = async () => {
+    const album = music_id
+      ? await findAlbums(music_id)
+      : await findAlbumsOfATrack(music_id);
+    setAlbum(album[0]);
+
+    if (album) {
+      const track_ids = album.tracks.items.map(obj => obj.id);
+      getDatabaseResult(email, music_id, track_ids);
     }
-    const track_ids = albums.tracks.map(obj => obj.id);
-    getDatabaseResult(email, music_id, track_ids);
+  };
+
+  useEffect(() => {
+    init();
   }, []);
 
   // suppose we have the states imported from useMusic
-  // albums (spotify API documentation for more details)
-
+  if (!album) return <View></View>;
   const headerComponent = (
     <View style={styles.headerContainer}>
       <View style={{ flexDirection: "row" }}>
         <Image
           style={{
             width: "50%",
-            aspectRatio: albums.images[0].width / albums.images[0].height
+            aspectRatio: album.images[0].width / album.images[0].height
           }}
           source={{
-            uri: albums.images[0].url
+            uri: album.images[0].url
           }}
         />
         <View style={{ alignItems: "center", width: "50%" }}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.text}>
-            {albums.artists.reduce((acc, cur) => `${acc}; ${cur}`)}
+            {album.artists.map(artist => artist.name).join("; ")}
           </Text>
-          <Text style={styles.text}>{`${albums.release_date}`}</Text>
+          <Text style={styles.text}>{`${album.release_date}`}</Text>
         </View>
       </View>
       <View style={{ flexDirection: "row" }}>
@@ -79,19 +85,28 @@ const AlbumScreen = ({ navigation }) => {
     </View>
   );
 
+  // album preview props:
+  /*
+  title={item.title}
+              rating={ratings[item.track_number-1].rating}
+              avg_rating={avg_ratings[item.track_number-1]}
+              rid={ratings[item.track_number-1].rid}
+              highlighted={highlighted == item.id}
+  */
   return (
     <View style={styles.container}>
       <FlatList
-        data={albums.tracks}
+        data={album.tracks.items}
         keyExtracter={({ item }) => item.track_number}
         renderItem={({ item }) => {
+          //console.log(item);
           return (
             <AlbumPreview
-              title={item.title}
-              rating={ratings[item.track_number].rating}
-              avg_rating={avg_ratings[item.track_number]}
-              rid={ratings[item.track_number].rid}
-              highlighted={highlighted == item.id}
+              title={item.name}
+              rating={0}
+              avg_rating={5}
+              rid={0}
+              highlighted={true}
             />
           );
         }}
