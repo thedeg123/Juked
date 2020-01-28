@@ -40,13 +40,12 @@ export default () => {
           })
       : setError("Passwords do not Match!");
   };
-  const signout = async callback => {
+  const signout = async () => {
     await firebase
       .auth()
       .signOut()
       .then(() => {
         remove_error();
-        callback();
       })
       .catch(err => {
         console.log(err, err.code);
