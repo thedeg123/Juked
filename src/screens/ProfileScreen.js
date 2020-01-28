@@ -29,6 +29,16 @@ const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
     });
   }, []);
 
+  const numType = ({ reviews, type }) => {
+    var num = 0;
+    reviews.map(review => {
+      if (review.review.type === type) {
+        num++;
+      }
+    });
+    return num;
+  };
+
   return user ? (
     <Container>
       {user.profile_url ? (
@@ -75,25 +85,25 @@ const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
       <Text style={styles.reviewTitleStyle}>Reviews</Text>
       <ListPreview
         title="Artists"
-        num={reviews.length}
+        num={reviews ? numType({ reviews: reviews, type: "artist" }) : 0}
         //id
         navigation={navigation}
       />
       <ListPreview
         title="Albums"
-        num={reviews.length}
+        num={reviews ? numType({ reviews: reviews, type: "album" }) : 0}
         //id
         navigation={navigation}
       />
       <ListPreview
         title="Songs"
-        num={reviews.length}
+        num={reviews ? numType({ reviews: reviews, type: "track" }) : 0}
         //id
         navigation={navigation}
       />
       <ListPreview
         title="Lists"
-        num={reviews.length}
+        num={reviews ? reviews.length : 0}
         //id
         navigation={navigation}
       />
