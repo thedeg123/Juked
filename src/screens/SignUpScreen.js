@@ -2,21 +2,22 @@ import React from "react";
 import { Text, StyleSheet, Button, KeyboardAvoidingView } from "react-native";
 import AuthForm from "../components/AuthForm";
 import useAuth from "../hooks/useAuth";
+import colors from "../constants/colors";
 
 const SignUpScreen = ({ navigation }) => {
   const { error, signup, remove_error } = useAuth();
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.containerStyle}>
+    <KeyboardAvoidingView behavior="position" style={styles.containerStyle}>
       <AuthForm
         confirmPassword={true}
         headerText="Welcome to Juked!"
-        submitButtonAction={(email, password, verifyPassword) =>
-          signup(email, password, verifyPassword)
+        submitButtonAction={async (email, password, verifyPassword) =>
+          await signup(email, password, verifyPassword)
         }
         submitButtonTitle="Sign up"
       ></AuthForm>
-      {error ? <Text>{error}</Text> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <Button
         onPress={() => {
           remove_error();
@@ -35,6 +36,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: 200,
     marginTop: 80
+  },
+  errorText: {
+    fontSize: 18,
+    textAlign: "center",
+    color: colors.errorText
   }
 });
 

@@ -2,18 +2,19 @@ import React, { useContext } from "react";
 import { StyleSheet, Button, Text, KeyboardAvoidingView } from "react-native";
 import useAuth from "../hooks/useAuth";
 import AuthForm from "../components/AuthForm";
+import colors from "../constants/colors";
 
 const SignInScreen = ({ navigation }) => {
   const { error, signin, remove_error } = useAuth();
 
   return (
-    <KeyboardAvoidingView behavior="padding" style={styles.containerStyle}>
+    <KeyboardAvoidingView behavior="position" style={styles.containerStyle}>
       <AuthForm
         headerText="Welcome back!"
         submitButtonAction={(email, password) => signin(email, password)}
         submitButtonTitle="Sign in"
       ></AuthForm>
-      {error ? <Text>{error}</Text> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <Button
         onPress={() => {
           remove_error();
@@ -31,6 +32,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
     marginBottom: 200
+  },
+  errorText: {
+    fontSize: 18,
+    textAlign: "center",
+    color: colors.errorText
   }
 });
 
