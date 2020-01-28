@@ -1,17 +1,43 @@
-import React, { useContext, useState } from "react";
-import { View, Text, StyleSheet, Button, TextInput } from "react-native";
+import React, { useContext, useState, useEffect } from "react";
+import { View, Text, StyleSheet, Button, TextInput, Image } from "react-native";
 import { Context as AuthContext } from "../context/AuthContext";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Octicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import useFirestore from "../hooks/useFirestore";
+import Container from "../components/Container";
+import { auth } from "firebase";
 
-const AccountScreen = ({ navigation }) => {
+const AccountScreen = ({ navigation, uid = auth().currentUser.email }) => {
   const { signout, errorMessage } = useContext(AuthContext);
   const [handle, setHandle] = useState("");
-  const { email } = useContext(AuthContext);
+  const [bio, setBio] = useState("");
 
-  return (
-    <View>
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    useFirestore.getUser(uid).then(myUser => {
+      setUser(myUser);
+    });
+  }, []);
+
+  return user ? (
+    <Container>
+      {user.profile_url ? (
+        <Image
+          source={{
+            uri: user.profile_url
+          }}
+          style={styles.imageStyle}
+        />
+      ) : (
+        <Octicons
+          name="person"
+          color={colors.primary}
+          style={styles.holderImageStyle}
+        />
+      )}
+
+      {/* This is the handle bar */}
       <View style={styles.backgroundStyle}>
         <TextInput
           style={styles.inputStyle}
@@ -23,7 +49,7 @@ const AccountScreen = ({ navigation }) => {
           onChangeText={setHandle}
           onEndEditing={() => {
             // Unhandled promise rejection error
-            useFirestore.updateUser({ uid: email, handle: handle });
+            useFirestore.updateUser({ uid: uid, handle: handle });
           }}
         />
         {handle !== "" ? (
@@ -36,13 +62,40 @@ const AccountScreen = ({ navigation }) => {
           />
         ) : null}
       </View>
+
+      {/* This is the bio bar */}
+      <View style={styles.backgroundStyle}>
+        <TextInput
+          style={styles.inputStyle}
+          placeholder="Change Bio"
+          autocorrect="false"
+          autoCapitalize="none"
+          placeholderTextColor={colors.shadow}
+          value={bio}
+          onChangeText={setBio}
+          onEndEditing={() => {
+            // Unhandled promise rejection error
+            useFirestore.updateUser({ uid: uid, bio: bio });
+          }}
+        />
+        {bio !== "" ? (
+          <AntDesign
+            name="close"
+            style={styles.iconStyle}
+            color={colors.primary}
+            // We should discuss if this should also actually change the handle in Firestore
+            onPress={() => setBio("")}
+          />
+        ) : null}
+      </View>
+
       <Button
         title="Sign out"
         onPress={() => signout(() => navigation.navigate("loginFlow"))}
       ></Button>
       <Text>{errorMessage}</Text>
-    </View>
-  );
+    </Container>
+  ) : null;
 };
 
 const styles = StyleSheet.create({
@@ -63,6 +116,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     fontSize: 25,
     alignSelf: "center"
+  },
+  imageStyle: {
+    height: 175,
+    width: 175,
+    alignSelf: "center"
+  },
+  holderImageStyle: {
+    alignSelf: "center",
+    fontSize: 175
   }
 });
 

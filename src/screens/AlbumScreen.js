@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";

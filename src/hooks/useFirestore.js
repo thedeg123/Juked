@@ -95,7 +95,7 @@ const useFirestore = {
   },
   getReviewsByAuthor: async uid => {
     const response = await firestore.get(`/getreviewsbyauthor/${uid}`);
-    return response.data.review;
+    return response.data.query;
   },
   getReviewsByContent: async content_id => {
     const response = await firestore.get(`/getreviewsbycontent/${content_id}`);

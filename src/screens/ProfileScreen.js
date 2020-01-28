@@ -10,20 +10,20 @@ import {
 } from "react-native";
 import { AntDesign, Octicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
-// Change this
-import firebase from "firebase";
+import { auth } from "firebase";
 import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
 import useFirestore from "../hooks/useFirestore";
 
-const UserProfileScreen = ({
-  navigation,
-  uid = firebase.auth().currentUser.email
-}) => {
+const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
   const { signout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
+  const [reviews, setReviews] = useState(null);
 
   useEffect(() => {
+    useFirestore.getReviewsByAuthor(uid).then(allReviews => {
+      setReviews(allReviews);
+    });
     useFirestore.getUser(uid).then(myUser => {
       setUser(myUser);
     });
@@ -75,25 +75,25 @@ const UserProfileScreen = ({
       <Text style={styles.reviewTitleStyle}>Reviews</Text>
       <ListPreview
         title="Artists"
-        num="5"
+        num={reviews.length}
         //id
         navigation={navigation}
       />
       <ListPreview
         title="Albums"
-        num="7"
+        num={reviews.length}
         //id
         navigation={navigation}
       />
       <ListPreview
         title="Songs"
-        num="20"
+        num={reviews.length}
         //id
         navigation={navigation}
       />
       <ListPreview
         title="Lists"
-        num="3"
+        num={reviews.length}
         //id
         navigation={navigation}
       />
@@ -108,14 +108,15 @@ const UserProfileScreen = ({
 
 UserProfileScreen.navigationOptions = ({
   navigation,
-  uid = firebase.auth().currentUser.email
+  uid = auth().currentUser.email
 }) => {
-  const user = useFirestore.getUser(uid).then(console.log(user));
+  const user = useFirestore.getUser(uid);
 
   return {
-    title: user.handle ? user.handle : user.email,
+    // Right now, having problems with this
+    title: user.handle ? user.handle : <Text>Profile</Text>,
     headerRight: () =>
-      uid === firebase.auth().currentUser.email ? (
+      uid === auth().currentUser.email ? (
         <TouchableOpacity onPress={() => navigation.navigate("Account")}>
           <AntDesign
             style={styles.headerRightStyle}
