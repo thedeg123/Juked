@@ -10,7 +10,6 @@ import colors from "../constants/colors";
 // if redirect from a song: music_id(""), highlighted(song spotify ID)
 const AlbumScreen = ({ navigation }) => {
   const music_id = navigation.getParam("music_id");
-  const title = navigation.getParam("title");
   const highlighted = navigation.getParam("highlighted");
   const email = auth().currentUser.email;
 
@@ -67,7 +66,7 @@ const AlbumScreen = ({ navigation }) => {
           }}
         />
         <View style={{ alignItems: "center", width: "50%" }}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.title}>{album.name}</Text>
           <Text style={styles.text}>
             {album.artists.map(artist => artist.name).join("; ")}
           </Text>
@@ -87,7 +86,7 @@ const AlbumScreen = ({ navigation }) => {
 
   // album preview props:
   /*
-  title={item.title}
+  title={item.name}
               rating={ratings[item.track_number-1].rating}
               avg_rating={avg_ratings[item.track_number-1]}
               rid={ratings[item.track_number-1].rid}
