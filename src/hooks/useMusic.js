@@ -75,21 +75,6 @@ export default () => {
         });
         updateState(response);
         return response;
-      case "find_albums_of_a_track":
-        const track = await requestAPI(
-          accessToken,
-          `${BASE_PATH}/tracks/${action.ids}`,
-          {}
-        );
-        console.log(track.name);
-        response = await requestAPI(
-          accessToken,
-          `${BASE_PATH}/albums/${track.album.id}`,
-          {}
-        );
-        console.log(response.name);
-        updateState(response);
-        return response;
       case "find_albums_of_an_artist":
         response = await requestAPI(
           accessToken,
@@ -152,13 +137,6 @@ export default () => {
       ids
     }).then(albums => albums.albums);
   };
-  const findAlbumsOfATrack = async id => {
-    if (!id) return;
-    return await reducer(setAlbums, {
-      RequestType: "find_albums_of_a_track",
-      ids: id
-    });
-  };
   const findAlbumsOfAnArtist = async id => {
     if (!id) return;
     return await reducer(setAlbums, {
@@ -203,7 +181,6 @@ export default () => {
     artists,
     search,
     findAlbums,
-    findAlbumsOfATrack,
     findAlbumsOfAnArtist,
     findArtists,
     findTracks,
