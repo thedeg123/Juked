@@ -11,13 +11,13 @@ import colors from "../constants/colors";
  */
 const UserPreview = ({ handle, profile_url, uid, navigation }) => {
   return (
-    <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{handle}</Text>
-      <Image style={styles.imageStyle} source={profile_url} />
-      <TouchableOpacity onPress={() => navigation.navigate("Profile", { uid })}>
+    <TouchableOpacity onPress={() => navigation.navigate("Profile", { uid })}>
+      <View style={styles.overallStyle}>
+        <Text style={styles.textStyle}>{handle}</Text>
+        <Image style={styles.imageStyle} source={profile_url} />
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 

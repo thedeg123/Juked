@@ -6,9 +6,10 @@ import {
   StyleSheet,
   Button,
   TouchableOpacity,
-  Image
+  Image,
+  ScrollView
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import Container from "../components/Container";
@@ -46,76 +47,94 @@ const UserProfileScreen = ({ navigation }) => {
 
   return user ? (
     <Container>
-      {user.profile_url ? (
-        <Image
-          source={{
-            uri: user.profile_url
-          }}
-          style={styles.imageStyle}
+      <ScrollView>
+        {user.profile_url ? (
+          <Image
+            source={{
+              uri: user.profile_url
+            }}
+            style={styles.imageStyle}
+          />
+        ) : (
+          <Image
+            source={{ uri: images.profileDefault }}
+            style={styles.imageStyle}
+          />
+        )}
+        {user.handle !== "" ? (
+          <Text style={styles.handleStyle}>@{user.handle}</Text>
+        ) : (
+          <Text style={styles.handleStyle}>@{user.email}</Text>
+        )}
+        <View style={styles.numberStyle}>
+          <Text style={styles.followStyle}>
+            {user.followers.length} Followers
+          </Text>
+          <Text style={styles.followStyle}>
+            {user.following.length} Following
+          </Text>
+        </View>
+        {/* Clean this up when they don't have a bio */}
+        {user.bio ? (
+          <Text style={styles.bioStyle}>{user.bio}</Text>
+        ) : (
+          <Text style={styles.bioStyle}>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+            aliquip ex ea commodo consequat.
+          </Text>
+        )}
+        {user.email === auth().currentUser.email ? null : (
+          <TouchableOpacity
+            onPress={() => {
+              useFirestore.updateUser(
+                auth().currentUser.email,
+                null,
+                null,
+                null,
+                null,
+                uid
+              );
+            }}
+          >
+            <SimpleLineIcons
+              name="user-follow"
+              style={styles.followIconStyle}
+              color={colors.text}
+            ></SimpleLineIcons>
+          </TouchableOpacity>
+        )}
+        <Text style={styles.reviewTitleStyle}>Reviews</Text>
+        <ListPreview
+          title="Artists"
+          num={reviews ? numType({ reviews: reviews, type: "artist" }) : 0}
+          //id
+          navigation={navigation}
         />
-      ) : (
-        <Image
-          source={{ uri: images.profileDefault }}
-          style={styles.imageStyle}
+        <ListPreview
+          title="Albums"
+          num={reviews ? numType({ reviews: reviews, type: "album" }) : 0}
+          //id
+          navigation={navigation}
         />
-      )}
-
-      {user.handle !== "" ? (
-        <Text style={styles.handleStyle}>@{user.handle}</Text>
-      ) : (
-        <Text style={styles.handleStyle}>@{user.email}</Text>
-      )}
-
-      <View style={styles.numberStyle}>
-        <Text style={styles.followStyle}>
-          {user.followers.length} Followers
-        </Text>
-        <Text style={styles.followStyle}>
-          {user.following.length} Following
-        </Text>
-      </View>
-
-      {user.bio ? (
-        <Text style={styles.bioStyle}>{user.bio}</Text>
-      ) : (
-        <Text style={styles.bioStyle}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
-        </Text>
-      )}
-
-      <Text style={styles.reviewTitleStyle}>Reviews</Text>
-      <ListPreview
-        title="Artists"
-        num={reviews ? numType({ reviews: reviews, type: "artist" }) : 0}
-        //id
-        navigation={navigation}
-      />
-      <ListPreview
-        title="Albums"
-        num={reviews ? numType({ reviews: reviews, type: "album" }) : 0}
-        //id
-        navigation={navigation}
-      />
-      <ListPreview
-        title="Songs"
-        num={reviews ? numType({ reviews: reviews, type: "track" }) : 0}
-        //id
-        navigation={navigation}
-      />
-      <ListPreview
-        title="Lists"
-        num={reviews ? reviews.length : 0}
-        //id
-        navigation={navigation}
-      />
-
-      <Button
-        title="Go to List"
-        onPress={() => navigation.navigate("List")}
-      ></Button>
+        <ListPreview
+          title="Songs"
+          num={reviews ? numType({ reviews: reviews, type: "track" }) : 0}
+          //id
+          navigation={navigation}
+        />
+        <ListPreview
+          title="Lists"
+          num={reviews ? reviews.length : 0}
+          //id
+          navigation={navigation}
+        />
+        <Button
+          title="Go to List"
+          onPress={() => navigation.navigate("List")}
+        ></Button>
+      </ScrollView>
     </Container>
   ) : null;
 };
@@ -156,10 +175,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.shadow
   },
-  holderImageStyle: {
-    alignSelf: "center",
-    fontSize: 175
-  },
   handleStyle: {
     fontSize: 25,
     alignSelf: "center",
@@ -176,12 +191,16 @@ const styles = StyleSheet.create({
     fontSize: 18
   },
   bioStyle: {
-    marginTop: 20,
+    marginVertical: 20,
     textAlign: "center",
     color: colors.shadow
   },
+  followIconStyle: {
+    fontSize: 30,
+    alignSelf: "center"
+  },
   reviewTitleStyle: {
-    marginTop: 40,
+    marginTop: 20,
     fontSize: 25
   }
 });

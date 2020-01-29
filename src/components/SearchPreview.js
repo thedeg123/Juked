@@ -36,15 +36,15 @@ const UserPreview = ({ uid, title, type, music_id, navigation }) => {
     }
   };
   return (
-    <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{title}</Text>
-      <Text style={styles.typeStyle}>
-        {type.charAt(0).toUpperCase() + type.slice(1)}
-      </Text>
-      <TouchableOpacity onPress={handleNavigate}>
+    <TouchableOpacity onPress={handleNavigate}>
+      <View style={styles.overallStyle}>
+        <Text style={styles.textStyle}>{title}</Text>
+        <Text style={styles.typeStyle}>
+          {type.charAt(0).toUpperCase() + type.slice(1)}
+        </Text>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 

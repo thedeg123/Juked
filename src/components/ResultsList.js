@@ -73,7 +73,6 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
       case "user":
         return user ? (
           <View>
-            <Text>{user.handle}</Text>
             <SearchPreview
               title={user.handle ? `@${user.handle}` : `${user.email}`}
               type={searchType}
