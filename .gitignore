@@ -49,3 +49,4 @@ package-lock.json
 .expo/settings.json
 package-lock.json
 Juked-server/api/juked-1-firebase-admin-cred.json
+Juked-server/src/api/juked-1-firebase-admin-cred.json

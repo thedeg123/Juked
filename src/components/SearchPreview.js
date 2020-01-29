@@ -13,18 +13,20 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
       case "track":
-        console.log("Pressed song " + music_id); // TODO: navigation undefined in lucidchart
+        navigation.navigate("Album", {
+          content_id: "",
+          highlighted: music_id
+        });
         break;
       case "album":
         navigation.navigate("Album", {
-          music_id: music_id,
-          title: title
+          content_id: music_id,
+          highlighted: ""
         });
         break;
       case "artist":
         navigation.navigate("Artist", {
-          music_id: music_id,
-          title: title
+          content_id: music_id
         });
         break;
       default:
@@ -33,7 +35,9 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
   };
   return (
     <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{title}</Text>
+      <Text style={styles.textStyle} numberOfLines={1}>
+        {title}
+      </Text>
       <Text style={styles.typeStyle}>
         {type.charAt(0).toUpperCase() + type.slice(1)}
       </Text>

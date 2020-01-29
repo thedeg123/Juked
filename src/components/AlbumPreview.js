@@ -29,7 +29,9 @@ const AlbumPreview = ({
         }
       ]}
     >
-      <Text style={styles.textStyle}>{title}</Text>
+      <Text style={styles.textStyle} numberOfLines={1}>
+        {title}
+      </Text>
       <Text style={styles.scoreStyle}>{rating}</Text>
       <Text style={styles.avgScoreStyle}>
         {avg_rating ? `/${avg_rating}` : "/-"}

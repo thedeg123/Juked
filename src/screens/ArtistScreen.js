@@ -5,9 +5,10 @@ import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
 import ArtistPreview from "../components/ArtistPreview";
 import colors from "../constants/colors";
+import Container from "../components/Container";
 
 const ArtistScreen = ({ navigation }) => {
-  const music_id = navigation.getParam("music_id");
+  const content_id = navigation.getParam("content_id");
   const email = auth().currentUser.email;
 
   // data from spotify
@@ -21,23 +22,24 @@ const ArtistScreen = ({ navigation }) => {
 
   useEffect(() => {
     // init and get all data needed via api
-    const getDatabaseResult = async (uid, music_id) => {
+    const getDatabaseResult = async (uid, content_id) => {
       const artistReview = useFirestore.getReviewsByAuthorContent(
         uid,
-        music_id
+        content_id
       );
-      setRating(artistReview.rating);
+      if (!artistReview) setRating("-");
+      else setRating(artistReview.rating);
       setAvg_rating(5);
     };
 
-    findArtists(music_id).then(artists => setArtist(artists[0]));
-    findAlbumsOfAnArtist(music_id).then(result => {
+    findArtists(content_id).then(artists => setArtist(artists[0]));
+    findAlbumsOfAnArtist(content_id).then(result => {
       setAlbums(result.items);
     });
-    //getDatabaseResult(email, music_id);
+    getDatabaseResult(email, content_id);
   }, []);
 
-  if (!artist) return <View></View>;
+  if (!artist) return <Container></Container>;
 
   // render header information component
   const headerComponent = (
@@ -65,7 +67,7 @@ const ArtistScreen = ({ navigation }) => {
 
   // render main component
   return (
-    <View style={styles.container}>
+    <Container style={styles.container}>
       <FlatList
         data={albums}
         keyExtracter={({ item }) => item.name}
@@ -77,13 +79,12 @@ const ArtistScreen = ({ navigation }) => {
         ListHeaderComponent={headerComponent}
         ListHeaderComponentStyle={{ alignItems: "center" }}
       />
-    </View>
+    </Container>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFF",
     flexDirection: "column",
     flex: 1
   },

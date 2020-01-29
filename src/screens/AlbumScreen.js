@@ -5,17 +5,18 @@ import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
+import Container from "../components/Container";
 
-// if redirect from an album: music_id(album spotify ID), highlighted("")
-// if redirect from a song: music_id(""), highlighted(song spotify ID)
+// if redirect from an album: content_id(album spotify ID), highlighted("")
+// if redirect from a song: content_id(""), highlighted(song spotify ID)
 const AlbumScreen = ({ navigation }) => {
-  const music_id = navigation.getParam("music_id");
-  const title = navigation.getParam("title");
+  const content_id = navigation.getParam("content_id");
   const highlighted = navigation.getParam("highlighted");
   const email = auth().currentUser.email;
 
   // data from spotify
-  const { albums, findAlbums, findAlbumsOfATrack } = useMusic();
+  const { findAlbums, findAlbumsOfATrack } = useMusic();
+  const [album, setAlbum] = useState();
 
   // data from review database
   const [ratings, setRatings] = useState(null);
@@ -23,30 +24,47 @@ const AlbumScreen = ({ navigation }) => {
   const [albumRating, setAlbumRating] = useState(null);
   const [albumAvg_rating, setAlbumAvg_rating] = useState(null);
   const getDatabaseResult = async (uid, album_id, track_ids) => {
-    const albumReview = useFirestore.getReviewsByAuthorContent(uid, album_id);
-    const trackReviews = track_ids.map(obj =>
-      useFirestore.getReviewsByAuthorContent(uid, track_ids)
+    const albumReview = await useFirestore.getReviewsByAuthorContent(
+      uid,
+      album_id
     );
-    setAlbumRating(albumReview.rating);
-    setRatings(trackReviews.rating);
+    const trackRating = track_ids.map(async obj =>
+      (await useFirestore.getReviewsByAuthorContent(uid, track_ids))
+        ? await useFirestore.getReviewsByAuthorContent(uid, track_ids).rating
+        : "-"
+    );
+    if (albumReview) setAlbumRating(albumReview.rating);
+    else setAlbumRating("-");
+    setRatings(trackRating);
     // haven't decided how to deal with avg ratings yet!
     setAvg_ratings(5);
     setAlbumAvg_rating(5);
   };
 
   // initialization
-  useEffect(() => {
-    if (music_id) findAlbums(music_id);
-    else {
-      // if redirect from a song, save the album object to albums
-      findAlbumsOfATrack(music_id);
+  const init = async () => {
+    const album = content_id
+      ? await findAlbums(content_id)[0]
+      : await findAlbumsOfATrack(highlighted);
+    setAlbum(album);
+
+    try {
+      if (album) {
+        const track_ids = album.tracks.items.map(obj => obj.id);
+        getDatabaseResult(email, content_id, track_ids);
+      }
+    } catch (e) {
+      console.log(e);
     }
-    const track_ids = albums.tracks.map(obj => obj.id);
-    getDatabaseResult(email, music_id, track_ids);
+  };
+
+  useEffect(() => {
+    init();
   }, []);
 
-  // suppose we have the states imported from useMusic
-  // albums (spotify API documentation for more details)
+  // wait until get data from all APIs
+  if (!album || !ratings || !avg_ratings || !albumRating || !albumAvg_rating)
+    return <View></View>;
 
   const headerComponent = (
     <View style={styles.headerContainer}>
@@ -54,18 +72,18 @@ const AlbumScreen = ({ navigation }) => {
         <Image
           style={{
             width: "50%",
-            aspectRatio: albums.images[0].width / albums.images[0].height
+            aspectRatio: album.images[0].width / album.images[0].height
           }}
           source={{
-            uri: albums.images[0].url
+            uri: album.images[0].url
           }}
         />
         <View style={{ alignItems: "center", width: "50%" }}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.title}>{album.name}</Text>
           <Text style={styles.text}>
-            {albums.artists.reduce((acc, cur) => `${acc}; ${cur}`)}
+            {album.artists.map(artist => artist.name).join("; ")}
           </Text>
-          <Text style={styles.text}>{`${albums.release_date}`}</Text>
+          <Text style={styles.text}>{`${album.release_date}`}</Text>
         </View>
       </View>
       <View style={{ flexDirection: "row" }}>
@@ -80,17 +98,17 @@ const AlbumScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <Container style={styles.container}>
       <FlatList
-        data={albums.tracks}
+        data={album.tracks.items}
         keyExtracter={({ item }) => item.track_number}
         renderItem={({ item }) => {
           return (
             <AlbumPreview
-              title={item.title}
-              rating={ratings[item.track_number].rating}
-              avg_rating={avg_ratings[item.track_number]}
-              rid={ratings[item.track_number].rid}
+              title={item.name}
+              rating={ratings[item.track_number - 1].rating}
+              avg_rating={avg_ratings[item.track_number - 1]}
+              rid={ratings[item.track_number - 1].rid}
               highlighted={highlighted == item.id}
             />
           );
@@ -98,7 +116,7 @@ const AlbumScreen = ({ navigation }) => {
         ListHeaderComponent={headerComponent}
         ListHeaderComponentStyle={{ alignItems: "center" }}
       />
-    </View>
+    </Container>
   );
 };
 
