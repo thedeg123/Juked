@@ -5,22 +5,27 @@ import {
   StyleSheet,
   Button,
   TouchableOpacity,
-  Image
+  Image,
+  ScrollView
 } from "react-native";
-import { AntDesign, Octicons } from "@expo/vector-icons";
-import useAuth from "../hooks/useAuth";
+import { AntDesign, SimpleLineIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
 import useFirestore from "../hooks/useFirestore";
+import images from "../constants/images";
 
-const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
-  const { signout } = useAuth();
+const UserProfileScreen = ({ navigation }) => {
+  var uid = navigation.getParam("uid");
+  const { signout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
 
   useEffect(() => {
+    if (!uid) {
+      uid = auth().currentUser.email;
+    }
     useFirestore.getReviewsByAuthor(uid).then(allReviews => {
       setReviews(allReviews);
     });
@@ -39,94 +44,131 @@ const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
     return num;
   };
 
+  const isFollowing = () => {
+    // Need to add this function from useFirestore
+    return true;
+  };
+
   return user ? (
     <Container>
-      {user.profile_url ? (
-        <Image
-          source={{
-            uri: user.profile_url
-          }}
-          style={styles.imageStyle}
+      <ScrollView>
+        {user.profile_url ? (
+          <Image
+            source={{
+              uri: user.profile_url
+            }}
+            style={styles.imageStyle}
+          />
+        ) : (
+          <Image
+            source={{ uri: images.profileDefault }}
+            style={styles.imageStyle}
+          />
+        )}
+        {user.handle !== "" ? (
+          <Text style={styles.handleStyle}>@{user.handle}</Text>
+        ) : (
+          <Text style={styles.handleStyle}>@{user.email}</Text>
+        )}
+        <View style={styles.numberStyle}>
+          <Text style={styles.followStyle}>
+            {user.followers.length} Followers
+          </Text>
+          <Text style={styles.followStyle}>
+            {user.following.length} Following
+          </Text>
+        </View>
+
+        {user.bio ? (
+          <Text style={styles.bioStyle}>{user.bio}</Text>
+        ) : uid === auth().currentUser.email ? (
+          <Text style={styles.bioStyle}>Add a bio from the Account screen</Text>
+        ) : null}
+
+        {user.email === auth().currentUser.email ? null : !isFollowing() ? (
+          <TouchableOpacity
+            onPress={() => {
+              useFirestore.updateUser(
+                auth().currentUser.email,
+                null,
+                null,
+                null,
+                null,
+                uid
+              );
+            }}
+          >
+            <SimpleLineIcons
+              name="user-follow"
+              style={styles.followIconStyle}
+              color={colors.text}
+            ></SimpleLineIcons>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => {
+              useFirestore.updateUser(
+                auth().currentUser.email,
+                null,
+                null,
+                null,
+                null,
+                null,
+                uid
+              );
+            }}
+          >
+            <SimpleLineIcons
+              name="user-following"
+              style={styles.followIconStyle}
+              color={colors.text}
+            ></SimpleLineIcons>
+          </TouchableOpacity>
+        )}
+
+        <Text style={styles.reviewTitleStyle}>Reviews</Text>
+        <ListPreview
+          title="Artists"
+          num={reviews ? numType({ reviews: reviews, type: "artist" }) : 0}
+          //id
+          navigation={navigation}
         />
-      ) : (
-        <Octicons
-          name="person"
-          color={colors.primary}
-          style={styles.holderImageStyle}
+        <ListPreview
+          title="Albums"
+          num={reviews ? numType({ reviews: reviews, type: "album" }) : 0}
+          //id
+          navigation={navigation}
         />
-      )}
-
-      {user.handle !== "" ? (
-        <Text style={styles.handleStyle}>@{user.handle}</Text>
-      ) : (
-        <Text style={styles.handleStyle}>@{user.email}</Text>
-      )}
-
-      <View style={styles.numberStyle}>
-        <Text style={styles.followStyle}>
-          {user.followers.length} Followers
-        </Text>
-        <Text style={styles.followStyle}>
-          {user.following.length} Following
-        </Text>
-      </View>
-
-      {user.bio ? (
-        <Text style={styles.bioStyle}>{user.bio}</Text>
-      ) : (
-        <Text style={styles.bioStyle}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat.
-        </Text>
-      )}
-
-      <Text style={styles.reviewTitleStyle}>Reviews</Text>
-      <ListPreview
-        title="Artists"
-        num={reviews ? numType({ reviews: reviews, type: "artist" }) : 0}
-        //id
-        navigation={navigation}
-      />
-      <ListPreview
-        title="Albums"
-        num={reviews ? numType({ reviews: reviews, type: "album" }) : 0}
-        //id
-        navigation={navigation}
-      />
-      <ListPreview
-        title="Songs"
-        num={reviews ? numType({ reviews: reviews, type: "track" }) : 0}
-        //id
-        navigation={navigation}
-      />
-      <ListPreview
-        title="Lists"
-        num={reviews ? reviews.length : 0}
-        //id
-        navigation={navigation}
-      />
-
-      <Button
-        title="Go to List"
-        onPress={() => navigation.navigate("List")}
-      ></Button>
+        <ListPreview
+          title="Songs"
+          num={reviews ? numType({ reviews: reviews, type: "track" }) : 0}
+          //id
+          navigation={navigation}
+        />
+        <ListPreview
+          title="Lists"
+          num={reviews ? reviews.length : 0}
+          //id
+          navigation={navigation}
+        />
+        <Button
+          title="Go to List"
+          onPress={() => navigation.navigate("List")}
+        ></Button>
+      </ScrollView>
     </Container>
   ) : null;
 };
 
-UserProfileScreen.navigationOptions = ({
-  navigation,
-  uid = auth().currentUser.email
-}) => {
-  const user = useFirestore.getUser(uid);
+UserProfileScreen.navigationOptions = ({ navigation }) => {
+  var uid = navigation.getParam("uid");
+  //const user = useFirestore.getUser(uid);
 
   return {
     // Right now, having problems with this
-    title: user.handle ? user.handle : <Text>Profile</Text>,
+    //title: user.handle ? user.handle : <Text>Profile</Text>,
     headerRight: () =>
-      uid === auth().currentUser.email ? (
+      uid === auth().currentUser.email || !uid ? (
         <TouchableOpacity onPress={() => navigation.navigate("Account")}>
           <AntDesign
             style={styles.headerRightStyle}
@@ -149,11 +191,10 @@ const styles = StyleSheet.create({
   imageStyle: {
     height: 175,
     width: 175,
-    alignSelf: "center"
-  },
-  holderImageStyle: {
     alignSelf: "center",
-    fontSize: 175
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: colors.shadow
   },
   handleStyle: {
     fontSize: 25,
@@ -171,12 +212,16 @@ const styles = StyleSheet.create({
     fontSize: 18
   },
   bioStyle: {
-    marginTop: 20,
+    marginVertical: 20,
     textAlign: "center",
     color: colors.shadow
   },
+  followIconStyle: {
+    fontSize: 30,
+    alignSelf: "center"
+  },
   reviewTitleStyle: {
-    marginTop: 40,
+    marginTop: 20,
     fontSize: 25
   }
 });

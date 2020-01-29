@@ -1,9 +1,10 @@
 import React from "react";
 import { Text, View, StyleSheet, FlatList } from "react-native";
 import SearchPreview from "./SearchPreview";
+import UserPreview from "./UserPreview";
 
-const ResultsList = ({ searchType, search, navigation }) => {
-  if (search === null) {
+const ResultsList = ({ user, searchType, search, navigation }) => {
+  if (search === null && searchType !== "user") {
     return null;
   } else {
     switch (searchType) {
@@ -19,6 +20,7 @@ const ResultsList = ({ searchType, search, navigation }) => {
                     <SearchPreview
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
+                      object={item}
                       music_id={search ? `${item.id}` : "none"}
                       navigation={navigation}
                     />
@@ -40,6 +42,7 @@ const ResultsList = ({ searchType, search, navigation }) => {
                     <SearchPreview
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
+                      object={item}
                       music_id={search ? `${item.id}` : "none"}
                       navigation={navigation}
                     />
@@ -61,6 +64,7 @@ const ResultsList = ({ searchType, search, navigation }) => {
                     <SearchPreview
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
+                      object={item}
                       music_id={search ? `${item.id}` : "none"}
                       navigation={navigation}
                     />
@@ -71,11 +75,16 @@ const ResultsList = ({ searchType, search, navigation }) => {
           </View>
         );
       case "user":
-        return (
+        return user ? (
           <View>
-            <Text>User List</Text>
+            <UserPreview
+              handle={user.handle ? `@${user.handle}` : `${user.email}`}
+              profile_url={user.profile_url}
+              navigation={navigation}
+              uid={user.email}
+            />
           </View>
-        );
+        ) : null;
       default:
         return null;
     }

@@ -1,15 +1,15 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 /**
- * UserPreview Component for ListScreen
+ * SearchPreview Component for ListScreen
  * @param {string} title - title of this song/album/artist
  * @param {string} type - "Song"/"Album"/"Artist"
  * @param {string} music_id - original id from spotify
  * @param {Object} navigation - navigation objected passed from screen
  */
-const UserPreview = ({ title, type, music_id, navigation }) => {
+const SearchPreview = ({ object, title, type, music_id, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
       case "track":
@@ -33,18 +33,28 @@ const UserPreview = ({ title, type, music_id, navigation }) => {
         break;
     }
   };
+
+  const getImage = () => {
+    switch (type) {
+      case "track":
+        return object.album.images[0].url;
+      case "album":
+        return object.images[0].url;
+      case "artist":
+        return object.images[0].url;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <View style={styles.overallStyle}>
-      <Text style={styles.textStyle} numberOfLines={1}>
-        {title}
-      </Text>
-      <Text style={styles.typeStyle}>
-        {type.charAt(0).toUpperCase() + type.slice(1)}
-      </Text>
-      <TouchableOpacity onPress={handleNavigate}>
+    <TouchableOpacity onPress={handleNavigate}>
+      <View style={styles.overallStyle}>
+        <Text style={styles.textStyle}>{title}</Text>
+        <Image style={styles.imageStyle} source={{ uri: getImage() }} />
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -71,7 +81,14 @@ const styles = StyleSheet.create({
   typeStyle: {
     fontSize: 20,
     color: colors.shadow
+  },
+  imageStyle: {
+    width: 30,
+    height: 30,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: colors.shadow
   }
 });
 
-export default UserPreview;
+export default SearchPreview;

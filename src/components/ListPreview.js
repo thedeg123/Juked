@@ -11,13 +11,13 @@ import colors from "../constants/colors";
  */
 const ListPreview = ({ title, num, id, navigation }) => {
   return (
-    <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{title}</Text>
-      <Text style={styles.numStyle}>{num}</Text>
-      <TouchableOpacity onPress={() => console.log("user pressed the song")}>
+    <TouchableOpacity onPress={() => console.log("user pressed the song")}>
+      <View style={styles.overallStyle}>
+        <Text style={styles.textStyle}>{title}</Text>
+        <Text style={styles.numStyle}>{num}</Text>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
-      </TouchableOpacity>
-    </View>
+      </View>
+    </TouchableOpacity>
   );
 };
 
