@@ -14,7 +14,7 @@ const UserPreview = ({ handle, profile_url, uid, navigation }) => {
     <TouchableOpacity onPress={() => navigation.navigate("Profile", { uid })}>
       <View style={styles.overallStyle}>
         <Text style={styles.textStyle}>{handle}</Text>
-        <Image style={styles.imageStyle} source={profile_url} />
+        <Image style={styles.imageStyle} source={{ uri: profile_url }} />
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </View>
     </TouchableOpacity>
@@ -43,7 +43,10 @@ const styles = StyleSheet.create({
   },
   imageStyle: {
     width: 30,
-    height: 30
+    height: 30,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: colors.shadow
   }
 });
 

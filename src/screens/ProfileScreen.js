@@ -45,6 +45,11 @@ const UserProfileScreen = ({ navigation }) => {
     return num;
   };
 
+  const isFollowing = () => {
+    // Need to add this function from useFirestore
+    return true;
+  };
+
   return user ? (
     <Container>
       <ScrollView>
@@ -81,7 +86,7 @@ const UserProfileScreen = ({ navigation }) => {
           <Text style={styles.bioStyle}>Add a bio from the Account screen</Text>
         ) : null}
 
-        {user.email === auth().currentUser.email ? null : (
+        {user.email === auth().currentUser.email ? null : !isFollowing() ? (
           <TouchableOpacity
             onPress={() => {
               useFirestore.updateUser(
@@ -100,27 +105,27 @@ const UserProfileScreen = ({ navigation }) => {
               color={colors.text}
             ></SimpleLineIcons>
           </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => {
+              useFirestore.updateUser(
+                auth().currentUser.email,
+                null,
+                null,
+                null,
+                null,
+                null,
+                uid
+              );
+            }}
+          >
+            <SimpleLineIcons
+              name="user-following"
+              style={styles.followIconStyle}
+              color={colors.text}
+            ></SimpleLineIcons>
+          </TouchableOpacity>
         )}
-
-        {/* <TouchableOpacity
-          onPress={() => {
-            useFirestore.updateUser(
-              auth().currentUser.email,
-              null,
-              null,
-              null,
-              null,
-              null,
-              uid
-            );
-          }}
-        >
-          <SimpleLineIcons
-            name="user-following"
-            style={styles.followIconStyle}
-            color={colors.text}
-          ></SimpleLineIcons>
-        </TouchableOpacity> */}
 
         <Text style={styles.reviewTitleStyle}>Reviews</Text>
         <ListPreview

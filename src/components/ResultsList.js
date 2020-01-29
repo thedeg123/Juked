@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, View, StyleSheet, FlatList } from "react-native";
 import SearchPreview from "./SearchPreview";
+import UserPreview from "./UserPreview";
 
 const ResultsList = ({ user, searchType, search, navigation }) => {
   if (search === null && searchType !== "user") {
@@ -19,6 +20,7 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
                     <SearchPreview
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
+                      object={item}
                       music_id={search ? `${item.id}` : "none"}
                       navigation={navigation}
                     />
@@ -40,6 +42,7 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
                     <SearchPreview
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
+                      object={item}
                       music_id={search ? `${item.id}` : "none"}
                       navigation={navigation}
                     />
@@ -61,6 +64,7 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
                     <SearchPreview
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
+                      object={item}
                       music_id={search ? `${item.id}` : "none"}
                       navigation={navigation}
                     />
@@ -73,9 +77,9 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
       case "user":
         return user ? (
           <View>
-            <SearchPreview
-              title={user.handle ? `@${user.handle}` : `${user.email}`}
-              type={searchType}
+            <UserPreview
+              handle={user.handle ? `@${user.handle}` : `${user.email}`}
+              profile_url={user.profile_url}
               navigation={navigation}
               uid={user.email}
             />
