@@ -74,17 +74,13 @@ const UserProfileScreen = ({ navigation }) => {
             {user.following.length} Following
           </Text>
         </View>
-        {/* Clean this up when they don't have a bio */}
+
         {user.bio ? (
           <Text style={styles.bioStyle}>{user.bio}</Text>
-        ) : (
-          <Text style={styles.bioStyle}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
-          </Text>
-        )}
+        ) : uid === auth().currentUser.email ? (
+          <Text style={styles.bioStyle}>Add a bio from the Account screen</Text>
+        ) : null}
+
         {user.email === auth().currentUser.email ? null : (
           <TouchableOpacity
             onPress={() => {
@@ -105,6 +101,27 @@ const UserProfileScreen = ({ navigation }) => {
             ></SimpleLineIcons>
           </TouchableOpacity>
         )}
+
+        {/* <TouchableOpacity
+          onPress={() => {
+            useFirestore.updateUser(
+              auth().currentUser.email,
+              null,
+              null,
+              null,
+              null,
+              null,
+              uid
+            );
+          }}
+        >
+          <SimpleLineIcons
+            name="user-following"
+            style={styles.followIconStyle}
+            color={colors.text}
+          ></SimpleLineIcons>
+        </TouchableOpacity> */}
+
         <Text style={styles.reviewTitleStyle}>Reviews</Text>
         <ListPreview
           title="Artists"
