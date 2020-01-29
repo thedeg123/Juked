@@ -10,7 +10,6 @@ import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
 
 const HomeScreenItem = ({ review, content, author }) => {
-  console.log(content);
   return (
     <>
       <HomeScreenBorder navigate={review.text.length ? review.rid : null}>
