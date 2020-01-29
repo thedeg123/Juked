@@ -12,7 +12,7 @@ import HomeScreenBorder from "./HomeScreenBorder";
 const HomeScreenItem = ({ review, content, author }) => {
   return (
     <>
-      <HomeScreenBorder navigate={review.text.length ? review.rid : null}>
+      <HomeScreenBorder rid={review.text.length ? review.rid : null}>
         <UserPreview
           username={author.handle}
           img={author.profile_url}

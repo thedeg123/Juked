@@ -16,7 +16,7 @@ import ListPreview from "../components/ListPreview";
 import useFirestore from "../hooks/useFirestore";
 
 const UserProfileScreen = ({ navigation }) => {
-  uid = navigation.getParam("uid") || auth().currentUser.email;
+  const uid = navigation.getParam("uid") || auth().currentUser.email;
   const { signout } = useAuth();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);

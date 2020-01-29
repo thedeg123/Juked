@@ -1,14 +1,13 @@
 import React from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import colors from "../../constants/colors";
+import { withNavigation } from "react-navigation";
 
-const HomeScreenBorder = ({ children, navigate }) => {
-  return navigate ? (
+const HomeScreenBorder = ({ navigation, children, rid }) => {
+  return rid ? (
     <TouchableOpacity
       style={styles.boxStyle}
-      onPress={() => {
-        console.log("We will navigate to review:", navigate);
-      }}
+      onPress={() => navigation.navigate("Review", { rid })}
     >
       {children}
     </TouchableOpacity>
@@ -30,4 +29,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default HomeScreenBorder;
+export default withNavigation(HomeScreenBorder);
