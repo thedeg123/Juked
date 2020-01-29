@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import { withNavigation } from "react-navigation";
 /**
  * ReviewPreview Component for ListScreen
  * @param {string} title - title of this song
@@ -13,6 +14,7 @@ import colors from "../constants/colors";
  */
 const AlbumPreview = ({
   title,
+  content_id,
   rating,
   avg_rating,
   rid,
@@ -20,7 +22,14 @@ const AlbumPreview = ({
   highlighted
 }) => {
   return (
-    <View
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("Review", {
+          content_id,
+          content_type: "track",
+          rid
+        })
+      }
       style={[
         styles.overallStyle,
         {
@@ -32,23 +41,19 @@ const AlbumPreview = ({
       <Text style={styles.textStyle} numberOfLines={1}>
         {title}
       </Text>
-      <Text style={styles.scoreStyle}>{rating}</Text>
-      <Text style={styles.avgScoreStyle}>
-        {avg_rating ? `/${avg_rating}` : "/-"}
-      </Text>
-      <Text style={styles.hint}>average</Text>
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Review", { title, rid })}
-      >
-        <Feather name="message-square" style={styles.iconStyle} />
-      </TouchableOpacity>
-    </View>
+      {rating ? <Text style={styles.scoreStyle}>{rating}</Text> : null}
+      {avg_rating ? (
+        <Text style={styles.avgScoreStyle}>{avg_rating}</Text>
+      ) : null}
+      {rid ? <Feather name="message-square" style={styles.iconStyle} /> : null}
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   overallStyle: {
-    marginVertical: 10,
+    marginVertical: 5,
+    borderRadius: 2,
     padding: 10,
     flexDirection: "row",
     alignItems: "center",
@@ -73,6 +78,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold"
   },
   avgScoreStyle: {
+    marginLeft: 5,
     fontSize: 30,
     color: colors.shadow
   },
@@ -82,4 +88,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default AlbumPreview;
+export default withNavigation(AlbumPreview);
