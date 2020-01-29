@@ -13,6 +13,19 @@ let users = db.collection("users");
  * @param {Object} res - the incoming HTTP request - {uid: database_key }
  * @param {Object} req - the outgoing response
  */
+router.get("/getuserbyhandle/:handle", async (req, res) => {
+  const usersByHandle = await users
+    .where("handle", "==", req.params.handle)
+    .get();
+  let ret = [];
+  usersByHandle.forEach(user => ret.push(user.data()));
+  return res.status(200).send(ret);
+});
+
+/**
+ * @param {Object} res - the incoming HTTP request - {uid: database_key }
+ * @param {Object} req - the outgoing response
+ */
 router.get("/getuser/:uid", async (req, res) => {
   const user = await users
     .doc(req.params.uid)
