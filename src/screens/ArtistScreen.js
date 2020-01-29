@@ -8,7 +8,7 @@ import colors from "../constants/colors";
 import Container from "../components/Container";
 
 const ArtistScreen = ({ navigation }) => {
-  const music_id = navigation.getParam("music_id");
+  const content_id = navigation.getParam("music_id");
   const email = auth().currentUser.email;
 
   // data from spotify
@@ -22,23 +22,24 @@ const ArtistScreen = ({ navigation }) => {
 
   useEffect(() => {
     // init and get all data needed via api
-    const getDatabaseResult = async (uid, music_id) => {
+    const getDatabaseResult = async (uid, content_id) => {
       const artistReview = useFirestore.getReviewsByAuthorContent(
         uid,
-        music_id
+        content_id
       );
-      setRating(artistReview.rating);
+      if (!artistReview) setRating("-");
+      else setRating(artistReview.rating);
       setAvg_rating(5);
     };
 
-    findArtists(music_id).then(artists => setArtist(artists[0]));
-    findAlbumsOfAnArtist(music_id).then(result => {
+    findArtists(content_id).then(artists => setArtist(artists[0]));
+    findAlbumsOfAnArtist(content_id).then(result => {
       setAlbums(result.items);
     });
-    //getDatabaseResult(email, music_id);
+    getDatabaseResult(email, content_id);
   }, []);
 
-  if (!artist) return <View></View>;
+  if (!artist) return <Container></Container>;
 
   // render header information component
   const headerComponent = (
@@ -84,7 +85,6 @@ const ArtistScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFF",
     flexDirection: "column",
     flex: 1
   },

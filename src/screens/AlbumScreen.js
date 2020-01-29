@@ -7,10 +7,10 @@ import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
 import Container from "../components/Container";
 
-// if redirect from an album: music_id(album spotify ID), highlighted("")
-// if redirect from a song: music_id(""), highlighted(song spotify ID)
+// if redirect from an album: content_id(album spotify ID), highlighted("")
+// if redirect from a song: content_id(""), highlighted(song spotify ID)
 const AlbumScreen = ({ navigation }) => {
-  const music_id = navigation.getParam("music_id");
+  const content_id = navigation.getParam("music_id");
   const highlighted = navigation.getParam("highlighted");
   const email = auth().currentUser.email;
 
@@ -37,15 +37,15 @@ const AlbumScreen = ({ navigation }) => {
 
   // initialization
   const init = async () => {
-    const album = music_id
-      ? await findAlbums(music_id)
-      : await findAlbumsOfATrack(music_id);
+    const album = content_id
+      ? await findAlbums(content_id)
+      : await findAlbumsOfATrack(content_id);
     setAlbum(album[0]);
 
     try {
       if (album) {
         const track_ids = album.tracks.items.map(obj => obj.id);
-        getDatabaseResult(email, music_id, track_ids);
+        getDatabaseResult(email, content_id, track_ids);
       }
     } catch (e) {
       console.log(e);

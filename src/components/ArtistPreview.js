@@ -15,9 +15,7 @@ const ArtistPreview = ({ result, navigation }) => {
     <View>
       <TouchableOpacity
         style={styles.overallStyle}
-        onPress={() =>
-          navigation.navigate("Album", { title: result.name, music_id })
-        }
+        onPress={() => navigation.navigate("Album", { music_id: result.id })}
       >
         <Image style={styles.imageStyle} source={imageSource} />
         <Text style={styles.textStyle} numberOfLines={1}>
@@ -33,8 +31,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     width: "100%",
-    aspectRatio: 1,
-    backgroundColor: colors.background
+    aspectRatio: 1
   },
   imageStyle: {
     width: "85%",
