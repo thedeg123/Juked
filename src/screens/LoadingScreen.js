@@ -11,10 +11,18 @@ const LoadingScreen = ({ navigation }) => {
     auth().onAuthStateChanged(async user => {
       if (user) {
         let response = null;
+        let count = 0;
         //we  can get into a nasty situation where we navigate to this page before firestore has finished adding
-        //the user to the database. Because of this if we cant find the user, we try,try,try again!
+        //the user to the database. Because of this if we cant find the user, we try,try,try again! But only 10 times.
         do {
-          console.log("waiting on:", user.email);
+          if (count === 10) {
+            console.log(
+              "Request failed after 10 tries, this user is likely not in the database."
+            );
+            return navigation.navigate("loginFlow");
+          }
+          count++;
+          console.log("waiting on:", user.email, "try number", count);
           response = await useFirestore.getUser(user.email);
         } while (!response);
         return response.handle.length
