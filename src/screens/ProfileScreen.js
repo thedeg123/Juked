@@ -17,7 +17,7 @@ import useFirestore from "../hooks/useFirestore";
 import images from "../constants/images";
 
 const UserProfileScreen = ({ navigation }) => {
-  var uid = navigation.getParam("uid");
+  const uid = navigation.getParam("uid") || auth().currentUser.email;
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
 

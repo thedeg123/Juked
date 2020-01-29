@@ -1,41 +1,50 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  Image,
+  StyleSheet,
+  FlatList
+} from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
 import Container from "../components/Container";
+import LoadingIndicator from "../components/LoadingIndicator";
+import { Feather } from "@expo/vector-icons";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
-// if redirect from a song: content_id(""), highlighted(song spotify ID)
+// if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
 const AlbumScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
   const highlighted = navigation.getParam("highlighted");
   const email = auth().currentUser.email;
 
   // data from spotify
-  const { findAlbums, findAlbumsOfATrack } = useMusic();
-  const [album, setAlbum] = useState();
+  const { findAlbums } = useMusic();
+  const [album, setAlbum] = useState(null);
 
   // data from review database
   const [ratings, setRatings] = useState(null);
   const [avg_ratings, setAvg_ratings] = useState(null);
   const [albumRating, setAlbumRating] = useState(null);
   const [albumAvg_rating, setAlbumAvg_rating] = useState(null);
-  const getDatabaseResult = async (uid, album_id, track_ids) => {
-    const albumReview = await useFirestore.getReviewsByAuthorContent(
-      uid,
-      album_id
+
+  const result = async (uid, album_id, track_ids) => {
+    await useFirestore
+      .getReviewsByAuthorContent(uid, album_id)
+      .then(review => setAlbumRating(review ? review.rating : null));
+    setRatings(
+      await track_ids.map(
+        async id =>
+          await useFirestore
+            .getReviewsByAuthorContent(uid, id)
+            .then(album_content => (album_content ? album_content.rating : " "))
+      )
     );
-    const trackRating = track_ids.map(async obj =>
-      (await useFirestore.getReviewsByAuthorContent(uid, track_ids))
-        ? await useFirestore.getReviewsByAuthorContent(uid, track_ids).rating
-        : "-"
-    );
-    if (albumReview) setAlbumRating(albumReview.rating);
-    else setAlbumRating("-");
-    setRatings(trackRating);
     // haven't decided how to deal with avg ratings yet!
     setAvg_ratings(5);
     setAlbumAvg_rating(5);
@@ -43,18 +52,17 @@ const AlbumScreen = ({ navigation }) => {
 
   // initialization
   const init = async () => {
-    const album = content_id
-      ? await findAlbums(content_id)[0]
-      : await findAlbumsOfATrack(highlighted);
+    const album = await findAlbums(content_id).then(albums => albums[0]);
+    if (!album)
+      console.error(`Could not find album of content_id: ${content_id}`);
     setAlbum(album);
-
     try {
       if (album) {
         const track_ids = album.tracks.items.map(obj => obj.id);
-        getDatabaseResult(email, content_id, track_ids);
+        result(email, content_id, track_ids);
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 
@@ -63,8 +71,12 @@ const AlbumScreen = ({ navigation }) => {
   }, []);
 
   // wait until get data from all APIs
-  if (!album || !ratings || !avg_ratings || !albumRating || !albumAvg_rating)
-    return <View></View>;
+  if (!album || !ratings || !avg_ratings || !albumAvg_rating)
+    return (
+      <Container style={styles.container}>
+        <LoadingIndicator></LoadingIndicator>
+      </Container>
+    );
 
   const headerComponent = (
     <View style={styles.headerContainer}>
@@ -87,9 +99,11 @@ const AlbumScreen = ({ navigation }) => {
         </View>
       </View>
       <View style={{ flexDirection: "row" }}>
-        <Text style={styles.subtitle}>
-          Your rating: <Text style={styles.rating}>{albumRating}</Text>
-        </Text>
+        {albumRating ? (
+          <Text style={styles.subtitle}>
+            Your rating: <Text style={styles.rating}>{albumRating}</Text>
+          </Text>
+        ) : null}
         <Text style={styles.subtitle}>
           Average rating: <Text style={styles.rating}>{albumAvg_rating}</Text>
         </Text>
@@ -107,7 +121,8 @@ const AlbumScreen = ({ navigation }) => {
             <AlbumPreview
               title={item.name}
               rating={ratings[item.track_number - 1].rating}
-              avg_rating={avg_ratings[item.track_number - 1]}
+              avg_rating={avg_ratings[item.track_number - 1] || 5}
+              content_id={item.id}
               rid={ratings[item.track_number - 1].rid}
               highlighted={highlighted == item.id}
             />
@@ -120,11 +135,32 @@ const AlbumScreen = ({ navigation }) => {
   );
 };
 
+AlbumScreen.navigationOptions = ({ navigation }) => {
+  return {
+    headerRight: () => (
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("Review", {
+            content_id: navigation.getParam("content_id"),
+            content_type: "album"
+          })
+        }
+      >
+        <Feather style={styles.headerRightStyle} name="plus"></Feather>
+      </TouchableOpacity>
+    )
+  };
+};
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#FFF",
     flexDirection: "column",
     flex: 1
+  },
+  headerRightStyle: {
+    fontSize: 30,
+    marginRight: 10
   },
   headerContainer: {
     alignItems: "center",
