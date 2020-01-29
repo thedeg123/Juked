@@ -18,7 +18,6 @@ import images from "../constants/images";
 
 const UserProfileScreen = ({ navigation }) => {
   var uid = navigation.getParam("uid");
-  const { signout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
 
