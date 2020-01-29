@@ -27,9 +27,7 @@ const LoadingScreen = ({ navigation }) => {
             response = await useFirestore.getUser(user.email);
           } while (!response);
           return response.handle.length
-            ? navigation.navigate("Artist", {
-                content_id: "0oSGxfWSnnOXhD2fKuz2Gy"
-              })
+            ? navigation.navigate("homeFlow")
             : navigation.navigate("MakeProfile");
         }
         return navigation.navigate("loginFlow");
