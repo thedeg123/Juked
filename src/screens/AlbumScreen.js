@@ -10,7 +10,7 @@ import Container from "../components/Container";
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(""), highlighted(song spotify ID)
 const AlbumScreen = ({ navigation }) => {
-  const content_id = navigation.getParam("music_id");
+  const content_id = navigation.getParam("content_id");
   const highlighted = navigation.getParam("highlighted");
   const email = auth().currentUser.email;
 
@@ -24,12 +24,18 @@ const AlbumScreen = ({ navigation }) => {
   const [albumRating, setAlbumRating] = useState(null);
   const [albumAvg_rating, setAlbumAvg_rating] = useState(null);
   const getDatabaseResult = async (uid, album_id, track_ids) => {
-    const albumReview = useFirestore.getReviewsByAuthorContent(uid, album_id);
-    const trackReviews = track_ids.map(obj =>
-      useFirestore.getReviewsByAuthorContent(uid, track_ids)
+    const albumReview = await useFirestore.getReviewsByAuthorContent(
+      uid,
+      album_id
     );
-    setAlbumRating(albumReview.rating);
-    setRatings(trackReviews.rating);
+    const trackRating = track_ids.map(async obj =>
+      (await useFirestore.getReviewsByAuthorContent(uid, track_ids))
+        ? await useFirestore.getReviewsByAuthorContent(uid, track_ids).rating
+        : "-"
+    );
+    if (albumReview) setAlbumRating(albumReview.rating);
+    else setAlbumRating("-");
+    setRatings(trackRating);
     // haven't decided how to deal with avg ratings yet!
     setAvg_ratings(5);
     setAlbumAvg_rating(5);
@@ -38,9 +44,9 @@ const AlbumScreen = ({ navigation }) => {
   // initialization
   const init = async () => {
     const album = content_id
-      ? await findAlbums(content_id)
-      : await findAlbumsOfATrack(content_id);
-    setAlbum(album[0]);
+      ? await findAlbums(content_id)[0]
+      : await findAlbumsOfATrack(highlighted);
+    setAlbum(album);
 
     try {
       if (album) {
@@ -56,8 +62,10 @@ const AlbumScreen = ({ navigation }) => {
     init();
   }, []);
 
-  // suppose we have the states imported from useMusic
-  if (!album) return <View></View>;
+  // wait until get data from all APIs
+  if (!album || !ratings || !avg_ratings || !albumRating || !albumAvg_rating)
+    return <View></View>;
+
   const headerComponent = (
     <View style={styles.headerContainer}>
       <View style={{ flexDirection: "row" }}>
@@ -89,28 +97,19 @@ const AlbumScreen = ({ navigation }) => {
     </View>
   );
 
-  // album preview props:
-  /*
-  title={item.name}
-              rating={ratings[item.track_number-1].rating}
-              avg_rating={avg_ratings[item.track_number-1]}
-              rid={ratings[item.track_number-1].rid}
-              highlighted={highlighted == item.id}
-  */
   return (
     <Container style={styles.container}>
       <FlatList
         data={album.tracks.items}
         keyExtracter={({ item }) => item.track_number}
         renderItem={({ item }) => {
-          //console.log(item);
           return (
             <AlbumPreview
               title={item.name}
-              rating={0}
-              avg_rating={5}
-              rid={0}
-              highlighted={true}
+              rating={ratings[item.track_number - 1].rating}
+              avg_rating={avg_ratings[item.track_number - 1]}
+              rid={ratings[item.track_number - 1].rid}
+              highlighted={highlighted == item.id}
             />
           );
         }}

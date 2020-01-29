@@ -8,7 +8,7 @@ import colors from "../constants/colors";
 import Container from "../components/Container";
 
 const ArtistScreen = ({ navigation }) => {
-  const content_id = navigation.getParam("music_id");
+  const content_id = navigation.getParam("content_id");
   const email = auth().currentUser.email;
 
   // data from spotify

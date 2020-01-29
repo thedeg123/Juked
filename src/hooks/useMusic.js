@@ -81,11 +81,13 @@ export default () => {
           `${BASE_PATH}/tracks/${action.ids}`,
           {}
         );
+        console.log(track.name);
         response = await requestAPI(
           accessToken,
           `${BASE_PATH}/albums/${track.album.id}`,
           {}
         );
+        console.log(response.name);
         updateState(response);
         return response;
       case "find_albums_of_an_artist":
@@ -100,9 +102,6 @@ export default () => {
         response = await requestAPI(accessToken, `${BASE_PATH}/artists`, {
           ids: action.ids
         });
-        //console.log(action.ids);
-        //console.log(response);
-        //if response.
         updateState(response);
         return response;
       }
