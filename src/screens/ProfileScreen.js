@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Context as AuthContext } from "../context/AuthContext";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +8,7 @@ import {
   Image
 } from "react-native";
 import { AntDesign, Octicons } from "@expo/vector-icons";
+import useAuth from "../hooks/useAuth";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import Container from "../components/Container";
@@ -16,7 +16,7 @@ import ListPreview from "../components/ListPreview";
 import useFirestore from "../hooks/useFirestore";
 
 const UserProfileScreen = ({ navigation, uid = auth().currentUser.email }) => {
-  const { signout } = useContext(AuthContext);
+  const { signout } = useAuth();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
 
