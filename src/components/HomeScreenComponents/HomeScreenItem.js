@@ -10,6 +10,7 @@ import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
 
 const HomeScreenItem = ({ review, content, author }) => {
+  console.log(content);
   return (
     <>
       <HomeScreenBorder navigate={review.text.length ? review.rid : null}>
@@ -19,12 +20,17 @@ const HomeScreenItem = ({ review, content, author }) => {
           uid={review.author}
         ></UserPreview>
         <Rating number={review.rating}></Rating>
-        <ReviewTitle title={review.title}>></ReviewTitle>
+        <ReviewTitle title={review.title}></ReviewTitle>
         <ContentTitle
           header={content.name}
           subheader={content.artist_name || ""}
         ></ContentTitle>
-        <ContentPic img={content.image} cid={content.id}></ContentPic>
+        <ContentPic
+          img={content.image}
+          cid={content.id}
+          type={review.type}
+          album_cid={review.type === "track" ? content.album_id : null}
+        ></ContentPic>
       </HomeScreenBorder>
     </>
   );
