@@ -2,46 +2,43 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import images from "../constants/images";
+import { withNavigation } from "react-navigation";
 /**
  * SearchPreview Component for ListScreen
  * @param {string} title - title of this song/album/artist
  * @param {string} type - "Song"/"Album"/"Artist"
  * @param {string} music_id - original id from spotify
- * @param {Object} navigation - navigation objected passed from screen
  */
-const SearchPreview = ({ object, title, type, music_id, navigation }) => {
+const SearchPreview = ({ object, title, type, cid, album_cid, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
-      case "track":
-        navigation.navigate("Album", {
-          content_id: "",
-          highlighted: music_id
-        });
-        break;
       case "album":
-        navigation.navigate("Album", {
-          content_id: music_id,
+        return navigation.navigate("Album", {
+          content_id: cid,
           highlighted: ""
         });
-        break;
       case "artist":
-        navigation.navigate("Artist", {
-          content_id: music_id
+        return navigation.navigate("Artist", { content_id: cid });
+      case "track":
+        return navigation.navigate("Album", {
+          content_id: album_cid,
+          highlighted: cid
         });
-        break;
       default:
-        break;
+        return;
     }
   };
 
   const getImage = () => {
     switch (type) {
       case "track":
-        return object.album.images[0].url;
+        return object.album.images[0]
+          ? object.album.images[0].url
+          : images.artistDefault;
       case "album":
-        return object.images[0].url;
       case "artist":
-        return object.images[0].url;
+        return object.images[0] ? object.images[0].url : images.artistDefault;
       default:
         return null;
     }
@@ -91,4 +88,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SearchPreview;
+export default withNavigation(SearchPreview);

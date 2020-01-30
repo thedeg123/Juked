@@ -3,7 +3,7 @@ import { Text, View, StyleSheet, FlatList } from "react-native";
 import SearchPreview from "./SearchPreview";
 import UserPreview from "./UserPreview";
 
-const ResultsList = ({ user, searchType, search, navigation }) => {
+const ResultsList = ({ user, searchType, search }) => {
   if (search === null && searchType !== "user") {
     return null;
   } else {
@@ -18,11 +18,11 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
                 return (
                   <View>
                     <SearchPreview
-                      title={search ? `${item.name}` : "none"}
+                      title={search ? `${item.name}` : null}
                       type={searchType}
                       object={item}
-                      music_id={search ? `${item.id}` : "none"}
-                      navigation={navigation}
+                      cid={item.id}
+                      album_cid={item.album.id}
                     />
                   </View>
                 );
@@ -43,8 +43,7 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
                       object={item}
-                      music_id={search ? `${item.id}` : "none"}
-                      navigation={navigation}
+                      cid={search ? `${item.id}` : null}
                     />
                   </View>
                 );
@@ -65,8 +64,7 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
                       title={search ? `${item.name}` : "none"}
                       type={searchType}
                       object={item}
-                      music_id={search ? `${item.id}` : "none"}
-                      navigation={navigation}
+                      cid={search ? `${item.id}` : null}
                     />
                   </View>
                 );
@@ -80,7 +78,6 @@ const ResultsList = ({ user, searchType, search, navigation }) => {
             <UserPreview
               handle={user.handle ? `@${user.handle}` : `${user.email}`}
               profile_url={user.profile_url}
-              navigation={navigation}
               uid={user.email}
             />
           </View>
