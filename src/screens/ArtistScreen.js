@@ -11,8 +11,9 @@ import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
 import ArtistPreview from "../components/ArtistPreview";
-import colors from "../constants/colors";
 import Container from "../components/Container";
+import colors from "../constants/colors";
+import images from "../constants/images";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { Feather } from "@expo/vector-icons";
 
@@ -66,11 +67,15 @@ const ArtistScreen = ({ navigation }) => {
       <Image
         style={{
           width: "50%",
-          aspectRatio: artist.images[0].width / artist.images[0].height,
+          aspectRatio: artist.images[0]
+            ? artist.images[0].width / artist.images[0].height
+            : 1
           borderRadius: 5
         }}
         source={{
           uri: artist.images[0].url
+            ? artist.images[0].url
+            : images.artistDefault
         }}
       />
       <Text style={styles.title}>{artist.name}</Text>
