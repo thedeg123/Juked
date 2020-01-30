@@ -44,6 +44,10 @@ const useFirestore = {
     const response = await firestore.get(`/getuser/${uid}`);
     return response.data;
   },
+  getUserByHandle: async handle => {
+    const response = await firestore.get(`/getuserbyhandle/${handle}`);
+    return response.data;
+  },
   addReview: (
     text = "",
     type = "",
@@ -95,7 +99,7 @@ const useFirestore = {
   },
   getReviewsByAuthor: async uid => {
     const response = await firestore.get(`/getreviewsbyauthor/${uid}`);
-    return response.data.review;
+    return response.data.query;
   },
   getReviewsByContent: async content_id => {
     const response = await firestore.get(`/getreviewsbycontent/${content_id}`);

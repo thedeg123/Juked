@@ -2,14 +2,15 @@ import React from "react";
 import { StyleSheet, Text, TouchableOpacity, Image } from "react-native";
 import colors from "../../constants/colors";
 import images from "../../constants/images";
+import { withNavigation } from "react-navigation";
 
-const UserPreview = ({ img, username, uid }) => {
+const UserPreview = ({ navigation, img, username, uid }) => {
   img = img || images.profileDefault; //becuase we cant set a default val from another file
   return (
     <TouchableOpacity
       style={styles.containerStyle}
       onPress={() => {
-        console.log("We will navigate to user:", uid);
+        navigation.navigate("Profile", { uid });
       }}
     >
       <Image style={styles.imageStyle} source={{ uri: img }}></Image>
@@ -42,4 +43,4 @@ UserPreview.defaultProps = {
   username: "",
   uid: ""
 };
-export default UserPreview;
+export default withNavigation(UserPreview);

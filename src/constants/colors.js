@@ -4,6 +4,7 @@ export default {
   background: "#FFF",
   shadow: "#91989F",
   text: "#1C1C1C",
-  highlight: "#FAD689",
-  textLight: "#37373b"
+  highlight: "#DCFFFF",
+  textLight: "#37373b",
+  errorText: "#9a3732"
 };

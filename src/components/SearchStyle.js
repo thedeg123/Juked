@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Button, TouchableOpacity, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import colors from "../constants/colors";
 
 const SearchStyle = ({ options, setSearchType, onChangeButton }) => {
@@ -77,7 +77,8 @@ const SearchStyle = ({ options, setSearchType, onChangeButton }) => {
         style={style4.background}
         onPress={() => {
           updateColors(4);
-          setSearchType("user");
+          onChangeButton("user");
+          //setSearchType("user");
         }}
       >
         <Text style={style4.text}>{options[3]}</Text>

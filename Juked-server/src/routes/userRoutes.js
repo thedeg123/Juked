@@ -1,6 +1,6 @@
 const express = require("express");
 const admin = require("firebase-admin");
-const credentials = require("../../api/juked-1-firebase-admin-cred.json");
+const credentials = require("../../api/juked-1-firebase-admin-cred");
 
 const router = express.Router();
 
@@ -8,6 +8,19 @@ const router = express.Router();
 admin.initializeApp({ credential: admin.credential.cert(credentials) });
 let db = admin.firestore();
 let users = db.collection("users");
+
+/**
+ * @param {Object} res - the incoming HTTP request - {uid: database_key }
+ * @param {Object} req - the outgoing response
+ */
+router.get("/getuserbyhandle/:handle", async (req, res) => {
+  const usersByHandle = await users
+    .where("handle", "==", req.params.handle)
+    .get();
+  let ret = [];
+  usersByHandle.forEach(user => ret.push(user.data()));
+  return res.status(200).send(ret);
+});
 
 /**
  * @param {Object} res - the incoming HTTP request - {uid: database_key }

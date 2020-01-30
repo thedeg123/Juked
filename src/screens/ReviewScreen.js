@@ -1,7 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const ReviewScreen = () => {
+const ReviewScreen = ({ navigation }) => {
+  const content_id = navigation.getParam("content_id");
+  const content_type = navigation.getParam("content_type");
+  const rid = navigation.getParam("rid");
+  rid
+    ? console.log(`we will show review for ${rid}`)
+    : console.log(`We will write a review for ${content_type}:`, content_id);
   return (
     <View>
       <Text style={styles.headerStyle}>ReviewScreen</Text>

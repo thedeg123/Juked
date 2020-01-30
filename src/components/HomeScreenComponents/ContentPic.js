@@ -2,14 +2,30 @@ import React from "react";
 import { StyleSheet, Image, TouchableOpacity } from "react-native";
 import colors from "../../constants/colors";
 import images from "../../constants/images";
+import { withNavigation } from "react-navigation";
 
-const ContentPic = ({ img, cid }) => {
+const ContentPic = ({ navigation, img, cid, type, album_cid }) => {
   img = img || images.artistDefault; //becuase we cant set a default val from another file
   return (
     <TouchableOpacity
       style={styles.contentStyle}
       onPress={() => {
-        console.log("We will navigate to content:", cid);
+        switch (type) {
+          case "album":
+            return navigation.navigate("Album", {
+              content_id: cid,
+              highlighted: ""
+            });
+          case "artist":
+            return navigation.navigate("Artist", { content_id: cid });
+          case "track":
+            return navigation.navigate("Album", {
+              content_id: album_cid,
+              highlighted: cid
+            });
+          default:
+            return;
+        }
       }}
     >
       <Image style={styles.imageStyle} source={{ uri: img }}></Image>
@@ -31,4 +47,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ContentPic;
+export default withNavigation(ContentPic);
