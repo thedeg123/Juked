@@ -69,7 +69,7 @@ const ArtistScreen = ({ navigation }) => {
           width: "50%",
           aspectRatio: artist.images[0]
             ? artist.images[0].width / artist.images[0].height
-            : 1
+            : 1,
           borderRadius: 5
         }}
         source={{
