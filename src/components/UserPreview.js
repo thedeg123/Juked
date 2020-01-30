@@ -2,7 +2,9 @@ import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import images from "../constants/images";
 import { withNavigation } from "react-navigation";
+
 /**
  * UserPreview Component for ListScreen
  * @param {string} handle - username of this user
@@ -13,9 +15,12 @@ import { withNavigation } from "react-navigation";
 const UserPreview = ({ handle, profile_url, uid, navigation }) => {
   return (
     <TouchableOpacity onPress={() => navigation.navigate("Profile", { uid })}>
-      <View style={styles.overallStyle}>
-        <Text style={styles.textStyle}>{handle}</Text>
-        <Image style={styles.imageStyle} source={{ uri: profile_url }} />
+      <View style={styles.containerStyle}>
+        <Image
+          style={styles.imageStyle}
+          source={{ uri: profile_url || images.profileDefault }}
+        />
+        <Text style={styles.textStyle}>@{handle}</Text>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </View>
     </TouchableOpacity>
@@ -23,12 +28,13 @@ const UserPreview = ({ handle, profile_url, uid, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  overallStyle: {
-    marginVertical: 10,
-    padding: 10,
+  containerStyle: {
+    borderRadius: 5,
+    marginVertical: 5,
+    paddingLeft: 10,
     flexDirection: "row",
     alignItems: "center",
-    height: 50,
+    height: 85,
     backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.shadow
@@ -38,14 +44,15 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 20,
+    fontSize: 25,
     color: colors.text,
     flex: 1
   },
   imageStyle: {
-    width: 30,
-    height: 30,
+    width: 70,
+    aspectRatio: 1,
     borderRadius: 5,
+    marginRight: 10,
     borderWidth: 1,
     borderColor: colors.shadow
   }

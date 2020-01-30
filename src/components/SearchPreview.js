@@ -10,7 +10,7 @@ import { withNavigation } from "react-navigation";
  * @param {string} type - "Song"/"Album"/"Artist"
  * @param {string} music_id - original id from spotify
  */
-const SearchPreview = ({ object, title, type, cid, album_cid, navigation }) => {
+const SearchPreview = ({ object, type, cid, album_cid, navigation }) => {
   const handleNavigate = () => {
     switch (type) {
       case "album":
@@ -44,11 +44,37 @@ const SearchPreview = ({ object, title, type, cid, album_cid, navigation }) => {
     }
   };
 
+  const getReleaseDate = () => {
+    switch (type) {
+      case "track":
+        return object.album.release_date;
+      case "album":
+        return object.release_date;
+      default:
+        return null;
+    }
+  };
+  const date = getReleaseDate() ? new Date(getReleaseDate()) : null;
+  const stringDate = date
+    ? `${date.toLocaleString("default", {
+        month: "long"
+      })} ${date.getDate()}, ${date.getFullYear()}`
+    : "";
   return (
-    <TouchableOpacity onPress={handleNavigate}>
-      <View style={styles.overallStyle}>
-        <Text style={styles.textStyle}>{title}</Text>
-        <Image style={styles.imageStyle} source={{ uri: getImage() }} />
+    <TouchableOpacity style={styles.containerStyle} onPress={handleNavigate}>
+      <Image style={styles.imageStyle} source={{ uri: getImage() }} />
+      <View style={styles.textWrapperStyle}>
+        <Text numberOfLines={1} style={styles.textStyle}>
+          {object.name}
+        </Text>
+        <Text numberOfLines={1} style={styles.subtextStyle}>
+          {object.artists ? object.artists[0].name : null}
+        </Text>
+        <Text numberOfLines={1} style={styles.dateStyle}>
+          {stringDate}
+        </Text>
+      </View>
+      <View style={styles.iconWrapper}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
       </View>
     </TouchableOpacity>
@@ -56,12 +82,13 @@ const SearchPreview = ({ object, title, type, cid, album_cid, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  overallStyle: {
-    marginVertical: 10,
-    padding: 10,
+  containerStyle: {
+    borderRadius: 5,
+    marginVertical: 5,
+    paddingLeft: 10,
     flexDirection: "row",
     alignItems: "center",
-    height: 50,
+    height: 85,
     backgroundColor: colors.background,
     borderBottomWidth: 1,
     borderBottomColor: colors.shadow
@@ -70,19 +97,35 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: colors.secondary
   },
+  iconWrapper: {
+    alignItems: "flex-end",
+    flex: 1,
+    marginLeft: 1
+  },
+  textWrapperStyle: {
+    flex: 10
+  },
   textStyle: {
     fontSize: 20,
-    color: colors.text,
-    flex: 1
+    color: colors.text
+  },
+  subtextStyle: {
+    fontSize: 18,
+    color: colors.text
+  },
+  dateStyle: {
+    fontSize: 12,
+    color: colors.text
   },
   typeStyle: {
     fontSize: 20,
     color: colors.shadow
   },
   imageStyle: {
-    width: 30,
-    height: 30,
+    width: 70,
+    aspectRatio: 1,
     borderRadius: 5,
+    marginRight: 10,
     borderWidth: 1,
     borderColor: colors.shadow
   }

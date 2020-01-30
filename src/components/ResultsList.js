@@ -18,7 +18,6 @@ const ResultsList = ({ user, searchType, search }) => {
                 return (
                   <View>
                     <SearchPreview
-                      title={search ? `${item.name}` : null}
                       type={searchType}
                       object={item}
                       cid={item.id}
@@ -40,7 +39,6 @@ const ResultsList = ({ user, searchType, search }) => {
                 return (
                   <View>
                     <SearchPreview
-                      title={search ? `${item.name}` : "none"}
                       type={searchType}
                       object={item}
                       cid={search ? `${item.id}` : null}
@@ -61,7 +59,6 @@ const ResultsList = ({ user, searchType, search }) => {
                 return (
                   <View>
                     <SearchPreview
-                      title={search ? `${item.name}` : "none"}
                       type={searchType}
                       object={item}
                       cid={search ? `${item.id}` : null}
