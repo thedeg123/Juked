@@ -73,9 +73,7 @@ const ArtistScreen = ({ navigation }) => {
           borderRadius: 5
         }}
         source={{
-          uri: artist.images[0].url
-            ? artist.images[0].url
-            : images.artistDefault
+          uri: artist.images[0] ? artist.images[0].url : images.artistDefault
         }}
       />
       <Text style={styles.title}>{artist.name}</Text>
