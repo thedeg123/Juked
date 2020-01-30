@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import { withNavigation } from "react-navigation";
 /**
  * UserPreview Component for ListScreen
  * @param {string} handle - username of this user
@@ -50,4 +51,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default UserPreview;
+export default withNavigation(UserPreview);

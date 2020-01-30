@@ -77,14 +77,15 @@ const AlbumScreen = ({ navigation }) => {
         <LoadingIndicator></LoadingIndicator>
       </Container>
     );
-
+  const date = new Date(album.release_date);
   const headerComponent = (
     <View style={styles.headerContainer}>
       <View style={{ flexDirection: "row" }}>
         <Image
           style={{
             width: "50%",
-            aspectRatio: album.images[0].width / album.images[0].height
+            aspectRatio: album.images[0].width / album.images[0].height,
+            borderRadius: 5
           }}
           source={{
             uri: album.images[0].url
@@ -95,7 +96,9 @@ const AlbumScreen = ({ navigation }) => {
           <Text style={styles.text}>
             {album.artists.map(artist => artist.name).join("; ")}
           </Text>
-          <Text style={styles.text}>{`${album.release_date}`}</Text>
+          <Text style={styles.text}>{`${date.toLocaleString("default", {
+            month: "long"
+          })} ${date.getDate()}, ${date.getFullYear()}`}</Text>
         </View>
       </View>
       <View style={{ flexDirection: "row" }}>
