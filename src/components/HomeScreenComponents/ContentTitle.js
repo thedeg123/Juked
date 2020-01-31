@@ -5,8 +5,12 @@ import colors from "../../constants/colors";
 const ContentTitle = ({ header, subheader }) => {
   return (
     <View style={styles.containerStyle} onPress={() => {}}>
-      <Text style={styles.headerStyle}>{header}</Text>
-      <Text style={styles.subheaderStyle}>{subheader}</Text>
+      <Text numberOfLines={2} style={styles.headerStyle}>
+        {header}
+      </Text>
+      <Text numberOfLines={1} style={styles.subheaderStyle}>
+        {subheader}
+      </Text>
     </View>
   );
 };

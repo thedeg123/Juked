@@ -5,7 +5,9 @@ import colors from "../../constants/colors";
 const ReviewTitle = ({ title }) => {
   return (
     <View style={styles.containerStyle}>
-      <Text style={styles.textStyle}>{title}</Text>
+      <Text numberOfLines={2} style={styles.textStyle}>
+        {title}
+      </Text>
     </View>
   );
 };
