@@ -152,7 +152,13 @@ const UserProfileScreen = ({ navigation }) => {
         />
         <Button
           title="Go to List"
-          onPress={() => navigation.navigate("List")}
+          onPress={() =>
+            navigation.navigate("List", {
+              type: "following",
+              user: user,
+              reviews: reviews
+            })
+          }
         ></Button>
       </ScrollView>
     </Container>

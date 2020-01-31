@@ -73,7 +73,7 @@ const ResultsList = ({ user, searchType, search }) => {
         return user ? (
           <View>
             <UserPreview
-              handle={user.handle ? `@${user.handle}` : `${user.email}`}
+              handle={user.handle ? `${user.handle}` : `${user.email}`}
               profile_url={user.profile_url}
               uid={user.email}
             />
