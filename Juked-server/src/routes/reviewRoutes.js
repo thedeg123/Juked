@@ -15,7 +15,7 @@ let reviews = db.collection("reviews");
 router.get("/getmostrecentreviews/:limit", async (req, res) => {
   const limit = Math.min(30, Number(req.params.limit));
   const content = await reviews
-    .orderBy("changed", "desc")
+    .orderBy("last_modified", "desc")
     .limit(limit)
     .get();
   let ret = [];

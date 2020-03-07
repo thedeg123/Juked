@@ -14,7 +14,7 @@ const HomeScreen = ({ navigation }) => {
   const [homeScreenData, setHomeScreenData] = useState(null);
   const { findTracks, findAlbums, findArtists } = useMusic();
   // if yk sql, this is what were doing here:
-  // select * from (select * from (select content_id from Reviews sortby changed limit 1)
+  // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
   // groupby type theta join type==content_id on (select * from Music)) natural join Users;
   // except harder bc Music is from a different dbs ;)
   const fetchHomeScreenData = async (limit = 20) => {
@@ -26,7 +26,6 @@ const HomeScreen = ({ navigation }) => {
         reviewByType[r.review.type] = [];
         content_idsByType[r.review.type] = [];
       }
-      r.review.changed = new Date(r.review.changed._seconds * 1000); //converting to date object
       reviewByType[r.review.type].push({ ...r.review, rid: r.id });
       content_idsByType[r.review.type].push(r.review.content_id);
     }
@@ -88,16 +87,19 @@ const HomeScreen = ({ navigation }) => {
     }
     let content = (reviewByType["artist"] || [])
       .concat(reviewByType["album"] || [])
-      .concat(reviewByType["track"] || [])
-      .sort((a, b) => !(a.changed > b.changed));
+      .concat(reviewByType["track"] || []);
     //performing inner join on users
     for (let i = 0; i < content.length; i++) {
       content[i].push(await useFirestore.getUser(content[i][0].author));
     }
-    return content;
+    return content.sort((a, b) => b[0].last_modified - a[0].last_modified);
   };
   useEffect(() => {
     fetchHomeScreenData(5).then(res => setHomeScreenData(res));
+    const listener = navigation.addListener("didFocus", () =>
+      fetchHomeScreenData(5).then(res => setHomeScreenData(res))
+    ); //any time we return to this screen we do another fetch
+    return () => listener.remove();
   }, []);
   return (
     <Container>
