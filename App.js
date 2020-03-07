@@ -19,6 +19,7 @@ import * as firebase from "firebase";
 import firebaseConfig from "./src/api/firebaseConfig";
 import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
 import colors from "./src/constants/colors";
+import WriteReviewScreen from "./src/screens/WriteReviewScreen";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -28,7 +29,9 @@ const exploreFlow = {
   Review: ReviewScreen,
   Album: AlbumScreen,
   Artist: ArtistScreen,
-  Profile: ProfileScreen
+  Profile: ProfileScreen,
+  List: ListScreen,
+  WriteReview: WriteReviewScreen
 };
 
 const switchNavigator = createSwitchNavigator({
@@ -85,7 +88,7 @@ const switchNavigator = createSwitchNavigator({
       screen: createStackNavigator({
         Profile: ProfileScreen,
         Account: AccountScreen,
-        List: ListScreen
+        ...exploreFlow
       }),
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
