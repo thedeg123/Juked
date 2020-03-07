@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity
+} from "react-native";
 import useFirestore from "../hooks/useFirestore";
 import useMusic from "../hooks/useMusic";
 import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
 import colors from "../constants/colors";
+import { auth } from "firebase";
+import TopButton from "../components/TopButton";
 
 const ReviewScreen = ({ navigation }) => {
-  // const content_id = navigation.getParam("content_id");
-  // const content_type = navigation.getParam("content_type");
   const rid = navigation.getParam("rid");
   if (!rid)
     console.error(
@@ -52,6 +58,9 @@ const ReviewScreen = ({ navigation }) => {
       getResultByType(response.content_id, response.type);
       setReview(response);
       setUser(user_response);
+      navigation.setParams({
+        user: user_response.email
+      });
     });
     return () => listener.remove();
   }, []);
@@ -167,4 +176,20 @@ const styles = StyleSheet.create({
   }
 });
 
+ReviewScreen.navigationOptions = ({ navigation }) => {
+  return {
+    headerRight: () =>
+      navigation.getParam("user") === auth().currentUser.email ? (
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("WriteReview", {
+              rid: navigation.getParam("rid")
+            })
+          }
+        >
+          <TopButton text={"Edit"}></TopButton>
+        </TouchableOpacity>
+      ) : null
+  };
+};
 export default ReviewScreen;
