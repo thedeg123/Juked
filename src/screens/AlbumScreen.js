@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  Image,
-  StyleSheet,
-  FlatList
-} from "react-native";
+import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
@@ -14,7 +7,7 @@ import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
 import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
-import { Feather } from "@expo/vector-icons";
+import ReviewButton from "../components/ReviewButton";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -141,16 +134,10 @@ const AlbumScreen = ({ navigation }) => {
 AlbumScreen.navigationOptions = ({ navigation }) => {
   return {
     headerRight: () => (
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("Review", {
-            content_id: navigation.getParam("content_id"),
-            content_type: "album"
-          })
-        }
-      >
-        <Feather style={styles.headerRightStyle} name="plus"></Feather>
-      </TouchableOpacity>
+      <ReviewButton
+        content_id={navigation.getParam("content_id")}
+        content_type={"album"}
+      ></ReviewButton>
     )
   };
 };
@@ -160,10 +147,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     flexDirection: "column",
     flex: 1
-  },
-  headerRightStyle: {
-    fontSize: 30,
-    marginRight: 10
   },
   headerContainer: {
     alignItems: "center",

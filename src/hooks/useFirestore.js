@@ -84,7 +84,7 @@ const useFirestore = {
     title ? (body["title"] = title) : null;
     author ? (body["author"] = author) : null;
     rating ? (body["rating"] = Math.floor(rating)) : null;
-    body[last_modified] = Date.now();
+    body["last_modified"] = Date.now();
     firestore.post("/updatereview", {
       rid,
       body
@@ -113,7 +113,7 @@ const useFirestore = {
     const response = await firestore.get(
       `/getreviewsbyauthorcontent/${uid}/${content_id}`
     );
-    return response.data.review;
+    return response.data;
   },
   getMostRecentReviews: async limit => {
     const response = await firestore.get(`/getmostrecentreviews/${limit}`);

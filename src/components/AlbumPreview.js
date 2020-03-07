@@ -24,10 +24,9 @@ const AlbumPreview = ({
   return (
     <TouchableOpacity
       onPress={() =>
-        navigation.navigate("Review", {
+        navigation.navigate("WriteReview", {
           content_id,
-          content_type: "track",
-          rid
+          content_type: "track"
         })
       }
       style={[

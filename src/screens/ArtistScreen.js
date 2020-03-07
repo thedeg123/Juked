@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  FlatList
-} from "react-native";
+import { View, Text, StyleSheet, Image, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
@@ -15,7 +8,7 @@ import Container from "../components/Container";
 import colors from "../constants/colors";
 import images from "../constants/images";
 import LoadingIndicator from "../components/LoadingIndicator";
-import { Feather } from "@expo/vector-icons";
+import ReviewButton from "../components/ReviewButton";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
@@ -112,16 +105,10 @@ const ArtistScreen = ({ navigation }) => {
 ArtistScreen.navigationOptions = ({ navigation }) => {
   return {
     headerRight: () => (
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("Review", {
-            content_id: navigation.getParam("content_id"),
-            content_type: "artist"
-          })
-        }
-      >
-        <Feather style={styles.headerRightStyle} name="plus"></Feather>
-      </TouchableOpacity>
+      <ReviewButton
+        content_id={navigation.getParam("content_id")}
+        content_type="artist"
+      ></ReviewButton>
     )
   };
 };
@@ -130,10 +117,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "column",
     flex: 1
-  },
-  headerRightStyle: {
-    fontSize: 30,
-    marginRight: 10
   },
   column: { flexShrink: 1, width: "50%" },
   title: { fontSize: 30, color: colors.text },
