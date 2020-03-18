@@ -96,7 +96,7 @@ const ReviewScreen = ({ navigation }) => {
     }
   };
   content = contentFilter();
-  const date = new Date(review.changed._seconds * 1000);
+  const date = new Date(review.last_modified * 1000);
   return (
     <Container>
       <View style={styles.headerStyle}>
