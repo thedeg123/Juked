@@ -23,6 +23,7 @@ const HomeScreenItem = ({ review, content, author }) => {
             header={content.name}
             subheader={content.artist_name || ""}
             date={new Date(review.last_modified)}
+            review={Boolean(review.title)}
           ></ContentTitle>
           <View style={styles.textStyle}>
             <UserPreview

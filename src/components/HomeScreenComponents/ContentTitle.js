@@ -2,7 +2,7 @@ import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 
-const ContentTitle = ({ header, subheader, date }) => {
+const ContentTitle = ({ header, subheader, date, review }) => {
   return (
     <View style={styles.containerStyle} onPress={() => {}}>
       <View>
@@ -14,7 +14,8 @@ const ContentTitle = ({ header, subheader, date }) => {
         </Text>
       </View>
       <Text numberOfLines={1} style={styles.dateStyle}>
-        Reviewed: {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
+        {review ? "Reviewed" : "Rated"}: {date.getMonth() + 1}/{date.getDate()}/
+        {date.getFullYear()}
       </Text>
     </View>
   );
@@ -46,7 +47,9 @@ const styles = StyleSheet.create({
 
 ContentTitle.defaultProps = {
   header: "",
-  subheader: ""
+  subheader: "",
+  rating: Date(),
+  review: false
 };
 
 export default ContentTitle;
