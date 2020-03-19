@@ -29,7 +29,9 @@ const AlbumScreen = ({ navigation }) => {
   const result = async (uid, album_id, track_ids) => {
     await useFirestore
       .getReviewsByAuthorContent(uid, album_id)
-      .then(review => setAlbumRating(review ? review.rating : null));
+      .then(review =>
+        setAlbumRating(review.query[0] ? review.query[0].review.rating : null)
+      );
     setRatings(
       await track_ids.map(
         async id =>
@@ -42,7 +44,6 @@ const AlbumScreen = ({ navigation }) => {
     setAvg_ratings(5);
     setAlbumAvg_rating(5);
   };
-
   // initialization
   const init = async () => {
     const album = await findAlbums(content_id).then(albums => albums[0]);
@@ -61,6 +62,8 @@ const AlbumScreen = ({ navigation }) => {
 
   useEffect(() => {
     init();
+    const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
+    return () => listener.remove();
   }, []);
 
   // wait until get data from all APIs

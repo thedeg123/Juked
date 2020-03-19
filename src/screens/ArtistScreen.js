@@ -23,27 +23,23 @@ const ArtistScreen = ({ navigation }) => {
   // data from review database
   const [rating, setRating] = useState(null);
   const [avg_rating, setAvg_rating] = useState(null);
+  const init = () => {
+    // init and get all data needed via api
+    useFirestore
+      .getReviewsByAuthorContent(email, content_id)
+      .then(review =>
+        setRating(review.query[0] ? review.query[0].review.rating : null)
+      );
+    setAvg_rating(5);
+    findArtists(content_id).then(artists => setArtist(artists[0]));
+    findAlbumsOfAnArtist(content_id).then(result => {
+      setAlbums(result.items);
+    });
+  };
 
   useEffect(() => {
-    const getData = () => {
-      // init and get all data needed via api
-      const getDatabaseResult = async (uid, content_id) => {
-        const artistReview = useFirestore.getReviewsByAuthorContent(
-          uid,
-          content_id
-        );
-        if (!artistReview) setRating("-");
-        else setRating(artistReview.rating);
-        setAvg_rating(5);
-      };
-
-      findArtists(content_id).then(artists => setArtist(artists[0]));
-      findAlbumsOfAnArtist(content_id).then(result => {
-        setAlbums(result.items);
-      });
-      getDatabaseResult(email, content_id);
-    };
-    const listener = navigation.addListener("didFocus", () => getData()); //any time we return to this screen we do another fetch
+    init();
+    const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
     return () => listener.remove(); //prevents memory leaks if the indexScreen is ever closed
   }, []);
 
