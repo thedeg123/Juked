@@ -103,13 +103,13 @@ const styles = StyleSheet.create({
   },
   activatedStyleText: {
     textAlign: "center",
-    color: colors.background,
+    color: colors.object,
     fontSize: 20
   },
   deactivatedStyleBackground: {
     paddingVertical: 2,
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.object,
     color: "blue"
   },
   deactivatedStyleText: {

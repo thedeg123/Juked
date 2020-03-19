@@ -44,32 +44,50 @@ const switchNavigator = createSwitchNavigator({
     },
     {
       defaultNavigationOptions: {
-        cardStyle: { backgroundColor: "white" },
+        headerStyle: { backgroundColor: colors.background },
+        cardStyle: { backgroundColor: colors.background },
         headerShown: false
       }
     }
   ),
   mainFlow: createBottomTabNavigator({
     homeFlow: {
-      screen: createStackNavigator({
-        Home: HomeScreen,
-        ...exploreFlow
-      }),
+      screen: createStackNavigator(
+        {
+          Home: HomeScreen,
+          ...exploreFlow
+        },
+        {
+          defaultNavigationOptions: {
+            headerStyle: { backgroundColor: colors.background },
+            cardStyle: { backgroundColor: colors.background }
+          }
+        }
+      ),
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
           <Foundation name="home" style={styles.iconStyle} color={tintColor} />
         ),
         tabBarOptions: {
           activeTintColor: colors.primary, // active icon color
-          inactiveTintColor: colors.shadow // inactive icon color
+          inactiveTintColor: colors.shadow, // inactive icon color,
+          style: { backgroundColor: colors.object } //background color
         }
       }
     },
     searchFlow: {
-      screen: createStackNavigator({
-        Search: SearchScreen,
-        ...exploreFlow
-      }),
+      screen: createStackNavigator(
+        {
+          Search: SearchScreen,
+          ...exploreFlow
+        },
+        {
+          defaultNavigationOptions: {
+            headerStyle: { backgroundColor: colors.background },
+            cardStyle: { backgroundColor: colors.background }
+          }
+        }
+      ),
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
           <FontAwesome
@@ -80,23 +98,33 @@ const switchNavigator = createSwitchNavigator({
         ),
         tabBarOptions: {
           activeTintColor: colors.primary, // active icon color
-          inactiveTintColor: colors.shadow // inactive icon color
+          inactiveTintColor: colors.shadow, // inactive icon color
+          style: { backgroundColor: colors.object } //background color
         }
       }
     },
     profileFlow: {
-      screen: createStackNavigator({
-        Profile: ProfileScreen,
-        Account: AccountScreen,
-        ...exploreFlow
-      }),
+      screen: createStackNavigator(
+        {
+          Profile: ProfileScreen,
+          Account: AccountScreen,
+          ...exploreFlow
+        },
+        {
+          defaultNavigationOptions: {
+            headerStyle: { backgroundColor: colors.background },
+            cardStyle: { backgroundColor: colors.background }
+          }
+        }
+      ),
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
           <Octicons name="person" style={styles.iconStyle} color={tintColor} />
         ),
         tabBarOptions: {
           activeTintColor: colors.primary, // active icon color
-          inactiveTintColor: colors.shadow // inactive icon color
+          inactiveTintColor: colors.shadow, // inactive icon color
+          style: { backgroundColor: colors.object } //background color
         }
       }
     }

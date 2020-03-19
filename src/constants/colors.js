@@ -1,10 +1,11 @@
 export default {
-  primary: "#006284",
-  secondary: "#3A8FB7",
-  background: "#FFF",
+  primary: "#4486e4",
+  secondary: "#6496ef",
+  object: "#f5f5f7",
+  background: "#FFFFFF",
   shadow: "#91989F",
   text: "#1C1C1C",
-  highlight: "#DCFFFF",
+  highlight: "#95b6ed",
   textLight: "#37373b",
   errorText: "#9a3732"
 };
