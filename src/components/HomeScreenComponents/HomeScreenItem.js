@@ -1,7 +1,6 @@
 //Provides margin on components
 import React from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
-import colors from "../../constants/colors";
+import { StyleSheet, View } from "react-native";
 import UserPreview from "./UserPreview";
 import Rating from "./Rating";
 import ReviewTitle from "./ReviewTitle";
@@ -12,29 +11,42 @@ import HomeScreenBorder from "./HomeScreenBorder";
 const HomeScreenItem = ({ review, content, author }) => {
   return (
     <>
-      <HomeScreenBorder rid={review.text.length ? review.rid : null}>
-        <UserPreview
-          username={author.handle}
-          img={author.profile_url}
-          uid={review.author}
-        ></UserPreview>
-        <Rating number={review.rating}></Rating>
-        <ReviewTitle title={review.title}></ReviewTitle>
-        <ContentTitle
-          header={content.name}
-          subheader={content.artist_name || ""}
-        ></ContentTitle>
-        <ContentPic
-          img={content.image}
-          cid={content.id}
-          type={review.type}
-          album_cid={review.type === "track" ? content.album_id : null}
-        ></ContentPic>
+      <HomeScreenBorder rid={review.title ? review.rid : null}>
+        <View style={styles.contentStyle}>
+          <ContentPic
+            img={content.image}
+            cid={content.id}
+            type={review.type}
+            album_cid={review.type === "track" ? content.album_id : null}
+          ></ContentPic>
+          <ContentTitle
+            header={content.name}
+            subheader={content.artist_name || ""}
+            date={new Date(review.last_modified)}
+          ></ContentTitle>
+          <View style={styles.textStyle}>
+            <UserPreview
+              username={author.handle}
+              img={author.profile_url}
+              uid={review.author}
+            ></UserPreview>
+            <Rating number={review.rating}></Rating>
+          </View>
+        </View>
+        {review.title ? <ReviewTitle title={review.title}></ReviewTitle> : null}
       </HomeScreenBorder>
     </>
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  textStyle: {
+    padding: 5
+  },
+  contentStyle: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  }
+});
 
 export default HomeScreenItem;

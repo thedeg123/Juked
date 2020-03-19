@@ -5,7 +5,7 @@ import colors from "../../constants/colors";
 const ReviewTitle = ({ title }) => {
   return (
     <View style={styles.containerStyle}>
-      <Text numberOfLines={2} style={styles.textStyle}>
+      <Text numberOfLines={1} style={styles.textStyle}>
         {title}
       </Text>
     </View>
@@ -15,21 +15,13 @@ const ReviewTitle = ({ title }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     alignSelf: "stretch",
-    justifyContent: "center",
-    marginLeft: 84,
-    bottom: 100,
-    height: 75
+    marginLeft: 5,
+    bottom: 15
   },
   textStyle: {
-    fontSize: 24,
-    textAlign: "center",
+    fontSize: 22,
     fontWeight: "bold",
-    textDecorationLine: "underline",
     color: colors.primary
   }
 });
-
-ReviewTitle.defaultProps = {
-  title: ""
-};
 export default ReviewTitle;

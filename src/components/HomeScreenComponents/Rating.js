@@ -15,11 +15,10 @@ const Rating = ({ number }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     alignSelf: "flex-end",
-    bottom: 95, //we get it centered by taking (180/2) - (72/2) = 54
-    marginRight: 74 //margin right = the width of user image + padding of box
+    bottom: 5
   },
   numberStyle: {
-    fontSize: 80,
+    fontSize: 50,
     color: colors.secondary
   }
 });

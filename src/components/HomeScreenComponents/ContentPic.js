@@ -36,11 +36,12 @@ const ContentPic = ({ navigation, img, cid, type, album_cid }) => {
 const styles = StyleSheet.create({
   contentStyle: {
     alignSelf: "flex-start",
-    bottom: 250
+    bottom: 1,
+    right: 1
   },
   imageStyle: {
-    width: 84,
-    height: 84,
+    aspectRatio: 1,
+    width: 119,
     borderColor: colors.shadow,
     borderWidth: 1,
     borderRadius: 5

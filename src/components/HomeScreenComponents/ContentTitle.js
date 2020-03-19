@@ -2,14 +2,19 @@ import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 
-const ContentTitle = ({ header, subheader }) => {
+const ContentTitle = ({ header, subheader, date }) => {
   return (
     <View style={styles.containerStyle} onPress={() => {}}>
-      <Text numberOfLines={2} style={styles.headerStyle}>
-        {header}
-      </Text>
-      <Text numberOfLines={1} style={styles.subheaderStyle}>
-        {subheader}
+      <View>
+        <Text numberOfLines={3} style={styles.headerStyle}>
+          {header}
+        </Text>
+        <Text numberOfLines={2} style={styles.subheaderStyle}>
+          {subheader}
+        </Text>
+      </View>
+      <Text numberOfLines={1} style={styles.dateStyle}>
+        Reviewed: {date.getMonth() + 1}/{date.getDate()}/{date.getFullYear()}
       </Text>
     </View>
   );
@@ -17,19 +22,25 @@ const ContentTitle = ({ header, subheader }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    bottom: 250, //224 - marginTop = 214
-    height: 66, //180 - marginTop-marginBottom -picHeight= 76
     justifyContent: "space-between",
-    paddingBottom: 2,
-    marginRight: 150
+    flex: 2,
+    marginTop: 5,
+    marginBottom: 20,
+    marginLeft: 5
   },
   headerStyle: {
-    fontSize: 20,
-    color: colors.primary
+    fontSize: 15,
+    marginBottom: 10,
+    fontWeight: "bold",
+    color: colors.text
   },
   subheaderStyle: {
-    fontSize: 16,
-    color: colors.primary
+    fontSize: 15,
+    color: colors.text
+  },
+  dateStyle: {
+    fontSize: 14,
+    color: colors.text
   }
 });
 
