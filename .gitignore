@@ -35,11 +35,18 @@ web-report/
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
 
+# expo config files
+.expo/
+
 node_modules
 assets/icon.png
 assets/splash.png
 src/api/firebaseConfig.js
 src/api/musicConfig.js
+src/api/juked-1-firebase-admin-cred.json
 package-lock.json
 .expo/packager-info.json
 .expo/settings.json
+package-lock.json
+Juked-server/api/juked-1-firebase-admin-cred.json
+Juked-server/src/api/juked-1-firebase-admin-cred.json

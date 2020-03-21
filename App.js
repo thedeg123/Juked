@@ -1,10 +1,6 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import {
-  createAppNavigator,
-  createSwitchNavigator,
-  createAppContainer
-} from "react-navigation";
+import { StyleSheet } from "react-native";
+import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import AccountScreen from "./src/screens/AccountScreen";
@@ -18,10 +14,12 @@ import ReviewScreen from "./src/screens/ReviewScreen";
 import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
-import { Provider as AuthProvider } from "./src/context/AuthContext";
+import MakeProfileScreen from "./src/screens/MakeProfileScreen";
 import * as firebase from "firebase";
 import firebaseConfig from "./src/api/firebaseConfig";
 import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
+import colors from "./src/constants/colors";
+import WriteReviewScreen from "./src/screens/WriteReviewScreen";
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -31,7 +29,9 @@ const exploreFlow = {
   Review: ReviewScreen,
   Album: AlbumScreen,
   Artist: ArtistScreen,
-  Profile: ProfileScreen
+  Profile: ProfileScreen,
+  List: ListScreen,
+  WriteReview: WriteReviewScreen
 };
 
 const switchNavigator = createSwitchNavigator({
@@ -39,48 +39,93 @@ const switchNavigator = createSwitchNavigator({
   loginFlow: createSwitchNavigator(
     {
       SignIn: SignInScreen,
-      SignUp: SignUpScreen
+      SignUp: SignUpScreen,
+      MakeProfile: MakeProfileScreen
     },
     {
       defaultNavigationOptions: {
-        cardStyle: { backgroundColor: "white" },
+        headerStyle: { backgroundColor: colors.background },
+        cardStyle: { backgroundColor: colors.background },
         headerShown: false
       }
     }
   ),
   mainFlow: createBottomTabNavigator({
     homeFlow: {
-      screen: createStackNavigator({
-        Home: HomeScreen,
-        ...exploreFlow
-      }),
+      screen: createStackNavigator(
+        {
+          Home: HomeScreen,
+          ...exploreFlow
+        },
+        {
+          defaultNavigationOptions: {
+            headerStyle: { backgroundColor: colors.background },
+            cardStyle: { backgroundColor: colors.background }
+          }
+        }
+      ),
       navigationOptions: {
-        tabBarLabel: ({ tintColor: color }) => (
-          <Foundation name="home" style={styles.iconStyle} color={color} />
-        )
+        tabBarLabel: ({ tintColor }) => (
+          <Foundation name="home" style={styles.iconStyle} color={tintColor} />
+        ),
+        tabBarOptions: {
+          activeTintColor: colors.primary, // active icon color
+          inactiveTintColor: colors.shadow, // inactive icon color,
+          style: { backgroundColor: colors.object } //background color
+        }
       }
     },
     searchFlow: {
-      screen: createStackNavigator({
-        Search: SearchScreen,
-        ...exploreFlow
-      }),
+      screen: createStackNavigator(
+        {
+          Search: SearchScreen,
+          ...exploreFlow
+        },
+        {
+          defaultNavigationOptions: {
+            headerStyle: { backgroundColor: colors.background },
+            cardStyle: { backgroundColor: colors.background }
+          }
+        }
+      ),
       navigationOptions: {
-        tabBarLabel: ({ tintColor: color }) => (
-          <FontAwesome name="search" style={styles.iconStyle} color={color} />
-        )
+        tabBarLabel: ({ tintColor }) => (
+          <FontAwesome
+            name="search"
+            style={styles.iconStyle}
+            color={tintColor}
+          />
+        ),
+        tabBarOptions: {
+          activeTintColor: colors.primary, // active icon color
+          inactiveTintColor: colors.shadow, // inactive icon color
+          style: { backgroundColor: colors.object } //background color
+        }
       }
     },
     profileFlow: {
-      screen: createStackNavigator({
-        Profile: ProfileScreen,
-        Account: AccountScreen,
-        List: ListScreen
-      }),
+      screen: createStackNavigator(
+        {
+          Profile: ProfileScreen,
+          Account: AccountScreen,
+          ...exploreFlow
+        },
+        {
+          defaultNavigationOptions: {
+            headerStyle: { backgroundColor: colors.background },
+            cardStyle: { backgroundColor: colors.background }
+          }
+        }
+      ),
       navigationOptions: {
-        tabBarLabel: ({ tintColor: color }) => (
-          <Octicons name="person" style={styles.iconStyle} color={color} />
-        )
+        tabBarLabel: ({ tintColor }) => (
+          <Octicons name="person" style={styles.iconStyle} color={tintColor} />
+        ),
+        tabBarOptions: {
+          activeTintColor: colors.primary, // active icon color
+          inactiveTintColor: colors.shadow, // inactive icon color
+          style: { backgroundColor: colors.object } //background color
+        }
       }
     }
   })
@@ -95,9 +140,5 @@ const styles = StyleSheet.create({
 });
 
 export default () => {
-  return (
-    <AuthProvider>
-      <App></App>
-    </AuthProvider>
-  );
+  return <App></App>;
 };

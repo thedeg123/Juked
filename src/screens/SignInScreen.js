@@ -1,21 +1,20 @@
 import React, { useContext } from "react";
-import { View, StyleSheet, Button, Text } from "react-native";
-import { Context as AuthContext } from "../context/AuthContext";
+import { StyleSheet, Button, Text, KeyboardAvoidingView } from "react-native";
+import useAuth from "../hooks/useAuth";
 import AuthForm from "../components/AuthForm";
+import colors from "../constants/colors";
 
 const SignInScreen = ({ navigation }) => {
-  const { state, signin, remove_error } = useContext(AuthContext);
+  const { error, signin, remove_error } = useAuth();
 
   return (
-    <View style={styles.containerStyle}>
+    <KeyboardAvoidingView behavior="position" style={styles.containerStyle}>
       <AuthForm
         headerText="Welcome back!"
-        submitButtonAction={(email, password) =>
-          signin(email, password, () => navigation.navigate("Home"))
-        }
+        submitButtonAction={(email, password) => signin(email, password)}
         submitButtonTitle="Sign in"
       ></AuthForm>
-      {state.errorMessage ? <Text>{state.errorMessage}</Text> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <Button
         onPress={() => {
           remove_error();
@@ -23,7 +22,7 @@ const SignInScreen = ({ navigation }) => {
         }}
         title="Don't have an account? Sign up."
       ></Button>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -33,6 +32,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
     marginBottom: 200
+  },
+  errorText: {
+    fontSize: 18,
+    textAlign: "center",
+    color: colors.errorText
   }
 });
 

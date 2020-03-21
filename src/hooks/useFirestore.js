@@ -42,7 +42,11 @@ const useFirestore = {
   },
   getUser: async uid => {
     const response = await firestore.get(`/getuser/${uid}`);
-    return response.data.user;
+    return response.data;
+  },
+  getUserByHandle: async handle => {
+    const response = await firestore.get(`/getuserbyhandle/${handle}`);
+    return response.data;
   },
   addReview: (
     text = "",
@@ -80,7 +84,7 @@ const useFirestore = {
     title ? (body["title"] = title) : null;
     author ? (body["author"] = author) : null;
     rating ? (body["rating"] = Math.floor(rating)) : null;
-    body[last_modified] = Date.now();
+    body["last_modified"] = Date.now();
     firestore.post("/updatereview", {
       rid,
       body
@@ -91,11 +95,11 @@ const useFirestore = {
   },
   getReviewById: async rid => {
     const response = await firestore.get(`/getreviewbyid/${rid}`);
-    return response.data.review;
+    return response.data;
   },
   getReviewsByAuthor: async uid => {
     const response = await firestore.get(`/getreviewsbyauthor/${uid}`);
-    return response.data.review;
+    return response.data.query;
   },
   getReviewsByContent: async content_id => {
     const response = await firestore.get(`/getreviewsbycontent/${content_id}`);
@@ -109,7 +113,12 @@ const useFirestore = {
     const response = await firestore.get(
       `/getreviewsbyauthorcontent/${uid}/${content_id}`
     );
-    return response.data.review;
+    return response.data;
+  },
+  getMostRecentReviews: async limit => {
+    const response = await firestore.get(`/getmostrecentreviews/${limit}`);
+    return response.data.query;
   }
 };
+
 export default useFirestore;
