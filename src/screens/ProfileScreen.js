@@ -20,23 +20,29 @@ const UserProfileScreen = ({ navigation }) => {
   const uid = navigation.getParam("uid") || auth().currentUser.email;
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
+  const firebase = new useFirestore();
 
   useEffect(() => {
-    if (!uid) {
-      uid = auth().currentUser.email;
-    }
-    useFirestore.getReviewsByAuthor(uid).then(allReviews => {
-      setReviews(allReviews);
-    });
-    useFirestore.getUser(uid).then(myUser => {
-      setUser(myUser);
-    });
+    const fetch = () => {
+      if (!uid) {
+        uid = auth().currentUser.email;
+      }
+      firebase.getReviewsByAuthor(uid).then(allReviews => {
+        setReviews(allReviews);
+      });
+      firebase.getUser(uid).then(myUser => {
+        setUser(myUser);
+      });
+    };
+    fetch();
+    const listener = navigation.addListener("didFocus", () => fetch()); //any time we return to this screen we do another fetch
+    return () => listener.remove();
   }, []);
 
   const numType = ({ reviews, type }) => {
     var num = 0;
     reviews.map(review => {
-      if (review.review.type === type) {
+      if (review.data.type === type) {
         num++;
       }
     });

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import firebase from "firebase";
-import useFirestore from "./useFirestore";
+import "firebase/firestore";
 
 export default () => {
   const [error, setError] = useState("");
@@ -19,26 +19,29 @@ export default () => {
       });
   };
   const signup = async (email, password, verifyPassword) => {
-    password === verifyPassword
-      ? await firebase
-          .auth()
-          .createUserWithEmailAndPassword(email, password)
-          .then(() => remove_error())
-          .then(() => {
-            useFirestore.addUser(
+    let db = firebase.firestore();
+    if (password === verifyPassword) {
+      await firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then(() => remove_error())
+        .then(() =>
+          db
+            .collection("users")
+            .doc(email)
+            .set({
               email,
-              (handle = ""),
-              (bio = ""),
-              (profile_url = "")
-            );
-          })
-          .catch(err => {
-            switch (err.code) {
-              default:
-                return setError(err.message);
-            }
-          })
-      : setError("Passwords do not Match!");
+              handle: "",
+              bio: "",
+              profile_url: "",
+              created: Date.now(),
+              followers: [],
+              following: []
+            })
+            .catch(err => setError(err.message))
+        )
+        .catch(err => setError(err.message));
+    } else setError("Passwords do not Match!");
   };
   const signout = async () => {
     await firebase

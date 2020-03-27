@@ -4,9 +4,11 @@ import { auth } from "firebase";
 import LoadingIndicator from "../components/LoadingIndicator";
 import colors from "../constants/colors";
 import Container from "../components/Container";
-import useFirestore from "../hooks/useFirestore";
+import firebase from "firebase";
+import "firebase/firestore";
 
 const LoadingScreen = ({ navigation }) => {
+  let db = firebase.firestore();
   useEffect(() => {
     const routeState = () => {
       return auth().onAuthStateChanged(async user => {
@@ -24,7 +26,11 @@ const LoadingScreen = ({ navigation }) => {
             }
             count++;
             console.log("waiting on:", user.email, "try number", count);
-            response = await useFirestore.getUser(user.email);
+            response = await db
+              .collection("users")
+              .doc(user.email)
+              .get()
+              .then(doc => (doc.exists ? doc.data() : null));
           } while (!response);
           return response.handle.length
             ? navigation.navigate("homeFlow")
@@ -34,7 +40,7 @@ const LoadingScreen = ({ navigation }) => {
       });
     };
     const listener = navigation.addListener("didFocus", () => routeState()); //any time we return to this screen we do another fetch
-    return () => listener.remove(); //prevents memory leaks if the indexScreen is ever closed
+    return () => listener.remove(); //prevents memory leaks if the loadingScreen is ever closed
   }, []);
 
   return (
