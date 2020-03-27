@@ -12,15 +12,17 @@ const SearchScreen = ({ navigation }) => {
   const [searchType, setSearchType] = useState("track");
   const { search, searchAPI, setSearch } = useMusic();
   const [Tab1, Tab2, Tab3, Tab4] = ["Songs", "Albums", "Artists", "Users"];
-  const [user, setUser] = useState(null);
+  const [users, setUsers] = useState(null);
+  let firestore = new useFirestore();
 
   const displayResults = () => {
     return (
       <ResultsList
-        user={user}
+        users={users}
         searchType={searchType}
         search={search}
         navigation={navigation}
+        query={term}
       />
     );
   };
@@ -33,8 +35,8 @@ const SearchScreen = ({ navigation }) => {
         onTermSubmit={() => {
           if (term !== "") {
             if (searchType === "user") {
-              useFirestore.getUser(term).then(myUser => {
-                setUser(myUser);
+              firestore.searchUser(term).then(myUsers => {
+                setUsers(myUsers);
               });
             } else {
               searchAPI(term, searchType);
@@ -52,8 +54,8 @@ const SearchScreen = ({ navigation }) => {
             setSearchType(newType);
             if (term !== "") {
               if (newType === "user") {
-                useFirestore.getUser(term).then(myUser => {
-                  setUser(myUser);
+                firestore.searchUser(term).then(myUsers => {
+                  setUsers(myUsers);
                 });
               } else {
                 searchAPI(term, newType);

@@ -115,6 +115,18 @@ class useFirestore {
     console.log("body", body);
     return this.reviews_db.doc(rid).update(body);
   }
+  async searchUser(term) {
+    return await this.users_db
+      .where("handle", ">=", term)
+      .where("handle", "<=", term + "\uf8ff")
+      .limit(10)
+      .get()
+      .then(content => {
+        let ret = [];
+        content.forEach(element => ret.push(element.data()));
+        return ret;
+      });
+  }
 }
 const useFirestore2 = {
   updateUser: (

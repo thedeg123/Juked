@@ -21,7 +21,9 @@ const UserPreview = ({ handle, profile_url, uid, navigation }) => {
           source={{ uri: profile_url || images.profileDefault }}
         />
         <Text style={styles.textStyle}>@{handle}</Text>
-        <EvilIcons name="chevron-right" style={styles.iconStyle} />
+        <View style={styles.iconWrapper}>
+          <EvilIcons name="chevron-right" style={styles.iconStyle} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -35,9 +37,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     height: 85,
-    backgroundColor: colors.background,
+    backgroundColor: colors.object,
     borderBottomWidth: 1,
     borderBottomColor: colors.shadow
+  },
+  iconWrapper: {
+    alignItems: "flex-end",
+    flex: 1,
+    marginLeft: 1,
+    left: 6
   },
   iconStyle: {
     fontSize: 30,
