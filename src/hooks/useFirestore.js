@@ -1,22 +1,122 @@
+import firebase, { auth } from "firebase";
+import "firebase/firestore";
 import firestore from "../api/firestore";
 
-const useFirestore = {
-  addUser: (uid, handle = "", bio = "", profile_url = "") => {
-    firestore
-      .post("/adduser", {
-        uid,
-        body: {
-          following: [],
-          handle,
-          created: Date.now(),
-          email: uid,
-          bio,
-          followers: [],
-          profile_url
-        }
-      })
-      .catch(err => console.log(err));
-  },
+class useFirestore {
+  constructor() {
+    this.user = auth().currentUser.email;
+    this.db = firebase.firestore();
+    this.reviews_db = this.db.collection("reviews");
+    this.users_db = this.db.collection("users");
+  }
+  /**
+   * @argument {String} uid - the unique id of the author whos reviews we want to get
+   * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
+   */
+  async getReviewsByAuthorContent(uid, content_id) {
+    let ret = [];
+    return await this.reviews_db
+      .where("author", "==", uid)
+      .where("content_id", "==", content_id)
+      .get()
+      .then(res => {
+        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
+        return ret;
+      });
+  }
+  async getReview(rid) {
+    return await this.reviews_db
+      .doc(rid)
+      .get()
+      .then(review => review.data());
+  }
+  async getReviewsByAuthor(uid) {
+    let ret = [];
+    return await this.reviews_db
+      .where("author", "==", uid)
+      .get()
+      .then(res => {
+        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
+        return ret;
+      });
+  }
+  async getUser(uid) {
+    return await this.users_db
+      .doc(uid)
+      .get()
+      .then(user => (user.exists ? user.data() : null));
+  }
+  async getMostRecentReviews(limit) {
+    return await this.reviews_db
+      .orderBy("last_modified", "desc")
+      .limit(limit)
+      .get()
+      .then(content => {
+        let ret = [];
+        content.forEach(element =>
+          ret.push({ id: element.id, review: element.data() })
+        );
+        return ret;
+      });
+  }
+  async batchAuthorRequest(uids) {
+    return await this.batchRequest(this.users_db, null, uids);
+  }
+  async batchReviewRequest(cids) {
+    return await this.batchRequest(this.reviews_db, null, cids);
+  }
+  async batchGetReviewsByAuthorContent(uid, cids) {
+    return await this.batchRequest(
+      this.reviews_db.where("author", "==", uid),
+      "content_id",
+      cids
+    );
+  }
+  /**
+   * @argument {String} uid - the unique id of the author whos reviews we want to get
+   * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
+   */
+  async batchRequest(db, key, ids) {
+    const uids = [...new Set(ids)];
+    let ret = [];
+    for (let i = 0; i < uids.length; i += 10) {
+      await db
+        .where(
+          key || firebase.firestore.FieldPath.documentId(),
+          "in",
+          uids.slice(i, i + 10)
+        )
+        .get()
+        .then(res => {
+          res.forEach(r => {
+            return ret.push({ id: r.id, data: r.data() });
+          });
+        });
+    }
+    return ret;
+  }
+  async addReview(cid, type, title, rating, text) {
+    return this.reviews_db.doc().set({
+      author: this.user,
+      content_id: cid,
+      last_modified: new Date().getTime(),
+      rating,
+      text,
+      title,
+      type
+    });
+  }
+  async updateReview(rid, cid, type, title, rating, text) {
+    let body = {};
+    text ? (body["text"] = text) : null;
+    title ? (body["title"] = title) : null;
+    rating ? (body["rating"] = rating) : null;
+    body["last_modified"] = new Date().valueOf();
+    console.log("body", body);
+    return this.reviews_db.doc(rid).update(body);
+  }
+}
+const useFirestore2 = {
   updateUser: (
     uid,
     email,
@@ -47,6 +147,9 @@ const useFirestore = {
   getUserByHandle: async handle => {
     const response = await firestore.get(`/getuserbyhandle/${handle}`);
     return response.data;
+  },
+  getReviewsByAuthorContent: (uid, content_id) => {
+    return null;
   },
   addReview: (
     text = "",
@@ -104,16 +207,6 @@ const useFirestore = {
   getReviewsByContent: async content_id => {
     const response = await firestore.get(`/getreviewsbycontent/${content_id}`);
     return response.data.review;
-  },
-  /**
-   * @argument {String} uid - the unique id of the author whos reviews we want to get
-   * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
-   */
-  getReviewsByAuthorContent: async (uid, content_id) => {
-    const response = await firestore.get(
-      `/getreviewsbyauthorcontent/${uid}/${content_id}`
-    );
-    return response.data;
   },
   getMostRecentReviews: async limit => {
     const response = await firestore.get(`/getmostrecentreviews/${limit}`);
