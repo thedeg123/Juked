@@ -3,6 +3,9 @@ import { StyleSheet } from "react-native";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
+import firebase from "firebase";
+import "firebase/firestore";
+import firebaseConfig from "./src/api/firebaseConfig";
 import AccountScreen from "./src/screens/AccountScreen";
 import AlbumScreen from "./src/screens/AlbumScreen";
 import ArtistScreen from "./src/screens/ArtistScreen";
@@ -15,15 +18,11 @@ import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
 import MakeProfileScreen from "./src/screens/MakeProfileScreen";
-import * as firebase from "firebase";
-import firebaseConfig from "./src/api/firebaseConfig";
 import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
 import colors from "./src/constants/colors";
 import WriteReviewScreen from "./src/screens/WriteReviewScreen";
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
 const exploreFlow = {
   Review: ReviewScreen,
