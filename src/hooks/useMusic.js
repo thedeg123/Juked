@@ -6,6 +6,9 @@ import axios from "axios";
 const BASE_PATH = "https://api.spotify.com/v1";
 
 export default () => {
+  //TODO: convert this to use the user's country code
+  const COUNTRY_CODE = "US";
+
   /**
    * @async
    * @function requestAccessToken
@@ -65,13 +68,15 @@ export default () => {
     switch (action.RequestType) {
       case "find_tracks":
         response = await requestAPI(accessToken, `${BASE_PATH}/tracks`, {
-          ids: action.ids
+          ids: action.ids,
+          market: COUNTRY_CODE
         });
         updateState(response);
         return response;
       case "find_albums":
         response = await requestAPI(accessToken, `${BASE_PATH}/albums`, {
-          ids: action.ids
+          ids: action.ids,
+          market: COUNTRY_CODE
         });
         updateState(response);
         return response;
@@ -79,7 +84,7 @@ export default () => {
         response = await requestAPI(
           accessToken,
           `${BASE_PATH}/artists/${action.ids}/albums`,
-          {}
+          { country: COUNTRY_CODE }
         );
         updateState(response);
         return response;
@@ -161,6 +166,26 @@ export default () => {
   };
   /**
    * @async
+   * @function findContent
+   * @param {Array} ids - an array of 1+ unique IDs for artists
+   * @param {String} type - the kind of content to get
+   * @description - a convinience function which returns content of a given type
+   * @return {null}
+   */
+  const findContent = async (ids, type) => {
+    switch (type) {
+      case "artist":
+        return findArtists(ids);
+      case "album":
+        return findAlbums(ids);
+      case "track":
+        return findTracks(ids);
+      default:
+        console.error("Content must be one of type: track, album, artist");
+    }
+  };
+  /**
+   * @async
    * @function searchAPI
    * @param {String} searchTerm - a query term
    * @param {String} catagory - Valid types are: "album" , "artist", "playlist", and "track".
@@ -184,6 +209,7 @@ export default () => {
     findAlbumsOfAnArtist,
     findArtists,
     findTracks,
+    findContent,
     searchAPI,
     setSearch
   };
