@@ -13,7 +13,6 @@ import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
 import colors from "../constants/colors";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
-import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 
 /**
@@ -69,10 +68,11 @@ const WriteReviewScreen = ({ navigation }) => {
     }
   };
   useEffect(() => {
+    const firestore = new useFirestore();
     const listener = navigation.addListener("didFocus", async () => {
       //if we have an rid, we populate the review with the content thats already there
       if (rid) {
-        const response = await useFirestore.getReviewById(rid);
+        const response = await firestore.getReview(rid);
         if (!response)
           console.error(`Was given rid: ${rid} but found no review`);
         onChangeRating([response.rating]);
@@ -88,6 +88,7 @@ const WriteReviewScreen = ({ navigation }) => {
           navigation.getParam("content_id"),
           navigation.getParam("content_type")
         );
+        navigation.setParams({ rating: [5], title: "", text: "" }); //setting default values for navigation
       }
     });
     return () => listener.remove();
@@ -234,28 +235,27 @@ const styles = StyleSheet.create({
 });
 
 WriteReviewScreen.navigationOptions = ({ navigation }) => {
+  const firestore = new useFirestore();
   return {
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
           if (navigation.getParam("rid")) {
-            useFirestore.updateReview(
+            firestore.updateReview(
               navigation.getParam("rid"),
-              navigation.getParam("text"),
-              navigation.getParam("content_type"),
               navigation.getParam("content_id"),
+              navigation.getParam("content_type"),
               navigation.getParam("title"),
-              auth().currentUser.email,
-              navigation.getParam("rating")
+              navigation.getParam("rating")[0],
+              navigation.getParam("text")
             );
           } else {
-            useFirestore.addReview(
-              navigation.getParam("text"),
-              navigation.getParam("content_type"),
+            firestore.addReview(
               navigation.getParam("content_id"),
+              navigation.getParam("content_type"),
               navigation.getParam("title"),
-              auth().currentUser.email,
-              navigation.getParam("rating")
+              navigation.getParam("rating")[0],
+              navigation.getParam("text")
             );
           }
           navigation.pop();

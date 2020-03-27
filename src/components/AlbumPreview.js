@@ -26,14 +26,14 @@ const AlbumPreview = ({
       onPress={() =>
         navigation.navigate("WriteReview", {
           content_id,
+          rid,
           content_type: "track"
         })
       }
       style={[
         styles.overallStyle,
         {
-          // override the background color if this song is highlighted
-          backgroundColor: highlighted ? colors.highlight : colors.background
+          backgroundColor: highlighted ? colors.highlight : colors.background // override the background color if this song is highlighted
         }
       ]}
     >

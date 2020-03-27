@@ -23,13 +23,12 @@ const ArtistScreen = ({ navigation }) => {
   // data from review database
   const [rating, setRating] = useState(null);
   const [avg_rating, setAvg_rating] = useState(null);
+  const firestore = new useFirestore();
   const init = () => {
     // init and get all data needed via api
-    useFirestore
+    firestore
       .getReviewsByAuthorContent(email, content_id)
-      .then(review =>
-        setRating(review.query[0] ? review.query[0].review.rating : null)
-      );
+      .then(review => setRating(review.length ? review[0].data.rating : null));
     setAvg_rating(5);
     findArtists(content_id).then(artists => setArtist(artists[0]));
     findAlbumsOfAnArtist(content_id).then(result => {

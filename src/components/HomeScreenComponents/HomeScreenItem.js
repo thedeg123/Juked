@@ -1,4 +1,3 @@
-//Provides margin on components
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import UserPreview from "./UserPreview";

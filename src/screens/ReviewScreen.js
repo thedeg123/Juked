@@ -17,6 +17,7 @@ import TopButton from "../components/TopButton";
 
 const ReviewScreen = ({ navigation }) => {
   const rid = navigation.getParam("rid");
+  const firestore = new useFirestore();
   if (!rid)
     console.error(
       `ReviewScreen should be passed an rid but was instead passed: ${rid}`
@@ -24,78 +25,58 @@ const ReviewScreen = ({ navigation }) => {
 
   const [review, setReview] = useState(null);
   const [user, setUser] = useState(null);
-  const {
-    tracks,
-    albums,
-    artists,
-    findAlbums,
-    findArtists,
-    findTracks
-  } = useMusic();
-  const getResultByType = async (content_id, type) => {
-    switch (type) {
-      case "track":
-        return findTracks(content_id);
-      case "album":
-        return findAlbums(content_id);
-      case "artist":
-        return findArtists(content_id);
-      case "playlist":
-      default:
-        console.error(`No content type of: ${type}`);
-        return;
-    }
-  };
+  const [content, setContent] = useState(null);
+  const { findContent } = useMusic();
   useEffect(() => {
-    const listener = navigation.addListener("didFocus", async () => {
-      const response = await useFirestore.getReviewById(rid);
+    const init = async () => {
+      const response = await firestore.getReview(rid);
       if (!response) console.error(`Counld not find review with rid: ${rid}`);
-      const user_response = await useFirestore.getUser(response.author);
+      const user_response = await firestore.getUser(response.author);
       if (!user_response)
         console.error(
           `Counld not find review author with id: ${response.author}`
         );
-      getResultByType(response.content_id, response.type);
+      setContent(
+        await findContent(response.content_id, response.type).then(res => {
+          switch (response.type) {
+            case "track":
+              return {
+                title: res[0].name,
+                subtitle: res[0].artists[0].name
+              };
+            case "album":
+              return {
+                title: res[0].name,
+                subtitle: res[0].artists[0].name
+              };
+            case "artist":
+              return {
+                title: res[0].name,
+                subtitle: " "
+              };
+            default:
+              return;
+          }
+        })
+      );
       setReview(response);
       setUser(user_response);
       navigation.setParams({
         user: user_response.email
       });
-    });
+    };
+    init();
+    const listener = navigation.addListener("didFocus", async () => init());
     return () => listener.remove();
   }, []);
 
-  if ((!tracks && !albums && !artists) || !user) {
+  if (!content || !review || !user) {
     return (
       <Container>
         <LoadingIndicator></LoadingIndicator>
       </Container>
     );
   }
-
-  let content = tracks || albums || artists;
-  const contentFilter = () => {
-    switch (review.type) {
-      case "track":
-        return {
-          title: content.tracks[0].name,
-          subtitle: content.tracks[0].artists[0].name
-        };
-      case "album":
-        return {
-          title: content.albums[0].name,
-          subtitle: content.albums[0].artists[0].name
-        };
-      case "artist":
-        return {
-          title: content.artists[0].name,
-          subtitle: " "
-        };
-      default:
-        return;
-    }
-  };
-  content = contentFilter();
   const date = new Date(review.last_modified * 1000);
   return (
     <Container>
