@@ -1,18 +1,55 @@
-import firebase, { auth } from "firebase";
+import firebase from "firebase";
 import "firebase/firestore";
 import firestore from "../api/firestore";
 
 class useFirestore {
   constructor() {
-    this.user = auth().currentUser.email;
     this.db = firebase.firestore();
     this.reviews_db = this.db.collection("reviews");
     this.users_db = this.db.collection("users");
+    this.auth = firebase.auth();
   }
   /**
    * @argument {String} uid - the unique id of the author whos reviews we want to get
    * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
    */
+  async signin(email, password) {
+    return await this.auth
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        return null;
+      })
+      .catch(err => err.message);
+  }
+  async signup(email, password, verifypassword) {
+    //TODO: change creation of profile to cloud function on backend
+    if (password !== verifypassword) return "Passwords do not Match!";
+    return await this.auth
+      .createUserWithEmailAndPassword(email, password)
+      .then(() => this.addNewUser(email).catch(err => err.message))
+      .then(() => {
+        return null;
+      })
+      .catch(err => err.message);
+  }
+  async signout() {
+    return await this.auth.signOut().catch(err => err.message);
+  }
+  async addNewUser(email) {
+    //TODO: change to cloud function on backend
+    return await this.users_db
+      .doc(email)
+      .set({
+        email,
+        handle: "",
+        bio: "",
+        profile_url: "",
+        created: Date.now(),
+        followers: [],
+        following: []
+      })
+      .catch(err => err.message);
+  }
   async getReviewsByAuthorContent(uid, content_id) {
     let ret = [];
     return await this.reviews_db
@@ -45,6 +82,24 @@ class useFirestore {
       .doc(uid)
       .get()
       .then(user => (user.exists ? user.data() : null));
+  }
+  async getUserByHandle(handle) {
+    return await this.users_db
+      .where("handle", "==", handle)
+      .limit(1)
+      .get()
+      .then(doc => {
+        let res = [];
+        doc.forEach(d => res.push(d.data()));
+        return res.length ? res[0] : null;
+      });
+  }
+  async updateUser(handle, bio, imageURL) {
+    let body = {};
+    handle ? (body["handle"] = handle) : null;
+    bio ? (body["bio"] = bio) : null;
+    imageURL ? (body["imageURL"] = imageURL) : null;
+    return await this.users_db.doc(this.auth.currentUser.email).update(body);
   }
   async getMostRecentReviews(limit) {
     return await this.reviews_db
@@ -97,7 +152,7 @@ class useFirestore {
   }
   async addReview(cid, type, title, rating, text) {
     return this.reviews_db.doc().set({
-      author: this.user,
+      author: this.auth.currentUser.email,
       content_id: cid,
       last_modified: new Date().getTime(),
       rating,
@@ -112,7 +167,6 @@ class useFirestore {
     title ? (body["title"] = title) : null;
     rating ? (body["rating"] = rating) : null;
     body["last_modified"] = new Date().valueOf();
-    console.log("body", body);
     return this.reviews_db.doc(rid).update(body);
   }
   async searchUser(term) {

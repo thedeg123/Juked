@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
 import { auth } from "firebase";
@@ -7,7 +7,7 @@ import colors from "../constants/colors";
 import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
 import ReviewButton from "../components/ReviewButton";
-import useFirestore from "../hooks/useFirestore";
+import context from "../context/context";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -15,7 +15,7 @@ const AlbumScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
   const highlighted = navigation.getParam("highlighted");
   const email = auth().currentUser.email;
-  let firestore = new useFirestore();
+  let firestore = useContext(context);
   // data from spotify
   const { findAlbums } = useMusic();
   const [album, setAlbum] = useState(null);
@@ -110,26 +110,25 @@ const AlbumScreen = ({ navigation }) => {
     </View>
   );
   return (
-    <Container style={styles.container}>
-      <FlatList
-        data={album.tracks.items}
-        keyExtracter={({ item }) => item.track_number}
-        renderItem={({ item, index }) => {
-          return (
-            <AlbumPreview
-              title={item.name}
-              rating={" "}
-              avg_rating={avg_ratings[index] || 5}
-              content_id={item.id}
-              rid={track_reviews[item.id]}
-              highlighted={highlighted == item.id}
-            />
-          );
-        }}
-        ListHeaderComponent={headerComponent}
-        ListHeaderComponentStyle={{ alignItems: "center" }}
-      />
-    </Container>
+    <FlatList
+      style={{ paddingHorizontal: 10 }}
+      data={album.tracks.items}
+      keyExtracter={({ item }) => item.track_number}
+      renderItem={({ item, index }) => {
+        return (
+          <AlbumPreview
+            title={item.name}
+            rating={" "}
+            avg_rating={avg_ratings[index] || 5}
+            content_id={item.id}
+            rid={track_reviews[item.id]}
+            highlighted={highlighted == item.id}
+          />
+        );
+      }}
+      ListHeaderComponent={headerComponent}
+      ListHeaderComponentStyle={{ alignItems: "center" }}
+    />
   );
 };
 
@@ -146,7 +145,7 @@ AlbumScreen.navigationOptions = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFF",
+    backgroundColor: colors.white,
     flexDirection: "column",
     flex: 1
   },

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity
 } from "react-native";
-import useFirestore from "../hooks/useFirestore";
 import useMusic from "../hooks/useMusic";
 import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
@@ -14,10 +13,11 @@ import UserPreview from "../components/HomeScreenComponents/UserPreview";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import TopButton from "../components/TopButton";
+import context from "../context/context";
 
 const ReviewScreen = ({ navigation }) => {
   const rid = navigation.getParam("rid");
-  const firestore = new useFirestore();
+  const firestore = useContext(context);
   if (!rid)
     console.error(
       `ReviewScreen should be passed an rid but was instead passed: ${rid}`

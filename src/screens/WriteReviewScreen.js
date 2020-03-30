@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import {
   View,
   Text,
@@ -7,13 +7,13 @@ import {
   TouchableOpacity
 } from "react-native";
 import { Input } from "react-native-elements";
-import useFirestore from "../hooks/useFirestore";
 import useMusic from "../hooks/useMusic";
 import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
 import colors from "../constants/colors";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import TopButton from "../components/TopButton";
+import context from "../context/context";
 
 /**
  *
@@ -24,6 +24,7 @@ import TopButton from "../components/TopButton";
 
 const WriteReviewScreen = ({ navigation }) => {
   const rid = navigation.getParam("rid");
+  const firestore = useContext(context);
   const [text, setText] = useState("");
   const onChangeText = value => {
     setText(value);
@@ -68,8 +69,8 @@ const WriteReviewScreen = ({ navigation }) => {
     }
   };
   useEffect(() => {
-    const firestore = new useFirestore();
     const listener = navigation.addListener("didFocus", async () => {
+      navigation.setParams({ firestore: firestore });
       //if we have an rid, we populate the review with the content thats already there
       if (rid) {
         const response = await firestore.getReview(rid);
@@ -235,28 +236,31 @@ const styles = StyleSheet.create({
 });
 
 WriteReviewScreen.navigationOptions = ({ navigation }) => {
-  const firestore = new useFirestore();
   return {
     headerRight: () => (
       <TouchableOpacity
         onPress={() => {
           if (navigation.getParam("rid")) {
-            firestore.updateReview(
-              navigation.getParam("rid"),
-              navigation.getParam("content_id"),
-              navigation.getParam("content_type"),
-              navigation.getParam("title"),
-              navigation.getParam("rating")[0],
-              navigation.getParam("text")
-            );
+            navigation
+              .getParam("firestore")
+              .updateReview(
+                navigation.getParam("rid"),
+                navigation.getParam("content_id"),
+                navigation.getParam("content_type"),
+                navigation.getParam("title"),
+                navigation.getParam("rating")[0],
+                navigation.getParam("text")
+              );
           } else {
-            firestore.addReview(
-              navigation.getParam("content_id"),
-              navigation.getParam("content_type"),
-              navigation.getParam("title"),
-              navigation.getParam("rating")[0],
-              navigation.getParam("text")
-            );
+            navigation
+              .getParam("firestore")
+              .addReview(
+                navigation.getParam("content_id"),
+                navigation.getParam("content_type"),
+                navigation.getParam("title"),
+                navigation.getParam("rating")[0],
+                navigation.getParam("text")
+              );
           }
           navigation.pop();
         }}

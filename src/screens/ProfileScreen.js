@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import {
   View,
   Text,
@@ -13,14 +13,14 @@ import colors from "../constants/colors";
 import { auth } from "firebase";
 import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
-import useFirestore from "../hooks/useFirestore";
+import context from "../context/context";
 import images from "../constants/images";
 
 const UserProfileScreen = ({ navigation }) => {
   const uid = navigation.getParam("uid") || auth().currentUser.email;
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
-  const firebase = new useFirestore();
+  const firebase = useContext(context);
 
   useEffect(() => {
     const fetch = () => {
@@ -56,40 +56,39 @@ const UserProfileScreen = ({ navigation }) => {
 
   return user ? (
     <Container>
+      {user.profile_url ? (
+        <Image
+          source={{
+            uri: user.profile_url
+          }}
+          style={styles.imageStyle}
+        />
+      ) : (
+        <Image
+          source={{ uri: images.profileDefault }}
+          style={styles.imageStyle}
+        />
+      )}
+      {user.handle !== "" ? (
+        <Text style={styles.handleStyle}>@{user.handle}</Text>
+      ) : (
+        <Text style={styles.handleStyle}>@{user.email}</Text>
+      )}
+      <View style={styles.numberStyle}>
+        <Text style={styles.followStyle}>
+          {user.followers.length} Followers
+        </Text>
+        <Text style={styles.followStyle}>
+          {user.following.length} Following
+        </Text>
+      </View>
+
+      {user.bio ? (
+        <Text style={styles.bioStyle}>{user.bio}</Text>
+      ) : uid === auth().currentUser.email ? (
+        <Text style={styles.bioStyle}>Add a bio from the Account screen</Text>
+      ) : null}
       <ScrollView>
-        {user.profile_url ? (
-          <Image
-            source={{
-              uri: user.profile_url
-            }}
-            style={styles.imageStyle}
-          />
-        ) : (
-          <Image
-            source={{ uri: images.profileDefault }}
-            style={styles.imageStyle}
-          />
-        )}
-        {user.handle !== "" ? (
-          <Text style={styles.handleStyle}>@{user.handle}</Text>
-        ) : (
-          <Text style={styles.handleStyle}>@{user.email}</Text>
-        )}
-        <View style={styles.numberStyle}>
-          <Text style={styles.followStyle}>
-            {user.followers.length} Followers
-          </Text>
-          <Text style={styles.followStyle}>
-            {user.following.length} Following
-          </Text>
-        </View>
-
-        {user.bio ? (
-          <Text style={styles.bioStyle}>{user.bio}</Text>
-        ) : uid === auth().currentUser.email ? (
-          <Text style={styles.bioStyle}>Add a bio from the Account screen</Text>
-        ) : null}
-
         {user.email === auth().currentUser.email ? null : !isFollowing() ? (
           <TouchableOpacity
             onPress={() => {

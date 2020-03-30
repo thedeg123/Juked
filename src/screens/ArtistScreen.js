@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View, Text, StyleSheet, Image, FlatList } from "react-native";
 import useMusic from "../hooks/useMusic";
-import useFirestore from "../hooks/useFirestore";
 import { auth } from "firebase";
 import ArtistPreview from "../components/ArtistPreview";
 import Container from "../components/Container";
@@ -9,6 +8,7 @@ import colors from "../constants/colors";
 import images from "../constants/images";
 import LoadingIndicator from "../components/LoadingIndicator";
 import ReviewButton from "../components/ReviewButton";
+import context from "../context/context";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
@@ -23,7 +23,7 @@ const ArtistScreen = ({ navigation }) => {
   // data from review database
   const [rating, setRating] = useState(null);
   const [avg_rating, setAvg_rating] = useState(null);
-  const firestore = new useFirestore();
+  const firestore = useContext(context);
   const init = () => {
     // init and get all data needed via api
     firestore
@@ -54,6 +54,7 @@ const ArtistScreen = ({ navigation }) => {
     <View style={{ alignItems: "center" }}>
       <Image
         style={{
+          marginTop: 10,
           width: "50%",
           aspectRatio: artist.images[0]
             ? artist.images[0].width / artist.images[0].height
@@ -80,19 +81,17 @@ const ArtistScreen = ({ navigation }) => {
 
   // render main component
   return (
-    <Container style={styles.container}>
-      <FlatList
-        data={albums}
-        keyExtracter={({ item }) => item.name}
-        renderItem={({ item }) => {
-          return <ArtistPreview result={item} navigation={navigation} />;
-        }}
-        columnWrapperStyle={styles.column}
-        numColumns={2}
-        ListHeaderComponent={headerComponent}
-        ListHeaderComponentStyle={{ alignItems: "center" }}
-      />
-    </Container>
+    <FlatList
+      data={albums}
+      keyExtracter={({ item }) => item.name}
+      renderItem={({ item }) => {
+        return <ArtistPreview result={item} navigation={navigation} />;
+      }}
+      columnWrapperStyle={styles.column}
+      numColumns={2}
+      ListHeaderComponent={headerComponent}
+      ListHeaderComponentStyle={{ alignItems: "center" }}
+    />
   );
 };
 
@@ -109,10 +108,6 @@ ArtistScreen.navigationOptions = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "column",
-    flex: 1
-  },
   column: { flexShrink: 1, width: "50%" },
   title: { fontSize: 30, color: colors.text },
   subtitle: {
