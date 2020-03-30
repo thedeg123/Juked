@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { auth } from "firebase";
 import { withNavigation } from "react-navigation";
-import useFirestore from "../hooks/useFirestore";
+import context from "../context/context";
 
 const ReviewButton = ({ navigation, content_id, content_type }) => {
   if (!content_id || !content_type) {
@@ -11,7 +11,7 @@ const ReviewButton = ({ navigation, content_id, content_type }) => {
   }
   const email = auth().currentUser.email;
   const [rid, setRid] = useState(null);
-  const firestore = new useFirestore();
+  const firestore = useContext(context);
   useEffect(() => {
     const findReview = () =>
       firestore.getReviewsByAuthorContent(email, content_id).then(res => {
