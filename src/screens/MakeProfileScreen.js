@@ -1,17 +1,11 @@
-import React, { useState } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Button
-} from "react-native";
+import React, { useState, useContext } from "react";
+import { View, StyleSheet, Text, KeyboardAvoidingView } from "react-native";
+import { Input } from "react-native-elements";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
-import Handle from "../components/MakeProfileScreenComponents/Handle";
-import { auth } from "firebase";
-import Bio from "../components/MakeProfileScreenComponents/Bio";
-import firebase from "firebase";
-import "firebase/firestore";
+import context from "../context/context";
+import colors from "../constants/colors";
+import Logo from "../components/Logo";
+import Button from "../components/AuthButton";
 
 const MakeProfileScreen = ({
   navigation,
@@ -22,60 +16,68 @@ const MakeProfileScreen = ({
   const [imageURL, setImageUrl] = useState(existingURL);
   const [handle, setHandle] = useState(existingHandle);
   const [bio, setBio] = useState(existingBio);
+  const [active, setActive] = useState(false);
   const [error, setError] = useState("");
-  let db = firebase.firestore();
+  let firestore = useContext(context);
   return (
-    <KeyboardAvoidingView behavior="position" style={styles.containerStyle}>
-      <Text style={styles.headerStyle}>Tell us about yourself,</Text>
-      <ImagePreview
-        imageURL={imageURL}
-        setImageUrl={setImageUrl}
-      ></ImagePreview>
-      <View style={styles.spacerStyle}></View>
-      <Handle error={error} handle={handle} setHandle={setHandle}></Handle>
-      <View style={styles.spacerStyle}></View>
-      <Bio bio={bio} setBio={setBio}></Bio>
-      <View style={styles.spacerStyle}></View>
-      <Button
-        title="Get Jukin'!"
-        onPress={() => {
-          handle.length < 3 || handle.length > 10
-            ? setError("Handles must be between 3 and 10 characters.")
-            : firebase
-                .firestore()
-                .collection("users")
-                .where("handle", "==", handle)
-                .limit(1)
-                .get()
-                .then(doc => {
-                  let res = [];
-                  doc.forEach(d => res.push(d.data()));
-                  if (res.length) {
-                    setError(
-                      "That handle has already been taken! Give it another shot!"
-                    );
-                    return false;
-                  } else {
-                    setError("");
-                    return true;
-                  }
-                })
-                .then(valid_handle => {
-                  valid_handle
-                    ? db
-                        .collection("users")
-                        .doc(auth().currentUser.email)
-                        .update({
-                          handle,
-                          bio,
-                          imageURL
-                        })
-                        .then(() => navigation.navigate("homeScreen"))
-                    : null;
-                });
-        }}
-      ></Button>
-    </KeyboardAvoidingView>
+    <View style={styles.containerStyle}>
+      {!active ? <Logo subtext="Let's make that bio,"></Logo> : null}
+      {active ? <Text style={styles.smallLogoStyle}>Juked</Text> : null}
+      <KeyboardAvoidingView behavior="padding">
+        <ImagePreview imageURL={imageURL}></ImagePreview>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <Input
+          onFocus={() => setActive(true)}
+          label="Paste a URL for a profile pic,"
+          value={imageURL}
+          labelStyle={{ color: colors.white }}
+          onChangeText={setImageUrl}
+          autoCapitalize="none"
+          onEndEditing={() => setActive(false)}
+          keyboardType="web-search"
+          autoCorrect={false}
+        ></Input>
+        <Input
+          label="Choose a handle,"
+          onFocus={() => setActive(true)}
+          value={"@" + handle}
+          labelStyle={{ color: colors.white }}
+          returnKeyType={"done"}
+          onChangeText={text => setHandle(text.substring(1, 11))}
+          onEndEditing={() => setActive(false)}
+          autoCapitalize="none"
+          autoCorrect={false}
+        ></Input>
+        <Input
+          label="Anything else to add?"
+          value={bio}
+          multiline
+          maxLength={200}
+          onFocus={() => setActive(true)}
+          blurOnSubmit
+          onEndEditing={() => setActive(false)}
+          returnKeyType={"done"}
+          labelStyle={{ color: colors.white }}
+          onChangeText={setBio}
+        ></Input>
+        <Button
+          title="Get Jukin'!"
+          onPress={() => {
+            handle.length < 3 || handle.length > 10
+              ? setError("Handles must be between 3 and 10 characters.")
+              : firestore
+                  .getUserByHandle(handle)
+                  .then(res =>
+                    res
+                      ? setError("That handle has already been taken!")
+                      : firestore
+                          .updateUser(handle, bio, imageURL)
+                          .then(navigation.navigate("homeFlow"))
+                  );
+          }}
+        ></Button>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
@@ -87,11 +89,22 @@ MakeProfileScreen.defaultProps = {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    margin: 20,
-    marginTop: 40
+    padding: 20,
+    paddingTop: 50,
+    backgroundColor: colors.primary,
+    justifyContent: "space-between",
+    flex: 1
   },
-  spacerStyle: {
-    marginVertical: 20
+  smallLogoStyle: {
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "bold",
+    color: colors.white
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: colors.white
   },
   headerStyle: {
     fontSize: 32,
