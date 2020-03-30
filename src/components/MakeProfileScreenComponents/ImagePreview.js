@@ -1,30 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
-import { Input } from "react-native-elements";
+import images from "../../constants/images";
 
-const ImagePreview = ({ imageURL, setImageUrl }) => {
-  const [showImage, setShowImage] = useState(false);
+const ImagePreview = ({ imageURL }) => {
   return (
-    <View>
-      <View style={styles.imageBorderStyle}>
-        {showImage ? (
-          <Image style={styles.imageStyle} source={{ uri: imageURL }}></Image>
-        ) : null}
-      </View>
-      <Input
-        label="Paste a URL for a profile pic,"
-        value={imageURL}
-        onChangeText={text => {
-          setShowImage(false);
-          setImageUrl(text);
-        }}
-        onEndEditing={text => {
-          setShowImage(Boolean(text.nativeEvent.text.length));
-        }}
-        autoCapitalize="none"
-        keyboardType="web-search"
-        autoCorrect={false}
-      ></Input>
+    <View style={styles.imageBorderStyle}>
+      <Image
+        style={styles.imageStyle}
+        source={{ uri: imageURL.length ? imageURL : images.profileDefault }}
+      ></Image>
     </View>
   );
 };
@@ -36,9 +20,9 @@ const styles = StyleSheet.create({
   imageBorderStyle: {
     borderWidth: 1,
     alignSelf: "center",
-    width: 200,
+    width: 100,
+    aspectRatio: 1,
     borderRadius: 5,
-    height: 200,
     marginBottom: 20
   },
   imageStyle: {

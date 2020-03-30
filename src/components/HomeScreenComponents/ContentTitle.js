@@ -30,18 +30,18 @@ const styles = StyleSheet.create({
     marginLeft: 5
   },
   headerStyle: {
-    fontSize: 15,
-    marginBottom: 10,
+    fontSize: 22,
+    marginBottom: 5,
     fontWeight: "bold",
-    color: colors.text
+    color: colors.white
   },
   subheaderStyle: {
-    fontSize: 15,
-    color: colors.text
+    fontSize: 20,
+    color: colors.white
   },
   dateStyle: {
-    fontSize: 14,
-    color: colors.text
+    fontSize: 16,
+    color: colors.white
   }
 });
 

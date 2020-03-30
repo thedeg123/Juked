@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   imageStyle: {
     aspectRatio: 1,
-    width: 119,
+    width: 120,
     borderColor: colors.shadow,
     borderWidth: 1,
     borderRadius: 5

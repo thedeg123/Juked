@@ -10,7 +10,10 @@ import HomeScreenBorder from "./HomeScreenBorder";
 const HomeScreenItem = ({ review, content, author }) => {
   return (
     <>
-      <HomeScreenBorder rid={review.title ? review.rid : null}>
+      <HomeScreenBorder
+        img={content.image}
+        rid={review.title ? review.rid : null}
+      >
         <View style={styles.contentStyle}>
           <ContentPic
             img={content.image}

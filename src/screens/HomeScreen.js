@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { StyleSheet, FlatList } from "react-native";
+import useMusic from "../hooks/useMusic";
+import context from "../context/context";
+
 import Container from "../components/Container";
 import ButtonFilter from "../components/HomeScreenComponents/ButtonFilter";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
-import useMusic from "../hooks/useMusic";
 import simplifyContent from "../helpers/simplifyContent";
 import LoadingIndicator from "../components/LoadingIndicator";
-import useFiresore from "../hooks/useFirestore";
+
 const HomeScreen = ({ navigation }) => {
   const [Tab1, Tab2] = ["All", "Friends"];
   const [filter, setFilter] = useState(Tab1);
@@ -14,7 +16,7 @@ const HomeScreen = ({ navigation }) => {
   const [content, setContent] = useState(null);
   const [authors, setAuthors] = useState(null);
   const { findContent } = useMusic();
-  let firestore = new useFiresore();
+  let firestore = useContext(context);
   // if yk sql, this is what were doing here:
   // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
   // groupby type theta join type==content_id on (select * from Music)) natural join Users;
@@ -46,10 +48,10 @@ const HomeScreen = ({ navigation }) => {
     setReviews(reviews.sort((a, b) => b.last_modified - a.last_modified));
   };
   useEffect(() => {
-    fetchHomeScreenData(5);
-    const listener = navigation.addListener("didFocus", () =>
-      fetchHomeScreenData(5)
-    ); //any time we return to this screen we do another fetch
+    fetchHomeScreenData(10);
+    const listener = navigation.addListener("didFocus", () => {
+      return fetchHomeScreenData(10);
+    }); //any time we return to this screen we do another fetch
     return () => listener.remove();
   }, []);
   return (
@@ -63,13 +65,14 @@ const HomeScreen = ({ navigation }) => {
           data={reviews}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
-            return (
+            return content[item.review.content_id] && //for when we have fetched new reviews but not finished fetching new content
+              authors[item.review.author] ? ( //we dont want our content/authors to be undefined, so we skip and wait to finish the fetch
               <HomeScreenItem
                 review={{ ...item.review, rid: item.id }}
                 content={content[item.review.content_id]}
                 author={authors[item.review.author]}
               ></HomeScreenItem>
-            );
+            ) : null;
           }}
         ></FlatList>
       ) : (
