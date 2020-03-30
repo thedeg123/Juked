@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import { Input } from "react-native-elements";
+import colors from "../constants/colors";
 
 const PasswordField = ({ password, updatePassword, leftIcon, title }) => {
   return (
@@ -8,6 +9,7 @@ const PasswordField = ({ password, updatePassword, leftIcon, title }) => {
       <Input
         value={password}
         secureTextEntry={true}
+        labelStyle={{ color: colors.white }}
         label={title}
         leftIcon={leftIcon}
         onChangeText={text => updatePassword(text)}

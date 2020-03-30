@@ -7,5 +7,6 @@ export default {
   text: "#1C1C1C",
   highlight: "#95b6ed",
   textLight: "#37373b",
-  errorText: "#9a3732"
+  errorText: "#9a3732",
+  white: "#FFF"
 };

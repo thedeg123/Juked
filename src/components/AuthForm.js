@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Button } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Text, Input } from "react-native-elements";
+import Button from "./AuthButton";
+import colors from "../constants/colors";
 import PasswordField from "./PasswordField";
 import { Ionicons } from "@expo/vector-icons";
 
 const AuthForm = ({
-  headerText,
   submitButtonAction,
   submitButtonTitle,
   confirmPassword
@@ -16,8 +17,6 @@ const AuthForm = ({
 
   return (
     <View>
-      <Text style={styles.headerStyle}>Juked</Text>
-      <Text h3>{headerText}</Text>
       <View style={styles.verticalSpacerStyle}></View>
       <Input
         label="Email"
@@ -25,11 +24,14 @@ const AuthForm = ({
         value={email}
         onChangeText={text => setEmail(text)}
         autoCapitalize="none"
+        returnKeyType={"done"}
+        labelStyle={{ color: colors.white }}
         autoCorrect={false}
       ></Input>
       <View style={styles.verticalSpacerStyle}></View>
       <PasswordField
         password={password}
+        returnKeyType={"done"}
         leftIcon={<Ionicons name="ios-unlock" style={styles.iconStyle} />}
         updatePassword={setPassword}
       ></PasswordField>
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start"
   },
   verticalSpacerStyle: {
-    marginVertical: 20
+    marginVertical: 10
   }
 });
 
