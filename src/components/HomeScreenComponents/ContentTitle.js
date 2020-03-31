@@ -6,7 +6,7 @@ const ContentTitle = ({ header, subheader, date, review }) => {
   return (
     <View style={styles.containerStyle} onPress={() => {}}>
       <View>
-        <Text numberOfLines={3} style={styles.headerStyle}>
+        <Text numberOfLines={2} style={styles.headerStyle}>
           {header}
         </Text>
         <Text numberOfLines={2} style={styles.subheaderStyle}>

@@ -33,8 +33,8 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     marginVertical: 1,
-    color: colors.textLight,
-    fontSize: 10
+    color: colors.white,
+    fontSize: 11
   }
 });
 

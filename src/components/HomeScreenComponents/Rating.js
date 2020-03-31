@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   },
   numberStyle: {
     fontSize: 50,
-    color: colors.secondary
+    color: colors.primary
   }
 });
 

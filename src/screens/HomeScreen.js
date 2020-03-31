@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import { StyleSheet, FlatList } from "react-native";
+import { StyleSheet, FlatList, RefreshControl } from "react-native";
 import useMusic from "../hooks/useMusic";
 import context from "../context/context";
 
@@ -15,6 +15,7 @@ const HomeScreen = ({ navigation }) => {
   const [reviews, setReviews] = useState(null);
   const [content, setContent] = useState(null);
   const [authors, setAuthors] = useState(null);
+  const [refreshing, setRefreshing] = React.useState(false);
   const { findContent } = useMusic();
   let firestore = useContext(context);
   // if yk sql, this is what were doing here:
@@ -45,7 +46,9 @@ const HomeScreen = ({ navigation }) => {
           return ret;
         })
     );
-    setReviews(reviews.sort((a, b) => b.last_modified - a.last_modified));
+    return setReviews(
+      reviews.sort((a, b) => b.last_modified - a.last_modified)
+    );
   };
   useEffect(() => {
     fetchHomeScreenData(10);
@@ -74,6 +77,17 @@ const HomeScreen = ({ navigation }) => {
               ></HomeScreenItem>
             ) : null;
           }}
+          refreshControl={
+            <RefreshControl
+              colors={["red", "blue"]}
+              refreshing={refreshing}
+              onRefresh={async () => {
+                setRefreshing(true);
+                await fetchHomeScreenData(10);
+                return setRefreshing(false);
+              }}
+            />
+          }
         ></FlatList>
       ) : (
         <LoadingIndicator></LoadingIndicator>
