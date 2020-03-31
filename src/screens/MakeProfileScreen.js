@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import { View, StyleSheet, Text, KeyboardAvoidingView } from "react-native";
 import { Input } from "react-native-elements";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
@@ -18,6 +18,8 @@ const MakeProfileScreen = ({
   const [bio, setBio] = useState(existingBio);
   const [active, setActive] = useState(false);
   const [error, setError] = useState("");
+  const handleRef = useRef(null);
+  const bioRef = useRef(null);
   let firestore = useContext(context);
   return (
     <View style={styles.containerStyle}>
@@ -30,29 +32,41 @@ const MakeProfileScreen = ({
           onFocus={() => setActive(true)}
           label="Paste a URL for a profile pic,"
           value={imageURL}
+          selectionColor={colors.white}
           labelStyle={{ color: colors.white }}
           onChangeText={setImageUrl}
           autoCapitalize="none"
-          onEndEditing={() => setActive(false)}
+          returnKeyType={"next"}
+          onEndEditing={() => {
+            setActive(false);
+            return handleRef.current.focus();
+          }}
           keyboardType="web-search"
           autoCorrect={false}
         ></Input>
         <Input
+          ref={handleRef}
           label="Choose a handle,"
           onFocus={() => setActive(true)}
           value={"@" + handle}
+          selectionColor={colors.white}
           labelStyle={{ color: colors.white }}
-          returnKeyType={"done"}
+          returnKeyType={"next"}
           onChangeText={text => setHandle(text.substring(1, 11))}
-          onEndEditing={() => setActive(false)}
+          onEndEditing={() => {
+            setActive(false);
+            return bioRef.current.focus();
+          }}
           autoCapitalize="none"
           autoCorrect={false}
         ></Input>
         <Input
+          ref={bioRef}
           label="Anything else to add?"
           value={bio}
           multiline
           maxLength={200}
+          selectionColor={colors.white}
           onFocus={() => setActive(true)}
           blurOnSubmit
           onEndEditing={() => setActive(false)}

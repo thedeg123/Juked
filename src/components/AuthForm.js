@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, StyleSheet } from "react-native";
-import { Text, Input } from "react-native-elements";
+import { Input } from "react-native-elements";
 import Button from "./AuthButton";
 import colors from "../constants/colors";
-import PasswordField from "./PasswordField";
 import { Ionicons } from "@expo/vector-icons";
+import AuthLoading from "../components/AuthLoading";
 
 const AuthForm = ({
   submitButtonAction,
@@ -14,7 +14,9 @@ const AuthForm = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
-
+  const [loading, setLoading] = useState(false);
+  const passwordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
   return (
     <View>
       <View style={styles.verticalSpacerStyle}></View>
@@ -24,34 +26,66 @@ const AuthForm = ({
         value={email}
         onChangeText={text => setEmail(text)}
         autoCapitalize="none"
-        returnKeyType={"done"}
+        returnKeyType={"next"}
+        selectionColor={colors.white}
         labelStyle={{ color: colors.white }}
         autoCorrect={false}
+        onEndEditing={() => passwordRef.current.focus()}
       ></Input>
       <View style={styles.verticalSpacerStyle}></View>
-      <PasswordField
-        password={password}
-        returnKeyType={"done"}
+      <Input
+        ref={passwordRef}
+        value={password}
+        selectTextOnFocus
+        secureTextEntry={true}
+        labelStyle={{ color: colors.white }}
+        label={"Password"}
+        selectionColor={colors.white}
         leftIcon={<Ionicons name="ios-unlock" style={styles.iconStyle} />}
-        updatePassword={setPassword}
-      ></PasswordField>
+        returnKeyType={confirmPassword ? "next" : "done"}
+        onChangeText={setPassword}
+        autoCapitalize="none"
+        autoCorrect={false}
+        onEndEditing={() =>
+          confirmPassword ? confirmPasswordRef.current.focus() : null
+        }
+      ></Input>
       <View style={styles.verticalSpacerStyle}></View>
       {confirmPassword ? (
-        <PasswordField
-          password={verifyPassword}
+        <Input
+          ref={confirmPasswordRef}
+          value={verifyPassword}
+          selectTextOnFocus
+          secureTextEntry={true}
+          selectionColor={colors.white}
+          labelStyle={{ color: colors.white }}
+          label={"Confirm Password"}
           leftIcon={<Ionicons name="ios-lock" style={styles.iconStyle} />}
-          updatePassword={setVerifyPassword}
-          title="Confirm Password"
-        ></PasswordField>
+          returnKeyType={"done"}
+          onChangeText={setVerifyPassword}
+          autoCapitalize="none"
+          autoCorrect={false}
+        ></Input>
       ) : null}
-      <Button
-        onPress={() =>
-          confirmPassword
-            ? submitButtonAction(email, password, verifyPassword)
-            : submitButtonAction(email, password)
-        }
-        title={submitButtonTitle}
-      ></Button>
+      {loading ? (
+        <AuthLoading></AuthLoading>
+      ) : (
+        <Button
+          onPress={() => {
+            setLoading(true);
+            confirmPassword
+              ? submitButtonAction(
+                  email,
+                  password,
+                  verifyPassword
+                ).finally(() => setLoading(false))
+              : submitButtonAction(email, password).finally(() =>
+                  setLoading(false)
+                );
+          }}
+          title={submitButtonTitle}
+        ></Button>
+      )}
     </View>
   );
 };
