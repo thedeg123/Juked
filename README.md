@@ -4,8 +4,8 @@ Log, rate, review, save the world!
 
 ### TODO:
 
+- add cloud firestore funcs
 - improve error messages throughout
-- migrate dbs to mongoDB
 - integrate spotify api onto backend
 - add delete user functionality to database
 - remove useless installed modules from project
@@ -15,4 +15,3 @@ Log, rate, review, save the world!
 
 ### NOTES:
 
-- limit review titles to 20 chars
