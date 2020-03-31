@@ -94,11 +94,11 @@ class useFirestore {
         return res.length ? res[0] : null;
       });
   }
-  async updateUser(handle, bio, imageURL) {
+  async updateUser(handle, bio, profile_url) {
     let body = {};
     handle ? (body["handle"] = handle) : null;
     bio ? (body["bio"] = bio) : null;
-    imageURL ? (body["imageURL"] = imageURL) : null;
+    profile_url ? (body["profile_url"] = profile_url) : null;
     return await this.users_db.doc(this.auth.currentUser.email).update(body);
   }
   async getMostRecentReviews(limit) {

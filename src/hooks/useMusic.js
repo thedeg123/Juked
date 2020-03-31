@@ -98,7 +98,9 @@ export default () => {
       case "search_api":
         response = await requestAPI(accessToken, `${BASE_PATH}/search`, {
           q: action.searchTerm,
-          type: action.catagory
+          type: action.catagory,
+          market: COUNTRY_CODE,
+          limit: 20
         });
         updateState(response);
         return response;
