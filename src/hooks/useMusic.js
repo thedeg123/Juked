@@ -84,7 +84,7 @@ export default () => {
         response = await requestAPI(
           accessToken,
           `${BASE_PATH}/artists/${action.ids}/albums`,
-          { country: COUNTRY_CODE }
+          { country: COUNTRY_CODE, limit: 50 }
         );
         updateState(response);
         return response;
