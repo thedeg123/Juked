@@ -15,24 +15,26 @@ import Container from "../components/Container";
 import ListPreview from "../components/ListPreview";
 import context from "../context/context";
 import images from "../constants/images";
+import FollowButton from "../components/FollowButton";
+import LoadingIndicator from "../components/LoadingIndicator";
 
 const UserProfileScreen = ({ navigation }) => {
-  const uid = navigation.getParam("uid") || auth().currentUser.email;
+  const firestore = useContext(context);
+  const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
-  const firebase = useContext(context);
-
+  const [following, setFollowing] = useState(null);
+  const [followers, setFollowers] = useState(null);
+  const fetchFollow = async () => {
+    await firestore.getFollowing(uid).then(res => setFollowing(res));
+    await firestore.getFollowers(uid).then(res => setFollowers(res));
+  };
   useEffect(() => {
     const fetch = () => {
-      if (!uid) {
-        uid = auth().currentUser.email;
-      }
-      firebase.getReviewsByAuthor(uid).then(allReviews => {
-        setReviews(allReviews);
-      });
-      firebase.getUser(uid).then(myUser => {
-        setUser(myUser);
-      });
+      if (!uid) uid = firestore.fetchCurrentUID();
+      firestore.getReviewsByAuthor(uid).then(res => setReviews(res));
+      firestore.getUser(uid).then(res => setUser(res));
+      fetchFollow();
     };
     fetch();
     const listener = navigation.addListener("didFocus", () => fetch()); //any time we return to this screen we do another fetch
@@ -48,12 +50,12 @@ const UserProfileScreen = ({ navigation }) => {
     });
     return num;
   };
-
-  const isFollowing = () => {
-    // Need to add this function from useFirestore
-    return true;
-  };
-
+  if (!user || !reviews || !followers || !following)
+    return (
+      <Container style={styles.container}>
+        <LoadingIndicator></LoadingIndicator>
+      </Container>
+    );
   return user ? (
     <Container>
       {user.profile_url ? (
@@ -75,62 +77,29 @@ const UserProfileScreen = ({ navigation }) => {
         <Text style={styles.handleStyle}>@{user.email}</Text>
       )}
       <View style={styles.numberStyle}>
-        <Text style={styles.followStyle}>
-          {user.followers.length} Followers
-        </Text>
-        <Text style={styles.followStyle}>
-          {user.following.length} Following
-        </Text>
+        <Text style={styles.followStyle}>{followers.size} Followers</Text>
+        <Text style={styles.followStyle}> {following.size} Following</Text>
       </View>
-
       {user.bio ? (
         <Text style={styles.bioStyle}>{user.bio}</Text>
-      ) : uid === auth().currentUser.email ? (
+      ) : uid === firestore.fetchCurrentUID() ? (
         <Text style={styles.bioStyle}>Add a bio from the Account screen</Text>
       ) : null}
+      {uid == firestore.fetchCurrentUID() ? null : followers.has(
+          firestore.fetchCurrentUID()
+        ) ? (
+        <FollowButton
+          following
+          onPress={() => firestore.unfollowUser(uid).then(() => fetchFollow())}
+        ></FollowButton>
+      ) : (
+        <FollowButton
+          following={false}
+          onPress={() => firestore.followUser(uid).then(() => fetchFollow())}
+        ></FollowButton>
+      )}
+      <Text style={styles.reviewTitleStyle}>Reviews</Text>
       <ScrollView>
-        {user.email === auth().currentUser.email ? null : !isFollowing() ? (
-          <TouchableOpacity
-            onPress={() => {
-              useFirestore.updateUser(
-                auth().currentUser.email,
-                null,
-                null,
-                null,
-                null,
-                uid
-              );
-            }}
-          >
-            <SimpleLineIcons
-              name="user-follow"
-              style={styles.followIconStyle}
-              color={colors.text}
-            ></SimpleLineIcons>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => {
-              useFirestore.updateUser(
-                auth().currentUser.email,
-                null,
-                null,
-                null,
-                null,
-                null,
-                uid
-              );
-            }}
-          >
-            <SimpleLineIcons
-              name="user-following"
-              style={styles.followIconStyle}
-              color={colors.text}
-            ></SimpleLineIcons>
-          </TouchableOpacity>
-        )}
-
-        <Text style={styles.reviewTitleStyle}>Reviews</Text>
         <ListPreview
           title="Artists"
           num={reviews ? numType({ reviews: reviews, type: "artist" }) : 0}
@@ -191,6 +160,11 @@ const styles = StyleSheet.create({
   headerRightStyle: {
     fontSize: 25,
     marginRight: 10
+  },
+  container: {
+    backgroundColor: colors.white,
+    flexDirection: "column",
+    flex: 1
   },
   imageStyle: {
     height: 175,

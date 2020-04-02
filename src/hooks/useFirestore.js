@@ -6,6 +6,7 @@ class useFirestore {
   constructor() {
     this.db = firebase.firestore();
     this.reviews_db = this.db.collection("reviews");
+    this.follow_db = this.db.collection("follow");
     this.users_db = this.db.collection("users");
     this.auth = firebase.auth();
   }
@@ -16,39 +17,21 @@ class useFirestore {
   async signin(email, password) {
     return await this.auth
       .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        return null;
-      })
+      .then(() => null)
       .catch(err => err.message);
   }
+  fetchCurrentUID() {
+    return this.auth.currentUser.email;
+  }
   async signup(email, password, verifypassword) {
-    //TODO: change creation of profile to cloud function on backend
     if (password !== verifypassword) return "Passwords do not Match!";
     return await this.auth
       .createUserWithEmailAndPassword(email, password)
-      .then(() => this.addNewUser(email).catch(err => err.message))
-      .then(() => {
-        return null;
-      })
+      .then(() => null)
       .catch(err => err.message);
   }
   async signout() {
     return await this.auth.signOut().catch(err => err.message);
-  }
-  async addNewUser(email) {
-    //TODO: change to cloud function on backend
-    return await this.users_db
-      .doc(email)
-      .set({
-        email,
-        handle: "",
-        bio: "",
-        profile_url: "",
-        created: Date.now(),
-        followers: [],
-        following: []
-      })
-      .catch(err => err.message);
   }
   async getReviewsByAuthorContent(uid, content_id) {
     let ret = [];
@@ -178,6 +161,43 @@ class useFirestore {
       .then(content => {
         let ret = [];
         content.forEach(element => ret.push(element.data()));
+        return ret;
+      });
+  }
+  async followUser(uid) {
+    return await this.follow_db.doc(this.auth.currentUser.email + uid).set({
+      follower: this.auth.currentUser.email,
+      following: uid
+    });
+  }
+  async unfollowUser(uid) {
+    return await this.follow_db.doc(this.auth.currentUser.email + uid).delete();
+  }
+  /**
+   * @argument {String} uid - the unique id of the user we want to get the followers of
+   * @return {Set} - the set of followers UIDs.
+   */
+  async getFollowers(uid) {
+    return await this.follow_db
+      .where("following", "==", uid)
+      .get()
+      .then(res => {
+        let ret = new Set();
+        res.forEach(d => ret.add(d.data().follower));
+        return ret;
+      });
+  }
+  /**
+   * @argument {String} uid - the unique id of the user we want to see who is following
+   * @return {Set} - the set of following UIDs.
+   */
+  async getFollowing(uid) {
+    return await this.follow_db
+      .where("follower", "==", uid)
+      .get()
+      .then(res => {
+        let ret = new Set();
+        res.forEach(d => ret.add(d.data().following));
         return ret;
       });
   }

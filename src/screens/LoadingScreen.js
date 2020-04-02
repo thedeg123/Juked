@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { StyleSheet } from "react-native";
 import { auth } from "firebase";
 import LoadingIndicator from "../components/LoadingIndicator";
 import colors from "../constants/colors";
 import Container from "../components/Container";
-import firebase from "firebase";
-import "firebase/firestore";
+import context from "../context/context";
 
 const LoadingScreen = ({ navigation }) => {
-  let db = firebase.firestore();
+  let firestore = useContext(context);
   useEffect(() => {
     const routeState = () => {
       return auth().onAuthStateChanged(async user => {
@@ -26,11 +25,7 @@ const LoadingScreen = ({ navigation }) => {
             }
             count++;
             console.log("waiting on:", user.email, "try number", count);
-            response = await db
-              .collection("users")
-              .doc(user.email)
-              .get()
-              .then(doc => (doc.exists ? doc.data() : null));
+            response = await firestore.getUser(user.email);
           } while (!response);
           return response.handle.length
             ? navigation.navigate("homeFlow")

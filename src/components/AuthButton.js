@@ -2,7 +2,7 @@ import React from "react";
 import { TouchableOpacity, Text, StyleSheet } from "react-native";
 import colors from "../constants/colors";
 
-const Logo = ({ title, onPress }) => {
+const AuthButton = ({ title, onPress }) => {
   return (
     <TouchableOpacity style={styles.containerStyle} onPress={onPress}>
       <Text style={styles.titleText}>{title}</Text>
@@ -27,4 +27,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Logo;
+export default AuthButton;

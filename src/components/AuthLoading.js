@@ -18,12 +18,6 @@ const styles = StyleSheet.create({
     padding: 7,
     margin: 5,
     backgroundColor: colors.white
-  },
-  titleText: {
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-    color: colors.primary
   }
 });
 
