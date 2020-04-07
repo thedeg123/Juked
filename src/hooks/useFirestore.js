@@ -8,6 +8,7 @@ class useFirestore {
     this.reviews_db = this.db.collection("reviews");
     this.follow_db = this.db.collection("follow");
     this.users_db = this.db.collection("users");
+    this.content_db = this.db.collection("content");
     this.auth = firebase.auth();
   }
   /**
@@ -43,6 +44,20 @@ class useFirestore {
         res.forEach(r => ret.push({ id: r.id, data: r.data() }));
         return ret;
       });
+  }
+  async getContentData(cid) {
+    return await this.content_db
+      .doc(cid)
+      .get()
+      .then(content =>
+        content.exists
+          ? content.data()
+          : {
+              avg: 0,
+              number_reviews: 0,
+              review_nums: new Array(11).fill(0)
+            }
+      );
   }
   async getReview(rid) {
     return await this.reviews_db
