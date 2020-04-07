@@ -17,6 +17,7 @@ import context from "../context/context";
 import images from "../constants/images";
 import FollowButton from "../components/FollowButton";
 import LoadingIndicator from "../components/LoadingIndicator";
+import BarGraph from "../components/Graphs/BarGraph";
 
 const UserProfileScreen = ({ navigation }) => {
   const firestore = useContext(context);
@@ -98,6 +99,8 @@ const UserProfileScreen = ({ navigation }) => {
           onPress={() => firestore.followUser(uid).then(() => fetchFollow())}
         ></FollowButton>
       )}
+      {/* TODO: DELETE OR CASE BEFORE LAUNCH */}
+      <BarGraph data={user.review_data || new Array(11).fill(0)}></BarGraph>
       <Text style={styles.reviewTitleStyle}>Reviews</Text>
       <ScrollView>
         <ListPreview

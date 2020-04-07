@@ -8,6 +8,7 @@ import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
 import ReviewButton from "../components/ReviewButton";
 import context from "../context/context";
+import BarGraph from "../components/Graphs/BarGraph";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -24,7 +25,7 @@ const AlbumScreen = ({ navigation }) => {
   const [track_reviews, setTrack_reviews] = useState(null);
   const [avg_ratings, setAvg_ratings] = useState(null);
   const [albumRating, setAlbumRating] = useState(null);
-  const [albumAvg_rating, setAlbumAvg_rating] = useState(null);
+  const [albumData, setAlbumData] = useState(null);
 
   // initialization
   const init = async () => {
@@ -44,7 +45,7 @@ const AlbumScreen = ({ navigation }) => {
               album.tracks.items.map(obj => obj.id)
             )
             .then(ret => {
-              track_reviews_by_content_id = {};
+              let track_reviews_by_content_id = {};
               ret.forEach(
                 r => (track_reviews_by_content_id[r.data.content_id] = r)
               );
@@ -55,9 +56,9 @@ const AlbumScreen = ({ navigation }) => {
     firestore
       .getReviewsByAuthorContent(email, content_id)
       .then(res => res.forEach(r => setAlbumRating(r.data.rating)));
+    firestore.getContentData(content_id).then(res => setAlbumData(res));
     // TODO: set avg ratinngs and album ratings
     setAvg_ratings(5);
-    setAlbumAvg_rating(5);
   };
 
   useEffect(() => {
@@ -67,7 +68,7 @@ const AlbumScreen = ({ navigation }) => {
   }, []);
 
   // wait until get data from all APIs
-  if (!album || !track_reviews || !avg_ratings || !albumAvg_rating)
+  if (!album || !track_reviews || !avg_ratings || !albumData)
     return (
       <Container style={styles.container}>
         <LoadingIndicator></LoadingIndicator>
@@ -76,7 +77,9 @@ const AlbumScreen = ({ navigation }) => {
   const date = new Date(album.release_date);
   const headerComponent = (
     <View style={styles.headerContainer}>
-      <View style={{ flexDirection: "row" }}>
+      <View
+        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
+      >
         <Image
           style={{
             width: "50%",
@@ -97,14 +100,18 @@ const AlbumScreen = ({ navigation }) => {
           })} ${date.getDate()}, ${date.getFullYear()}`}</Text>
         </View>
       </View>
-      <View style={{ flexDirection: "row" }}>
+      <BarGraph data={albumData.review_nums}></BarGraph>
+      <View style={{ flexDirection: "row", alignSelf: "center" }}>
         {albumRating ? (
           <Text style={styles.subtitle}>
             Your rating: <Text style={styles.rating}>{albumRating}</Text>
           </Text>
         ) : null}
         <Text style={styles.subtitle}>
-          Average rating: <Text style={styles.rating}>{albumAvg_rating}</Text>
+          Average rating:{" "}
+          <Text style={styles.rating}>
+            {Math.round(albumData.avg * 10) / 10}
+          </Text>
         </Text>
       </View>
     </View>
@@ -150,10 +157,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   headerContainer: {
-    alignItems: "center",
     flex: 1,
-    marginTop: 20,
-    marginHorizontal: 10
+    marginTop: 20
   },
   title: { fontSize: 25, color: colors.text, textAlign: "center" },
   subtitle: {
