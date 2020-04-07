@@ -4,7 +4,7 @@ import { useState } from "react";
 import colors from "../../constants/colors";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 
-const ButtonFilter = ({ options, setSelected }) => {
+const ButtonFilter = ({ options, onPress }) => {
   const activatedStyle = {
     background: styles.activatedStyleBackground,
     text: styles.activatedStyleText
@@ -30,7 +30,7 @@ const ButtonFilter = ({ options, setSelected }) => {
         style={style1.background}
         onPress={() => {
           updateColors(true);
-          setSelected(options[0]);
+          onPress(options[0]);
         }}
       >
         <Text style={style1.text}>{options[0]}</Text>
@@ -39,7 +39,7 @@ const ButtonFilter = ({ options, setSelected }) => {
         style={style2.background}
         onPress={() => {
           updateColors(false);
-          setSelected(options[1]);
+          onPress(options[1]);
         }}
       >
         <Text style={style2.text}>{options[1]}</Text>

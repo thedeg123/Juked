@@ -10,7 +10,7 @@ import simplifyContent from "../helpers/simplifyContent";
 import LoadingIndicator from "../components/LoadingIndicator";
 
 const HomeScreen = ({ navigation }) => {
-  const [Tab1, Tab2] = ["All", "Friends"];
+  const [Tab1, Tab2] = ["All", "Following"];
   const [filter, setFilter] = useState(Tab1);
   const [reviews, setReviews] = useState(null);
   const [content, setContent] = useState(null);
@@ -22,8 +22,11 @@ const HomeScreen = ({ navigation }) => {
   // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
   // groupby type theta join type==content_id on (select * from Music)) natural join Users;
   // except harder bc Music is from a different dbs ;)
-  const fetchHomeScreenData = async (limit = 20) => {
-    const reviews = await firestore.getMostRecentReviews(limit);
+  const fetchHomeScreenData = async (limit = 20, filter) => {
+    const reviews =
+      filter === "Following"
+        ? await firestore.getMostRecentReviews(limit)
+        : await firestore.getMostRecentReviews(limit);
     let cid_byType = { track: new Set(), album: new Set(), artist: new Set() };
     reviews.forEach(r => {
       return cid_byType[r.review.type].add(r.review.content_id);
@@ -51,15 +54,21 @@ const HomeScreen = ({ navigation }) => {
     );
   };
   useEffect(() => {
-    fetchHomeScreenData(10);
+    fetchHomeScreenData(10, filter);
     const listener = navigation.addListener("didFocus", () => {
-      return fetchHomeScreenData(10);
+      return fetchHomeScreenData(10, filter);
     }); //any time we return to this screen we do another fetch
     return () => listener.remove();
   }, []);
   return (
     <Container>
-      <ButtonFilter options={[Tab1, Tab2]} setSelected={setFilter} />
+      <ButtonFilter
+        options={[Tab1, Tab2]}
+        onPress={update => {
+          fetchHomeScreenData(10, update);
+          return setFilter(update);
+        }}
+      />
       {content && reviews && authors ? (
         <FlatList
           keyExtractor={reviewItem =>
