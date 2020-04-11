@@ -65,10 +65,12 @@ class useFirestore {
       .get()
       .then(review => review.data());
   }
-  async getReviewsByAuthor(uid) {
+  async getReviewsByAuthor(uid, limit) {
     let ret = [];
     return await this.reviews_db
       .where("author", "==", uid)
+      .orderBy("last_modified", "desc")
+      .limit(limit || 100)
       .get()
       .then(res => {
         res.forEach(r => ret.push({ id: r.id, data: r.data() }));
@@ -107,7 +109,7 @@ class useFirestore {
       .then(content => {
         let ret = [];
         content.forEach(element =>
-          ret.push({ id: element.id, review: element.data() })
+          ret.push({ id: element.id, data: element.data() })
         );
         return ret;
       });
