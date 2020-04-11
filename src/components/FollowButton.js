@@ -49,15 +49,14 @@ const textStyle = {
 };
 const containerStyle = {
   alignSelf: "center",
-  width: 120,
+  width: 135,
   height: 45,
   borderRadius: 5,
-  paddingHorizontal: 10,
+  paddingHorizontal: 15,
   shadowColor: colors.shadow,
   shadowOpacity: 0.6,
   shadowOffset: { width: 2, height: 2 },
-  shadowRadius: 3,
-  marginTop: 20
+  shadowRadius: 3
 };
 const styles = StyleSheet.create({
   followContainerStyle: {
