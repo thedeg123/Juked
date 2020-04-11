@@ -80,7 +80,7 @@ const HomeScreen = ({ navigation }) => {
             return content[item.review.content_id] && //for when we have fetched new reviews but not finished fetching new content
               authors[item.review.author] ? ( //we dont want our content/authors to be undefined, so we skip and wait to finish the fetch
               <HomeScreenItem
-                review={{ ...item.review, rid: item.id }}
+                review={item}
                 content={content[item.review.content_id]}
                 author={authors[item.review.author]}
               ></HomeScreenItem>
@@ -88,7 +88,6 @@ const HomeScreen = ({ navigation }) => {
           }}
           refreshControl={
             <RefreshControl
-              colors={["red", "blue"]}
               refreshing={refreshing}
               onRefresh={async () => {
                 setRefreshing(true);

@@ -7,31 +7,27 @@ import {
 } from "react-native";
 import colors from "../../constants/colors";
 import { withNavigation } from "react-navigation";
+import navigateContent from "../../helpers/navigateContent";
 
-const HomeScreenBorder = ({ navigation, img, children, rid }) => {
-  return rid ? (
+const HomeScreenBorder = ({ navigation, children, content, review }) => {
+  return (
     <TouchableOpacity
       style={styles.shadowEdge}
-      onPress={() => navigation.navigate("Review", { rid })}
+      onPress={() =>
+        navigateContent(navigation, content.id, content.album_id, {
+          id: review.id,
+          data: review.review
+        })
+      }
     >
       <ImageBackground
-        source={{ uri: img }}
+        source={{ uri: content.image }}
         blurRadius={20}
-        style={styles.withTitle}
+        style={review.review.title ? styles.withTitle : styles.noTitle}
       >
         <View style={styles.child}>{children}</View>
       </ImageBackground>
     </TouchableOpacity>
-  ) : (
-    <View style={styles.shadowEdge}>
-      <ImageBackground
-        source={{ uri: img }}
-        blurRadius={20}
-        style={styles.noTitle}
-      >
-        <View style={styles.child}>{children}</View>
-      </ImageBackground>
-    </View>
   );
 };
 
@@ -54,8 +50,8 @@ const styles = StyleSheet.create({
   shadowEdge: {
     shadowColor: colors.shadow,
     shadowOpacity: 1,
-    shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 5,
+    shadowOffset: { width: 3, height: 3 },
+    shadowRadius: 2,
     flex: 1
   },
   child: {
