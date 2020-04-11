@@ -1,51 +1,36 @@
 import React from "react";
-import { StyleSheet, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, Image, View } from "react-native";
 import colors from "../../constants/colors";
 import images from "../../constants/images";
-import { withNavigation } from "react-navigation";
 
-const ContentPic = ({ navigation, img, cid, type, album_cid }) => {
+const ContentPic = ({ img, width }) => {
   img = img || images.artistDefault; //becuase we cant set a default val from another file
   return (
-    <TouchableOpacity
-      style={styles.contentStyle}
-      onPress={() => {
-        switch (type) {
-          case "album":
-            return navigation.navigate("Album", {
-              content_id: cid,
-              highlighted: ""
-            });
-          case "artist":
-            return navigation.navigate("Artist", { content_id: cid });
-          case "track":
-            return navigation.navigate("Album", {
-              content_id: album_cid,
-              highlighted: cid
-            });
-          default:
-            return;
-        }
-      }}
-    >
-      <Image style={styles.imageStyle} source={{ uri: img }}></Image>
-    </TouchableOpacity>
+    <View style={styles.contentStyle}>
+      <View
+        style={{
+          borderRightWidth: 3,
+          borderRadius: 5,
+          borderRightColor: colors.primary
+        }}
+      >
+        <Image
+          style={{ width, ...styles.imageStyle }}
+          source={{ uri: img }}
+        ></Image>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   contentStyle: {
-    alignSelf: "flex-start",
-    bottom: 1,
-    right: 1
+    alignSelf: "flex-start"
   },
   imageStyle: {
     aspectRatio: 1,
-    width: 120,
-    borderColor: colors.shadow,
-    borderWidth: 1,
     borderRadius: 5
   }
 });
 
-export default withNavigation(ContentPic);
+export default ContentPic;
