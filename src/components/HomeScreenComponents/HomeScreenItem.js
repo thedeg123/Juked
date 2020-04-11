@@ -16,26 +16,26 @@ const HomeScreenItem = ({ review, content, author }) => {
             img={content.image}
             cid={content.id}
             type={review.type}
-            album_cid={review.review.type === "track" ? content.album_id : null}
+            album_cid={review.data.type === "track" ? content.album_id : null}
             width={120}
           ></ContentPic>
           <ContentTitle
             header={content.name}
             subheader={content.artist_name || ""}
-            date={new Date(review.review.last_modified)}
-            review={Boolean(review.review.title)}
+            date={new Date(review.data.last_modified)}
+            review={Boolean(review.data.title)}
           ></ContentTitle>
           <View style={styles.textStyle}>
             <UserPreview
               username={author.handle}
               img={author.profile_url}
-              uid={review.review.author}
+              uid={review.data.author}
             ></UserPreview>
-            <Rating number={review.review.rating}></Rating>
+            <Rating number={review.data.rating}></Rating>
           </View>
         </View>
-        {review.review.title ? (
-          <ReviewTitle title={review.review.title}></ReviewTitle>
+        {review.data.title ? (
+          <ReviewTitle title={review.data.title}></ReviewTitle>
         ) : null}
       </HomeScreenBorder>
     </>

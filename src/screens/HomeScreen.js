@@ -29,7 +29,7 @@ const HomeScreen = ({ navigation }) => {
         : await firestore.getMostRecentReviews(limit);
     let cid_byType = { track: new Set(), album: new Set(), artist: new Set() };
     reviews.forEach(r => {
-      return cid_byType[r.review.type].add(r.review.content_id);
+      return cid_byType[r.data.type].add(r.data.content_id);
     });
     let temp_content = {};
     for (let [type, cids] of Object.entries(cid_byType)) {
@@ -42,7 +42,7 @@ const HomeScreen = ({ navigation }) => {
     setContent(temp_content);
     setAuthors(
       await firestore
-        .batchAuthorRequest(reviews.map(review => review.review.author))
+        .batchAuthorRequest(reviews.map(review => review.data.author))
         .then(res => {
           let ret = {};
           res.forEach(r => (ret[r.id] = r.data));
@@ -72,17 +72,17 @@ const HomeScreen = ({ navigation }) => {
       {content && reviews && authors ? (
         <FlatList
           keyExtractor={reviewItem =>
-            reviewItem.review.last_modified + reviewItem.id
+            reviewItem.data.last_modified + reviewItem.id
           }
           data={reviews}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => {
-            return content[item.review.content_id] && //for when we have fetched new reviews but not finished fetching new content
-              authors[item.review.author] ? ( //we dont want our content/authors to be undefined, so we skip and wait to finish the fetch
+            return content[item.data.content_id] && //for when we have fetched new reviews but not finished fetching new content
+              authors[item.data.author] ? ( //we dont want our content/authors to be undefined, so we skip and wait to finish the fetch
               <HomeScreenItem
                 review={item}
-                content={content[item.review.content_id]}
-                author={authors[item.review.author]}
+                content={content[item.data.content_id]}
+                author={authors[item.data.author]}
               ></HomeScreenItem>
             ) : null;
           }}

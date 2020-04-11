@@ -16,14 +16,14 @@ const HomeScreenBorder = ({ navigation, children, content, review }) => {
       onPress={() =>
         navigateContent(navigation, content.id, content.album_id, {
           id: review.id,
-          data: review.review
+          data: review.data
         })
       }
     >
       <ImageBackground
         source={{ uri: content.image }}
         blurRadius={20}
-        style={review.review.title ? styles.withTitle : styles.noTitle}
+        style={review.data.title ? styles.withTitle : styles.noTitle}
       >
         <View style={styles.child}>{children}</View>
       </ImageBackground>
