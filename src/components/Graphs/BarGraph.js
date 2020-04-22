@@ -12,6 +12,7 @@ const BarGraph = ({ data }) => {
   const [num, setNum] = useState(null);
   const screenWidth = Dimensions.get("window").width;
   const barWidth = Math.floor(screenWidth / 10) - 15;
+  if (!data) data = new Array(11).fill(0);
   const largestEl = Math.max(...data) || 1;
 
   const sumData = data.reduce((a, b) => a + b, 0);
