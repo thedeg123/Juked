@@ -22,6 +22,7 @@ import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
 import colors from "./src/constants/colors";
 import WriteReviewScreen from "./src/screens/WriteReviewScreen";
 import { Provider } from "./src/context/context";
+import { Dimensions } from "react-native";
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
@@ -32,6 +33,17 @@ const exploreFlow = {
   Profile: ProfileScreen,
   List: ListScreen,
   WriteReview: WriteReviewScreen
+};
+const screen_height = Dimensions.get("window").height;
+const tab_bar_height = screen_height * 0.098;
+const headerStyle = {
+  backgroundColor: colors.background,
+  height: tab_bar_height,
+  borderBottomWidth: 2
+};
+const headerTitleStyle = {
+  fontSize: 18,
+  fontWeight: "bold"
 };
 
 const switchNavigator = createSwitchNavigator({
@@ -60,14 +72,8 @@ const switchNavigator = createSwitchNavigator({
           },
           {
             defaultNavigationOptions: {
-              headerStyle: {
-                backgroundColor: colors.background,
-                height: 80
-              },
-              headerTitleStyle: {
-                fontSize: 18,
-                fontWeight: "bold"
-              },
+              headerStyle,
+              headerTitleStyle,
               cardStyle: { backgroundColor: colors.background }
             }
           }
@@ -95,14 +101,8 @@ const switchNavigator = createSwitchNavigator({
           },
           {
             defaultNavigationOptions: {
-              headerStyle: {
-                backgroundColor: colors.background,
-                height: 80
-              },
-              headerTitleStyle: {
-                fontSize: 18,
-                fontWeight: "bold"
-              },
+              headerStyle,
+              headerTitleStyle,
               cardStyle: { backgroundColor: colors.background }
             }
           }
@@ -131,14 +131,8 @@ const switchNavigator = createSwitchNavigator({
           },
           {
             defaultNavigationOptions: {
-              headerStyle: {
-                backgroundColor: colors.background,
-                height: 80
-              },
-              headerTitleStyle: {
-                fontSize: 18,
-                fontWeight: "bold"
-              },
+              headerStyle,
+              headerTitleStyle,
               cardStyle: { backgroundColor: colors.background }
             }
           }
