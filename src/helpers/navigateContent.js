@@ -1,6 +1,6 @@
-const navigateContent = (navigation, cid, album_cid, review) => {
+const navigateContent = (navigation, cid, album_cid, review, content, user) => {
   if (review.data.title)
-    return navigation.navigate("Review", { rid: review.id });
+    return navigation.navigate("Review", { review, user, content });
   switch (review.data.type) {
     case "album":
       return navigation.navigate("Album", {

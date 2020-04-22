@@ -59,7 +59,7 @@ const SearchPreview = ({ object, type, cid, album_cid, navigation }) => {
     ? `${date.toLocaleString("default", {
         month: "long"
       })} ${date.getDate()}, ${date.getFullYear()}`
-    : "";
+    : null;
   return (
     <TouchableOpacity style={styles.containerStyle} onPress={handleNavigate}>
       <Image style={styles.imageStyle} source={{ uri: getImage() }} />
@@ -67,12 +67,16 @@ const SearchPreview = ({ object, type, cid, album_cid, navigation }) => {
         <Text numberOfLines={1} style={styles.textStyle}>
           {object.name}
         </Text>
-        <Text numberOfLines={1} style={styles.subtextStyle}>
-          {object.artists ? object.artists[0].name : null}
-        </Text>
-        <Text numberOfLines={1} style={styles.dateStyle}>
-          {stringDate}
-        </Text>
+        {object.artists ? (
+          <Text numberOfLines={1} style={styles.subtextStyle}>
+            {object.artists[0].name}
+          </Text>
+        ) : null}
+        {stringDate ? (
+          <Text numberOfLines={1} style={styles.dateStyle}>
+            {stringDate}
+          </Text>
+        ) : null}
       </View>
       <View style={styles.iconWrapper}>
         <EvilIcons name="chevron-right" style={styles.iconStyle} />
@@ -84,13 +88,12 @@ const SearchPreview = ({ object, type, cid, album_cid, navigation }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     borderRadius: 5,
-    marginVertical: 5,
-    paddingLeft: 10,
+    marginTop: 2,
+    paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     height: 85,
-    backgroundColor: colors.object,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     borderBottomColor: colors.shadow
   },
   iconStyle: {
@@ -103,18 +106,24 @@ const styles = StyleSheet.create({
     marginLeft: 1
   },
   textWrapperStyle: {
-    flex: 10
+    flex: 10,
+    justifyContent: "space-around",
+    justifyContent: "center"
   },
   textStyle: {
     fontSize: 20,
-    color: colors.text
+    fontWeight: "500",
+    color: colors.text,
+    justifyContent: "center"
   },
   subtextStyle: {
     fontSize: 18,
+    fontWeight: "300",
     color: colors.text
   },
   dateStyle: {
     fontSize: 12,
+    fontWeight: "300",
     color: colors.text
   },
   typeStyle: {

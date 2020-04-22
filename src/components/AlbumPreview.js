@@ -13,12 +13,12 @@ import { withNavigation } from "react-navigation";
  * @param {boolean} highlighted - this song will be highlighted or not
  */
 const AlbumPreview = ({
+  navigation,
   title,
   content_id,
   rating,
   avg_rating,
   rid,
-  navigation,
   highlighted
 }) => {
   return (

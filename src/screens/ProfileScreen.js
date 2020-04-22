@@ -134,19 +134,22 @@ const UserProfileScreen = ({ navigation }) => {
       <ListPreview
         title="Most Recent Artists"
         content={content}
+        user={user}
         data={reviews["artist"]}
         onPress={() => navigation.navigate("List")}
       />
       <ListPreview
         title="Most Recent Albums"
+        user={user}
         content={content}
         data={reviews["album"]}
         onPress={() => navigation.navigate("List")}
       />
       <ListPreview
         title="Most Recent Songs"
+        user={user}
         content={content}
-        data={reviews["tracks"]}
+        data={reviews["track"]}
         onPress={() => navigation.navigate("List")}
         marginBottom={10}
       />
@@ -180,7 +183,7 @@ const styles = StyleSheet.create({
   },
   containerStyle: {
     flex: 1,
-    marginTop: 10
+    paddingTop: 10
   },
   headerRightStyle: {
     fontSize: 25,

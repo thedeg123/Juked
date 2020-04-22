@@ -16,82 +16,27 @@ import TopButton from "../components/TopButton";
 import context from "../context/context";
 
 const ReviewScreen = ({ navigation }) => {
-  const rid = navigation.getParam("rid");
-  const firestore = useContext(context);
-  if (!rid)
-    console.error(
-      `ReviewScreen should be passed an rid but was instead passed: ${rid}`
-    );
+  const review = navigation.getParam("review");
+  const user = navigation.getParam("user");
+  const content = navigation.getParam("content");
+  if (!review || !content || !user)
+    console.error("ReviewScreen should be passed review, content, user");
+  const date = new Date(review.data.last_modified);
 
-  const [review, setReview] = useState(null);
-  const [user, setUser] = useState(null);
-  const [content, setContent] = useState(null);
-  const { findContent } = useMusic();
-  useEffect(() => {
-    const init = async () => {
-      const response = await firestore.getReview(rid);
-      if (!response) console.error(`Counld not find review with rid: ${rid}`);
-      const user_response = await firestore.getUser(response.author);
-      if (!user_response)
-        console.error(
-          `Counld not find review author with id: ${response.author}`
-        );
-      setContent(
-        await findContent(response.content_id, response.type).then(res => {
-          switch (response.type) {
-            case "track":
-              return {
-                title: res[0].name,
-                subtitle: res[0].artists[0].name
-              };
-            case "album":
-              return {
-                title: res[0].name,
-                subtitle: res[0].artists[0].name
-              };
-            case "artist":
-              return {
-                title: res[0].name,
-                subtitle: " "
-              };
-            default:
-              return;
-          }
-        })
-      );
-      setReview(response);
-      setUser(user_response);
-      navigation.setParams({
-        user: user_response.email
-      });
-    };
-    init();
-    const listener = navigation.addListener("didFocus", async () => init());
-    return () => listener.remove();
-  }, []);
-
-  if (!content || !review || !user) {
-    return (
-      <Container>
-        <LoadingIndicator></LoadingIndicator>
-      </Container>
-    );
-  }
-  const date = new Date(review.last_modified * 1000);
   return (
     <Container>
       <View style={styles.headerStyle}>
         <View style={styles.headerTextContainerStyle}>
           <Text numberOfLines={2} style={styles.headerText}>
-            {content.title}
+            {content.name}
           </Text>
-          <Text style={styles.subheaderText}>{content.subtitle}</Text>
+          <Text style={styles.subheaderText}>{content.artist_name}</Text>
         </View>
         <View style={styles.headerUserContainerStyle}>
           <UserPreview
             img={user.profile_url}
             username={user.handle}
-            uid={review.author}
+            uid={review.data.author}
           ></UserPreview>
           <Text style={styles.dateText}>{`${date.toLocaleString("default", {
             month: "long"
@@ -99,11 +44,11 @@ const ReviewScreen = ({ navigation }) => {
         </View>
       </View>
       <View style={styles.headerStyle}>
-        <Text style={styles.titleText}>{review.title}</Text>
-        <Text style={styles.ratingText}>{review.rating}</Text>
+        <Text style={styles.titleText}>{review.data.title}</Text>
+        <Text style={styles.ratingText}>{review.data.rating}</Text>
       </View>
       <ScrollView>
-        <Text style={styles.reviewTextStyle}>{review.text}</Text>
+        <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
       </ScrollView>
     </Container>
   );
@@ -160,11 +105,11 @@ const styles = StyleSheet.create({
 ReviewScreen.navigationOptions = ({ navigation }) => {
   return {
     headerRight: () =>
-      navigation.getParam("user") === auth().currentUser.email ? (
+      navigation.getParam("user").email === auth().currentUser.email ? (
         <TouchableOpacity
           onPress={() =>
             navigation.navigate("WriteReview", {
-              rid: navigation.getParam("rid")
+              rid: navigation.getParam("review").id
             })
           }
         >

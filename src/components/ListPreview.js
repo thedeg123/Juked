@@ -11,7 +11,7 @@ import ProfileListItem from "./ProfileScreen/ListPreviewItem";
  * @param {string} id - any identifier needed for this list
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ListPreview = ({ title, content, data, onPress, marginBottom }) => {
+const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
   return (
     <View
       style={{ ...styles.borderStyle, marginBottom: marginBottom || 0 }}
@@ -28,6 +28,7 @@ const ListPreview = ({ title, content, data, onPress, marginBottom }) => {
             <ProfileListItem
               content={content[item.data.content_id]}
               review={item}
+              user={user}
             ></ProfileListItem>
           ) : null
         }

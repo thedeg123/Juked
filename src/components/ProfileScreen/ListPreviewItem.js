@@ -13,11 +13,18 @@ import navigateContent from "../../helpers/navigateContent";
 import { withNavigation } from "react-navigation";
 import { Entypo } from "@expo/vector-icons";
 
-const ProfileListItem = ({ navigation, content, review, width }) => {
+const ProfileListItem = ({ navigation, content, review, width, user }) => {
   return (
     <TouchableOpacity
       onPress={() =>
-        navigateContent(navigation, content.id, content.album_id, review)
+        navigateContent(
+          navigation,
+          content.id,
+          content.album_id,
+          review,
+          content,
+          user
+        )
       }
       style={styles.shadowEdge}
     >

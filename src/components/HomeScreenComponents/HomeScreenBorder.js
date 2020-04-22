@@ -9,15 +9,25 @@ import colors from "../../constants/colors";
 import { withNavigation } from "react-navigation";
 import navigateContent from "../../helpers/navigateContent";
 
-const HomeScreenBorder = ({ navigation, children, content, review }) => {
+const HomeScreenBorder = ({
+  navigation,
+  children,
+  content,
+  review,
+  author
+}) => {
   return (
     <TouchableOpacity
       style={styles.shadowEdge}
       onPress={() =>
-        navigateContent(navigation, content.id, content.album_id, {
-          id: review.id,
-          data: review.data
-        })
+        navigateContent(
+          navigation,
+          content.id,
+          content.album_id,
+          review,
+          content,
+          author
+        )
       }
     >
       <ImageBackground
@@ -39,8 +49,7 @@ let boxStyle = {
   overflow: "hidden",
   alignSelf: "stretch",
   marginTop: 10,
-  borderColor: colors.shadow,
-  borderWidth: 1
+  borderColor: colors.shadow
 };
 const styles = StyleSheet.create({
   withTitle: {
