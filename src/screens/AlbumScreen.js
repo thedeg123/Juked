@@ -53,9 +53,9 @@ const AlbumScreen = ({ navigation }) => {
             })
         );
       });
-    firestore
-      .getReviewsByAuthorContent(email, content_id)
-      .then(res => res.forEach(r => setAlbumRating(r.data.rating)));
+    firestore.getReviewsByAuthorContent(email, content_id).then(res => {
+      return setAlbumRating(res.exists ? res.data.rating : null);
+    });
     firestore.getContentData(content_id).then(res => setAlbumData(res));
     // TODO: set avg ratinngs and album ratings
     setAvg_ratings(5);
@@ -66,7 +66,6 @@ const AlbumScreen = ({ navigation }) => {
     const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
     return () => listener.remove();
   }, []);
-
   // wait until get data from all APIs
   if (!album || !track_reviews || !avg_ratings || !albumData)
     return (
@@ -100,7 +99,7 @@ const AlbumScreen = ({ navigation }) => {
           })} ${date.getDate()}, ${date.getFullYear()}`}</Text>
         </View>
       </View>
-      <BarGraph data={albumData.review_nums}></BarGraph>
+      <BarGraph data={albumData.rating_nums}></BarGraph>
       <View style={{ flexDirection: "row", alignSelf: "center" }}>
         {albumRating ? (
           <Text style={styles.subtitle}>
@@ -123,14 +122,20 @@ const AlbumScreen = ({ navigation }) => {
       keyExtracter={({ item }) => item.track_number}
       renderItem={({ item, index }) => {
         return (
-          <AlbumPreview
-            title={item.name}
-            rating={" "}
-            avg_rating={avg_ratings[index] || 5}
-            content_id={item.id}
-            rid={track_reviews[item.id]}
-            highlighted={highlighted == item.id}
-          />
+          <View>
+            <AlbumPreview
+              title={item.name}
+              rating={" "}
+              avg_rating={
+                track_reviews[item.id]
+                  ? track_reviews[item.id].data.rating
+                  : null
+              }
+              content_id={item.id}
+              rid={track_reviews[item.id] ? track_reviews[item.id].id : null}
+              highlighted={highlighted == item.id}
+            />
+          </View>
         );
       }}
       ListHeaderComponent={headerComponent}
