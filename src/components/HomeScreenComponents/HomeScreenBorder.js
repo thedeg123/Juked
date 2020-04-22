@@ -49,6 +49,7 @@ let boxStyle = {
   overflow: "hidden",
   alignSelf: "stretch",
   marginTop: 10,
+  borderWidth: 1,
   borderColor: colors.shadow
 };
 const styles = StyleSheet.create({
