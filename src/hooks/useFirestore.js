@@ -1,6 +1,5 @@
 import firebase from "firebase";
 import "firebase/firestore";
-import firestore from "../api/firestore";
 
 class useFirestore {
   constructor() {
@@ -35,14 +34,11 @@ class useFirestore {
     return await this.auth.signOut().catch(err => err.message);
   }
   async getReviewsByAuthorContent(uid, content_id) {
-    let ret = [];
     return await this.reviews_db
-      .where("author", "==", uid)
-      .where("content_id", "==", content_id)
+      .doc(content_id + uid)
       .get()
       .then(res => {
-        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
-        return ret;
+        return { id: res.id, exists: res.exists, data: res.data() };
       });
   }
   async getContentData(cid) {
@@ -151,21 +147,23 @@ class useFirestore {
     return ret;
   }
   async addReview(cid, type, title, rating, text) {
-    return this.reviews_db.doc().set({
+    return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
       author: this.auth.currentUser.email,
       content_id: cid,
       last_modified: new Date().getTime(),
       rating,
       text,
       title,
-      type
+      type,
+      is_review: Boolean(title.length)
     });
   }
   async updateReview(rid, cid, type, title, rating, text) {
     let body = {};
-    text ? (body["text"] = text) : null;
-    title ? (body["title"] = title) : null;
+    typeof text == "string" ? (body["text"] = text) : null;
+    typeof title == "string" ? (body["title"] = title) : null;
     rating ? (body["rating"] = rating) : null;
+    body["is_review"] = title ? true : false;
     body["last_modified"] = new Date().valueOf();
     return this.reviews_db.doc(rid).update(body);
   }
@@ -219,102 +217,4 @@ class useFirestore {
       });
   }
 }
-const useFirestore2 = {
-  updateUser: (
-    uid,
-    email,
-    handle,
-    bio,
-    profile_url,
-    follow = null,
-    unfollow = null
-  ) => {
-    const body = {};
-    email ? (body["email"] = email) : null;
-    bio ? (body["bio"] = bio) : null;
-    profile_url ? (body["profile_url"] = profile_url) : null;
-    handle ? (body["handle"] = handle) : null;
-    firestore
-      .post("/updateuser", {
-        uid,
-        body,
-        follow,
-        unfollow
-      })
-      .catch(err => console.log(err));
-  },
-  getUser: async uid => {
-    const response = await firestore.get(`/getuser/${uid}`);
-    return response.data;
-  },
-  getUserByHandle: async handle => {
-    const response = await firestore.get(`/getuserbyhandle/${handle}`);
-    return response.data;
-  },
-  getReviewsByAuthorContent: (uid, content_id) => {
-    return null;
-  },
-  addReview: (
-    text = "",
-    type = "",
-    content_id = "",
-    title = "",
-    author = "",
-    rating = null
-  ) => {
-    if (!["album", "artist", "playlist", "track"].includes(type))
-      throw 'Value  of type is not valid, ensure it is one of: "album", "artist", "playlist", "track"';
-    if (rating > 10 || rating < 0)
-      throw "Value  of rating is not valid, ensure it is below 10 and above 0";
-    firestore.post("/addreview", {
-      body: {
-        text,
-        last_modified: Date.now(),
-        type,
-        content_id,
-        title,
-        author,
-        rating: Math.floor(rating)
-      }
-    });
-  },
-  updateReview: (rid, text, type, content_id, title, author, rating) => {
-    if (!["album", "artist", "playlist", "track"].includes(type))
-      throw 'Value  of type is not valid, ensure it is one of: "album", "artist", "playlist", "track"';
-    if (rating > 10 || rating < 0)
-      throw "Value  of rating is not valid, ensure it is below 10 and above 0";
-    const body = {};
-    text ? (body["text"] = text) : null;
-    type ? (body["type"] = type) : null;
-    content_id ? (body["content_id"] = content_id) : null;
-    title ? (body["title"] = title) : null;
-    author ? (body["author"] = author) : null;
-    rating ? (body["rating"] = Math.floor(rating)) : null;
-    body["last_modified"] = Date.now();
-    firestore.post("/updatereview", {
-      rid,
-      body
-    });
-  },
-  deleteReview: rid => {
-    firestore.post(`/deletereview`, { rid }).catch(err => console.log(err));
-  },
-  getReviewById: async rid => {
-    const response = await firestore.get(`/getreviewbyid/${rid}`);
-    return response.data;
-  },
-  getReviewsByAuthor: async uid => {
-    const response = await firestore.get(`/getreviewsbyauthor/${uid}`);
-    return response.data.query;
-  },
-  getReviewsByContent: async content_id => {
-    const response = await firestore.get(`/getreviewsbycontent/${content_id}`);
-    return response.data.review;
-  },
-  getMostRecentReviews: async limit => {
-    const response = await firestore.get(`/getmostrecentreviews/${limit}`);
-    return response.data.query;
-  }
-};
-
 export default useFirestore;

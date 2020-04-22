@@ -1,5 +1,12 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, StyleSheet, Image, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  FlatList,
+  ImageBackground
+} from "react-native";
 import useMusic from "../hooks/useMusic";
 import { auth } from "firebase";
 import ArtistPreview from "../components/ArtistPreview";
@@ -10,6 +17,7 @@ import LoadingIndicator from "../components/LoadingIndicator";
 import ReviewButton from "../components/ReviewButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
+import ButtonList from "../components/ButtonList";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
@@ -31,7 +39,7 @@ const ArtistScreen = ({ navigation }) => {
     // init and get all data needed via api
     firestore
       .getReviewsByAuthorContent(email, content_id)
-      .then(review => setRating(review.length ? review[0].data.rating : null));
+      .then(review => setRating(review.exists ? review.data.rating : null));
     findArtists(content_id).then(artists => setArtist(artists[0]));
     findAlbumsOfAnArtist(content_id).then(result => {
       setAlbums(result.items);
@@ -55,23 +63,38 @@ const ArtistScreen = ({ navigation }) => {
   // render header information component
   const headerComponent = (
     <View>
-      <View style={{ alignItems: "center", marginBottom: 20 }}>
-        <Image
-          style={{
-            marginTop: 10,
-            width: "50%",
-            aspectRatio: artist.images[0]
-              ? artist.images[0].width / artist.images[0].height
-              : 1,
-            borderRadius: 5
-          }}
+      <View>
+        <ImageBackground
           source={{
             uri: artist.images[0] ? artist.images[0].url : images.artistDefault
           }}
-        />
-        <Text style={styles.title}>{artist.name}</Text>
+          blurRadius={20}
+          style={styles.imageBackgroundStyle}
+        >
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>{artist.name}</Text>
+            <Image
+              style={styles.imageStyle}
+              source={{
+                uri: artist.images[0]
+                  ? artist.images[0].url
+                  : images.artistDefault
+              }}
+            />
+          </View>
+        </ImageBackground>
       </View>
-      <BarGraph data={contentData.review_nums}></BarGraph>
+      <Text style={styles.sectionStyle}>Reviews</Text>
+      <View style={{ marginHorizontal: 10 }}>
+        <BarGraph data={contentData.rating_nums}></BarGraph>
+      </View>
+      <View style={{ marginHorizontal: 5, marginVertical: 10 }}>
+        <ButtonList
+          user_num={contentData.number_ratings}
+          list_num={5}
+          review_num={contentData.number_reviews}
+        ></ButtonList>
+      </View>
       <View style={{ flexDirection: "row", alignSelf: "center" }}>
         {rating ? (
           <Text style={styles.subtitle}>
@@ -85,6 +108,7 @@ const ArtistScreen = ({ navigation }) => {
           </Text>
         </Text>
       </View>
+      <Text style={styles.sectionStyle}>Albums</Text>
     </View>
   );
 
@@ -93,13 +117,12 @@ const ArtistScreen = ({ navigation }) => {
     <FlatList
       data={albums}
       keyExtracter={({ item }) => item.name}
-      renderItem={({ item }) => {
-        return <ArtistPreview result={item} navigation={navigation} />;
-      }}
+      renderItem={({ item }) => (
+        <ArtistPreview result={item} navigation={navigation} />
+      )}
       columnWrapperStyle={styles.column}
       numColumns={2}
       ListHeaderComponent={headerComponent}
-      ListHeaderComponentStyle={{ marginHorizontal: 10 }}
     />
   );
 };
@@ -118,12 +141,45 @@ ArtistScreen.navigationOptions = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   column: { flexShrink: 1, width: "50%" },
-  title: { fontSize: 30, color: colors.text },
+  title: {
+    fontSize: 40,
+    alignSelf: "center",
+    fontWeight: "bold",
+    color: colors.primary
+  },
+  sectionStyle: {
+    marginVertical: 10,
+    marginHorizontal: 10,
+    fontSize: 30,
+    color: colors.text,
+    fontWeight: "bold"
+  },
   subtitle: {
     fontSize: 18,
     color: colors.text,
-    padding: 10,
-    paddingBottom: 40
+    padding: 10
+  },
+  contentContainer: {
+    backgroundColor: "rgba(0,0,0,0.12)",
+    alignContent: "center",
+    justifyContent: "space-evenly",
+    flex: 1
+  },
+  imageStyle: {
+    alignSelf: "center",
+    width: "50%",
+    aspectRatio: 1,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: colors.primary
+  },
+  imageBackgroundStyle: {
+    flex: 1,
+    height: 350,
+    resizeMode: "cover",
+    overflow: "hidden",
+    alignSelf: "stretch",
+    borderColor: colors.shadow
   },
   rating: {
     color: colors.primary,
