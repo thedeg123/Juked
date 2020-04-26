@@ -14,14 +14,14 @@ const ReviewButton = ({ navigation, content_id, content_type }) => {
   const firestore = useContext(context);
   const email = firestore.fetchCurrentUID();
   useEffect(() => {
-    const findReview = () =>
-      firestore
+    const findReview = async () =>
+      await firestore
         .getReviewsByAuthorContent(email, content_id)
-        .then(res => (res.exists ? setRid(res.id) : null));
+        .then(res => (res.exists ? setRid(res.id) : setRid("no-content")));
     const listener = navigation.addListener("didFocus", () => findReview());
     return () => listener.remove();
   });
-  return rid ? (
+  return rid && rid !== "no-content" ? (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate("WriteReview", {
@@ -35,7 +35,7 @@ const ReviewButton = ({ navigation, content_id, content_type }) => {
         name="message-square"
       ></Feather>
     </TouchableOpacity>
-  ) : (
+  ) : rid ? (
     <TouchableOpacity
       onPress={() =>
         navigation.navigate("WriteReview", {
@@ -50,6 +50,12 @@ const ReviewButton = ({ navigation, content_id, content_type }) => {
         name="plus"
       ></Feather>
     </TouchableOpacity>
+  ) : (
+    <Feather
+      style={styles.headerRightStyle}
+      color={colors.background}
+      name="plus"
+    ></Feather>
   );
 };
 
