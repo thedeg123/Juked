@@ -1,5 +1,5 @@
 import { useState } from "react";
-import config from "../api/musicConfig";
+const { config } = require("../api/musicConfig");
 import { Buffer } from "buffer";
 import axios from "axios";
 

@@ -1,6 +1,7 @@
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 const axios = require("axios");
+const { config } = require("./musicConfig.js");
 
 admin.initializeApp();
 
@@ -165,7 +166,7 @@ exports.scheduledFunction = functions.pubsub
         }
       }
     };
-    const token = await requestAccessToken();
+    const token = await requestAccessToken(config.id, config.secret);
     return await firestore
       .collection("token")
       .doc("spotify")
