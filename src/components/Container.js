@@ -9,7 +9,6 @@ const Container = ({ children }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     flex: 1,
-    marginTop: 10,
     marginHorizontal: 10
   }
 });

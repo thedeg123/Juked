@@ -1,9 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
-import { StyleSheet, FlatList, RefreshControl } from "react-native";
+import { StyleSheet, FlatList, View, RefreshControl } from "react-native";
 import useMusic from "../hooks/useMusic";
 import context from "../context/context";
-
-import Container from "../components/Container";
 import ButtonFilter from "../components/HomeScreenComponents/ButtonFilter";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import simplifyContent from "../helpers/simplifyContent";
@@ -61,7 +59,7 @@ const HomeScreen = ({ navigation }) => {
     return () => listener.remove();
   }, []);
   return (
-    <Container>
+    <View style={{ flex: 1, marginTop: 10, marginHorizontal: 10 }}>
       <ButtonFilter
         options={[Tab1, Tab2]}
         onPress={update => {
@@ -100,7 +98,7 @@ const HomeScreen = ({ navigation }) => {
       ) : (
         <LoadingIndicator></LoadingIndicator>
       )}
-    </Container>
+    </View>
   );
 };
 

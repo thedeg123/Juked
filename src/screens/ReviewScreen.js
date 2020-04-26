@@ -6,14 +6,12 @@ import {
   ScrollView,
   TouchableOpacity
 } from "react-native";
-import useMusic from "../hooks/useMusic";
+
 import Container from "../components/Container";
-import LoadingIndicator from "../components/LoadingIndicator";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import TopButton from "../components/TopButton";
-import context from "../context/context";
 
 const ReviewScreen = ({ navigation }) => {
   const review = navigation.getParam("review");
@@ -24,7 +22,7 @@ const ReviewScreen = ({ navigation }) => {
   const date = new Date(review.data.last_modified);
 
   return (
-    <Container>
+    <View style={styles.containerStyle}>
       <View style={styles.headerStyle}>
         <View style={styles.headerTextContainerStyle}>
           <Text numberOfLines={2} style={styles.headerText}>
@@ -50,11 +48,15 @@ const ReviewScreen = ({ navigation }) => {
       <ScrollView>
         <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
       </ScrollView>
-    </Container>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  containerStyle: {
+    marginTop: 10,
+    marginHorizontal: 10
+  },
   headerStyle: {
     borderBottomColor: colors.shadow,
     borderBottomWidth: 1,
