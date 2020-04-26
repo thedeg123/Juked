@@ -63,9 +63,7 @@ const UserProfileScreen = ({ navigation }) => {
   useEffect(() => {
     fetch();
     const listener = navigation.addListener("didFocus", () => fetch()); //any time we return to this screen we do another fetch
-    return () => {
-      listener.remove();
-    };
+    return () => listener.remove();
   }, []);
   if (!user || !reviews || !followers || !content || !following) {
     return (

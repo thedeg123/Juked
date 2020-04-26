@@ -1,5 +1,6 @@
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
+const axios = require("axios");
 
 admin.initializeApp();
 
@@ -126,7 +127,53 @@ exports.updateContentOnDelete = functions.firestore
     });
   });
 
+/**
+ * @async
+ * @function requestAccessToken
+ * @param {string} id - client id
+ * @param {string} secret - client secret
+ * @return {Promise<Object>} - {access_token, token_type, expire_in}
+ */
+
+exports.scheduledFunction = functions.pubsub
+  .schedule("every 50 minutes")
+  .onRun(async context => {
+    const requestAccessToken = async (id, secret, backoff = 5000) => {
+      try {
+        let buff = Buffer.from(id + ":" + secret);
+        let base64data = buff.toString("base64");
+        const postRequestHeader = {
+          Authorization: "Basic " + base64data
+        };
+        const response = await axios.post(
+          "https://accounts.spotify.com/api/token",
+          "grant_type=client_credentials",
+          {
+            headers: postRequestHeader
+          }
+        );
+        return response.data;
+      } catch (error) {
+        if (error.response.status >= 429) {
+          return await setTimeout(
+            () => requestAccessToken(id, secret, backoff * 2),
+            backoff
+          );
+        } else {
+          console.error("FROM REQUEST TOKEN:", error);
+          return error;
+        }
+      }
+    };
+    const token = await requestAccessToken();
+    return await firestore
+      .collection("token")
+      .doc("spotify")
+      .set(token);
+  });
+
 // // Create and Deploy Your First Cloud Functions
+// Deploy with: firebase deploy --only functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
 // exports.helloWorld = functions.https.onRequest((request, response) => {

@@ -16,13 +16,10 @@ export default () => {
    * @param {string} secret - client secret
    * @return {Promise<Object>} - {access_token, token_type, expire_in}
    */
-  const requestAccessToken = async (id, secret) => {
+  const requestAccessToken = async (id, secret, backoff = 10000) => {
     try {
       let buff = Buffer.from(id + ":" + secret);
       let base64data = buff.toString("base64");
-      const postRequestBody = {
-        grant_type: "client_credentials"
-      };
       const postRequestHeader = {
         Authorization: "Basic " + base64data
       };
@@ -35,8 +32,15 @@ export default () => {
       );
       return response.data;
     } catch (error) {
-      console.error("FROM REQUEST TOKEN:", error);
-      return error;
+      if (error.response.status == 504) {
+        return await setTimeout(
+          () => requestAccessToken(id, secret, backoff * 2),
+          backoff
+        );
+      } else {
+        console.error("FROM REQUEST TOKEN:", error);
+        return error;
+      }
     }
   };
   /**
