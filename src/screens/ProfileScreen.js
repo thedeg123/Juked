@@ -63,14 +63,17 @@ const UserProfileScreen = ({ navigation }) => {
   useEffect(() => {
     fetch();
     const listener = navigation.addListener("didFocus", () => fetch()); //any time we return to this screen we do another fetch
-    return () => listener.remove();
+    return () => {
+      listener.remove();
+    };
   }, []);
-  if (!user || !reviews || !followers || !content || !following)
+  if (!user || !reviews || !followers || !content || !following) {
     return (
       <Container>
         <LoadingIndicator></LoadingIndicator>
       </Container>
     );
+  }
   return user ? (
     <ScrollView
       style={styles.containerStyle}
@@ -162,8 +165,6 @@ UserProfileScreen.navigationOptions = ({ navigation }) => {
   //const user = useFirestore.getUser(uid);
 
   return {
-    // Right now, having problems with this
-    //title: user.handle ? user.handle : <Text>Profile</Text>,
     headerRight: () =>
       uid === auth().currentUser.email || !uid ? (
         <TouchableOpacity onPress={() => navigation.navigate("Account")}>
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
   },
   headerRightStyle: {
     fontSize: 25,
-    marginRight: 10
+    marginRight: 15
   },
   followContainer: {
     alignItems: "center",

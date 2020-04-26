@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { Animated } from "react-native";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
@@ -21,8 +21,9 @@ import MakeProfileScreen from "./src/screens/MakeProfileScreen";
 import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
 import colors from "./src/constants/colors";
 import WriteReviewScreen from "./src/screens/WriteReviewScreen";
+import StackHeader from "./src/components/StackHeader";
+import HeaderBackButton from "./src/components/HeaderBackButton.js";
 import { Provider } from "./src/context/context";
-import { Dimensions } from "react-native";
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
@@ -34,136 +35,137 @@ const exploreFlow = {
   List: ListScreen,
   WriteReview: WriteReviewScreen
 };
-const screen_height = Dimensions.get("window").height;
-const tab_bar_height = screen_height * 0.098;
-const headerStyle = {
-  backgroundColor: colors.background,
-  height: tab_bar_height,
-  borderBottomWidth: 2
-};
-const headerTitleStyle = {
-  fontSize: 18,
-  fontWeight: "bold"
+const tabBarOptions = {
+  activeTintColor: colors.primary, // active icon color
+  inactiveTintColor: colors.shadow, // inactive icon color,
+  style: { backgroundColor: colors.object } //background color
 };
 
-const switchNavigator = createSwitchNavigator({
-  Loading: LoadingScreen,
-  loginFlow: createSwitchNavigator(
-    {
-      SignIn: SignInScreen,
-      SignUp: SignUpScreen,
-      MakeProfile: MakeProfileScreen
+const defaultNavigationOptions = {
+  header: ({ scene, previous, navigation }) => {
+    const { options } = scene.descriptor;
+    const title =
+      options.headerTitle || options.title || scene.descriptor.state.routeName;
+    const progress = Animated.add(
+      scene.progress.current,
+      scene.progress.next || 0
+    );
+    const opacity = progress.interpolate({
+      inputRange: [0, 1, 2],
+      outputRange: [0, 1, 0]
+    });
+
+    return (
+      <Animated.View style={{ opacity }}>
+        {
+          <StackHeader
+            title={title}
+            previous={previous}
+            leftButton={
+              previous ? (
+                <HeaderBackButton onPress={() => navigation.goBack()} />
+              ) : (
+                undefined
+              )
+            }
+            rightButton={options.headerRight}
+          ></StackHeader>
+        }
+      </Animated.View>
+    );
+  },
+  cardStyle: { backgroundColor: colors.background }
+};
+
+const homeStack = createStackNavigator(
+  {
+    Home: HomeScreen,
+    ...exploreFlow
+  },
+  {
+    defaultNavigationOptions,
+    headerMode: "screen",
+    initialRouteName: "Home"
+  }
+);
+
+const searchStack = createStackNavigator(
+  {
+    Search: SearchScreen,
+    ...exploreFlow
+  },
+  { defaultNavigationOptions, headerMode: "screen", initialRouteName: "Search" }
+);
+
+const profileStack = createStackNavigator(
+  {
+    Profile: ProfileScreen,
+    Account: AccountScreen,
+    ...exploreFlow
+  },
+  {
+    defaultNavigationOptions,
+    headerMode: "screen",
+    initialRouteName: "Profile"
+  }
+);
+
+const mainStack = createBottomTabNavigator(
+  {
+    homeFlow: {
+      screen: homeStack,
+      navigationOptions: {
+        tabBarLabel: ({ tintColor }) => (
+          <Foundation name="home" style={{ fontSize: 35 }} color={tintColor} />
+        ),
+        tabBarOptions
+      }
     },
-    {
-      defaultNavigationOptions: {
-        headerStyle: { backgroundColor: colors.background },
-        cardStyle: { backgroundColor: colors.background },
-        headerShown: false
+    searchFlow: {
+      screen: searchStack,
+      navigationOptions: {
+        tabBarLabel: ({ tintColor }) => (
+          <FontAwesome
+            name="search"
+            style={{ fontSize: 35 }}
+            color={tintColor}
+          />
+        ),
+        tabBarOptions
+      }
+    },
+    profileFlow: {
+      screen: profileStack,
+      navigationOptions: {
+        tabBarLabel: ({ tintColor }) => (
+          <Octicons name="person" style={{ fontSize: 35 }} color={tintColor} />
+        ),
+        tabBarOptions
       }
     }
-  ),
-  mainFlow: createBottomTabNavigator(
-    {
-      homeFlow: {
-        screen: createStackNavigator(
-          {
-            Home: HomeScreen,
-            ...exploreFlow
-          },
-          {
-            defaultNavigationOptions: {
-              headerStyle,
-              headerTitleStyle,
-              cardStyle: { backgroundColor: colors.background }
-            }
-          }
-        ),
-        navigationOptions: {
-          tabBarLabel: ({ tintColor }) => (
-            <Foundation
-              name="home"
-              style={styles.iconStyle}
-              color={tintColor}
-            />
-          ),
-          tabBarOptions: {
-            activeTintColor: colors.primary, // active icon color
-            inactiveTintColor: colors.shadow, // inactive icon color,
-            style: { backgroundColor: colors.object } //background color
-          }
-        }
-      },
-      searchFlow: {
-        screen: createStackNavigator(
-          {
-            Search: SearchScreen,
-            ...exploreFlow
-          },
-          {
-            defaultNavigationOptions: {
-              headerStyle,
-              headerTitleStyle,
-              cardStyle: { backgroundColor: colors.background }
-            }
-          }
-        ),
-        navigationOptions: {
-          tabBarLabel: ({ tintColor }) => (
-            <FontAwesome
-              name="search"
-              style={styles.iconStyle}
-              color={tintColor}
-            />
-          ),
-          tabBarOptions: {
-            activeTintColor: colors.primary, // active icon color
-            inactiveTintColor: colors.shadow, // inactive icon color
-            style: { backgroundColor: colors.object } //background color
-          }
-        }
-      },
-      profileFlow: {
-        screen: createStackNavigator(
-          {
-            Profile: ProfileScreen,
-            Account: AccountScreen,
-            ...exploreFlow
-          },
-          {
-            defaultNavigationOptions: {
-              headerStyle,
-              headerTitleStyle,
-              cardStyle: { backgroundColor: colors.background }
-            }
-          }
-        ),
-        navigationOptions: {
-          tabBarLabel: ({ tintColor }) => (
-            <Octicons
-              name="person"
-              style={styles.iconStyle}
-              color={tintColor}
-            />
-          ),
-          tabBarOptions: {
-            activeTintColor: colors.primary, // active icon color
-            inactiveTintColor: colors.shadow, // inactive icon color
-            style: { backgroundColor: colors.object } //background color
-          }
-        }
-      }
-    },
-    { lazy: false }
-  )
+  },
+  { lazy: false }
+);
+const loginSwitch = createSwitchNavigator(
+  {
+    SignIn: SignInScreen,
+    SignUp: SignUpScreen,
+    MakeProfile: MakeProfileScreen
+  },
+  {
+    defaultNavigationOptions: {
+      ...defaultNavigationOptions,
+      headerShown: false
+    }
+  }
+);
+const switchNavigator = createSwitchNavigator({
+  Loading: LoadingScreen,
+  loginFlow: loginSwitch,
+  mainFlow: mainStack
 });
 
 const App = createAppContainer(switchNavigator);
-
-const styles = StyleSheet.create({
-  iconStyle: {
-    fontSize: 35
-  }
-});
 
 export default () => {
   return (
