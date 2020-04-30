@@ -14,52 +14,61 @@ import { withNavigation } from "react-navigation";
  */
 const AlbumPreview = ({
   navigation,
-  title,
-  content_id,
+  content,
   rating,
   avg_rating,
   rid,
   highlighted
 }) => {
   return (
-    <TouchableOpacity
-      onPress={() =>
-        navigation.navigate("WriteReview", {
-          content_id,
-          rid,
-          content_type: "track"
-        })
-      }
-      style={[
-        styles.overallStyle,
-        {
-          backgroundColor: highlighted ? colors.highlight : colors.background // override the background color if this song is highlighted
+    <View style={{ flexDirection: "row" }}>
+      <Text style={styles.track_numberStyle}>{content.track_number}</Text>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("WriteReview", {
+            content_id: content.id,
+            rid,
+            content_type: "track"
+          })
         }
-      ]}
-    >
-      <Text style={styles.textStyle} numberOfLines={1}>
-        {title}
-      </Text>
-      {rating ? <Text style={styles.scoreStyle}>{rating}</Text> : null}
-      {avg_rating ? (
-        <Text style={styles.avgScoreStyle}>{avg_rating}</Text>
-      ) : null}
-      {rid ? <Feather name="message-square" style={styles.iconStyle} /> : null}
-    </TouchableOpacity>
+        style={{
+          ...styles.containerStyle,
+          backgroundColor: highlighted ? colors.highlight : colors.background
+        }}
+      >
+        <Text style={styles.textStyle} numberOfLines={1}>
+          {content.name}
+        </Text>
+        {rating ? <Text style={styles.scoreStyle}>{rating}</Text> : null}
+        {avg_rating ? (
+          <Text style={styles.avgScoreStyle}>{avg_rating}</Text>
+        ) : null}
+        {rid ? (
+          <Feather name="message-square" style={styles.iconStyle} />
+        ) : null}
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  overallStyle: {
+  containerStyle: {
     marginVertical: 5,
     borderRadius: 2,
     padding: 10,
     flexDirection: "row",
     alignItems: "center",
     height: 50,
-    backgroundColor: colors.background,
+    flex: 1,
     borderBottomWidth: 1,
     borderBottomColor: colors.shadow
+  },
+  track_numberStyle: {
+    alignSelf: "center",
+    fontSize: 20,
+    color: colors.shadow,
+    fontWeight: "bold",
+    marginRight: 5
   },
   iconStyle: {
     fontSize: 20,
