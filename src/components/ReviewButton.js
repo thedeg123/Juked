@@ -1,7 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { auth } from "firebase";
 import { withNavigation } from "react-navigation";
 import context from "../context/context";
 import colors from "../constants/colors";
@@ -11,7 +10,7 @@ const ReviewButton = ({ navigation, content_id, content_type }) => {
     console.error("Required for Review button: content_id and content_type");
   }
   const [rid, setRid] = useState(null);
-  const firestore = useContext(context);
+  const { firestore } = useContext(context);
   const email = firestore.fetchCurrentUID();
   useEffect(() => {
     const findReview = async () =>

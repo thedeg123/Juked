@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
-import useMusic from "../hooks/useMusic";
 import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
@@ -16,9 +15,8 @@ const AlbumScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
   const highlighted = navigation.getParam("highlighted");
   const email = auth().currentUser.email;
-  let firestore = useContext(context);
+  const { firestore, useMusic } = useContext(context);
   // data from spotify
-  const { findAlbums } = useMusic();
   const [album, setAlbum] = useState(null);
 
   // data from review database
@@ -30,29 +28,23 @@ const AlbumScreen = ({ navigation }) => {
   // initialization
   const init = async () => {
     //getting album rating
-    findAlbums(content_id)
-      .then(albums =>
-        albums.length
-          ? albums[0]
-          : console.error(`Could not find album of content_id: ${content_id}`)
-      )
-      .then(async album => {
-        setAlbum(album);
-        return setTrack_reviews(
-          await firestore
-            .batchGetReviewsByAuthorContent(
-              email,
-              album.tracks.items.map(obj => obj.id)
-            )
-            .then(ret => {
-              let track_reviews_by_content_id = {};
-              ret.forEach(
-                r => (track_reviews_by_content_id[r.data.content_id] = r)
-              );
-              return track_reviews_by_content_id;
-            })
-        );
-      });
+    await useMusic.findAlbum(content_id).then(async album => {
+      setAlbum(album);
+      return setTrack_reviews(
+        await firestore
+          .batchGetReviewsByAuthorContent(
+            email,
+            album.tracks.map(obj => obj.id)
+          )
+          .then(ret => {
+            let track_reviews_by_content_id = {};
+            ret.forEach(
+              r => (track_reviews_by_content_id[r.data.content_id] = r)
+            );
+            return track_reviews_by_content_id;
+          })
+      );
+    });
     firestore.getReviewsByAuthorContent(email, content_id).then(res => {
       return setAlbumRating(res.exists ? res.data.rating : null);
     });
@@ -82,21 +74,17 @@ const AlbumScreen = ({ navigation }) => {
         <Image
           style={{
             width: "50%",
-            aspectRatio: album.images[0].width / album.images[0].height,
+            aspectRatio: 1,
             borderRadius: 5
           }}
           source={{
-            uri: album.images[0].url
+            uri: album.image
           }}
         />
         <View style={{ alignItems: "center", width: "50%" }}>
           <Text style={styles.title}>{album.name}</Text>
-          <Text style={styles.text}>
-            {album.artists.map(artist => artist.name).join("; ")}
-          </Text>
-          <Text style={styles.text}>{`${date.toLocaleString("default", {
-            month: "long"
-          })} ${date.getDate()}, ${date.getFullYear()}`}</Text>
+          <Text style={styles.text}>{album.artist_name}</Text>
+          <Text style={styles.text}>{album.string_release_date}</Text>
         </View>
       </View>
       <BarGraph data={albumData.rating_nums}></BarGraph>
@@ -118,20 +106,19 @@ const AlbumScreen = ({ navigation }) => {
   return (
     <FlatList
       style={{ paddingHorizontal: 10 }}
-      data={album.tracks.items}
+      data={album.tracks}
       keyExtracter={({ item }) => item.track_number}
       renderItem={({ item, index }) => {
         return (
           <View>
             <AlbumPreview
-              title={item.name}
-              rating={" "}
-              avg_rating={
+              content={item}
+              rating={
                 track_reviews[item.id]
                   ? track_reviews[item.id].data.rating
                   : null
               }
-              content_id={item.id}
+              avg_rating={" "}
               rid={track_reviews[item.id] ? track_reviews[item.id].id : null}
               highlighted={highlighted == item.id}
             />

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import context from "../context/context";
 
 const AccountScreen = ({ navigation }) => {
-  const firestore = useContext(context);
+  const { firestore } = useContext(context);
   const [error, setError] = useState(null);
   return (
     <View>

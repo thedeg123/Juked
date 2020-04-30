@@ -1,10 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StyleSheet, FlatList, View, RefreshControl } from "react-native";
-import useMusic from "../hooks/useMusic";
 import context from "../context/context";
 import ButtonFilter from "../components/HomeScreenComponents/ButtonFilter";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
-import simplifyContent from "../helpers/simplifyContent";
 import LoadingIndicator from "../components/LoadingIndicator";
 
 const HomeScreen = ({ navigation }) => {
@@ -13,9 +11,8 @@ const HomeScreen = ({ navigation }) => {
   const [reviews, setReviews] = useState(null);
   const [content, setContent] = useState(null);
   const [authors, setAuthors] = useState(null);
-  const [refreshing, setRefreshing] = React.useState(false);
-  const { findContent } = useMusic();
-  let firestore = useContext(context);
+  const [refreshing, setRefreshing] = useState(false);
+  const { firestore, useMusic } = useContext(context);
   // if yk sql, this is what were doing here:
   // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
   // groupby type theta join type==content_id on (select * from Music)) natural join Users;
@@ -33,9 +30,9 @@ const HomeScreen = ({ navigation }) => {
     for (let [type, cids] of Object.entries(cid_byType)) {
       cids = Array.from(cids);
       if (!cids.length) continue;
-      await findContent(cids, type).then(result =>
-        result.forEach(el => (temp_content[el.id] = simplifyContent(el, type)))
-      );
+      await useMusic
+        .findContent(cids, type)
+        .then(result => result.forEach(el => (temp_content[el.id] = el)));
     }
     setContent(temp_content);
     setAuthors(

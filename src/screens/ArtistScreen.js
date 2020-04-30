@@ -24,15 +24,13 @@ const ArtistScreen = ({ navigation }) => {
   if (!content_id) console.error("ArtistScreen must be called with content_id");
   const email = auth().currentUser.email;
 
-  // data from spotify
-  const { findArtists, findAlbumsOfAnArtist } = useMusic();
   const [albums, setAlbums] = useState(null);
   const [artist, setArtist] = useState(null);
 
   // data from review database
   const [rating, setRating] = useState(null);
   const [avg_rating, setAvg_rating] = useState(null);
-  const firestore = useContext(context);
+  const { firestore, useMusic } = useContext(context);
   const [contentData, setContentData] = useState(null);
 
   const init = () => {
@@ -40,10 +38,8 @@ const ArtistScreen = ({ navigation }) => {
     firestore
       .getReviewsByAuthorContent(email, content_id)
       .then(review => setRating(review.exists ? review.data.rating : null));
-    findArtists(content_id).then(artists => setArtist(artists[0]));
-    findAlbumsOfAnArtist(content_id).then(result => {
-      setAlbums(result.items);
-    });
+    useMusic.findArtist(content_id).then(artist => setArtist(artist));
+    useMusic.findAlbumsOfAnArtist(content_id).then(albums => setAlbums(albums));
     firestore.getContentData(content_id).then(res => setContentData(res));
   };
 
@@ -65,22 +61,13 @@ const ArtistScreen = ({ navigation }) => {
     <View>
       <View>
         <ImageBackground
-          source={{
-            uri: artist.images[0] ? artist.images[0].url : images.artistDefault
-          }}
+          source={{ uri: artist.image }}
           blurRadius={20}
           style={styles.imageBackgroundStyle}
         >
           <View style={styles.contentContainer}>
             <Text style={styles.title}>{artist.name}</Text>
-            <Image
-              style={styles.imageStyle}
-              source={{
-                uri: artist.images[0]
-                  ? artist.images[0].url
-                  : images.artistDefault
-              }}
-            />
+            <Image style={styles.imageStyle} source={{ uri: artist.image }} />
           </View>
         </ImageBackground>
       </View>
@@ -116,9 +103,9 @@ const ArtistScreen = ({ navigation }) => {
   return (
     <FlatList
       data={albums}
-      keyExtracter={({ item }) => item.name}
+      keyExtracter={({ item }) => item.id}
       renderItem={({ item }) => (
-        <ArtistPreview result={item} navigation={navigation} />
+        <ArtistPreview content={item} navigation={navigation} />
       )}
       columnWrapperStyle={styles.column}
       numColumns={2}

@@ -1,4 +1,22 @@
 const navigateContent = (navigation, cid, album_cid, review, content, user) => {
+  if (!review) {
+    switch (content.type) {
+      case "album":
+        return navigation.navigate("Album", {
+          content_id: content.id,
+          highlighted: ""
+        });
+      case "artist":
+        return navigation.navigate("Artist", { content_id: content.id });
+      case "track":
+        return navigation.navigate("Album", {
+          content_id: content.album_id,
+          highlighted: content.id
+        });
+      default:
+        return;
+    }
+  }
   if (review.data.title)
     return navigation.navigate("Review", { review, user, content });
   switch (review.data.type) {

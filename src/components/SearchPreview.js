@@ -4,77 +4,45 @@ import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import images from "../constants/images";
 import { withNavigation } from "react-navigation";
+import navigateContent from "../helpers/navigateContent";
 /**
  * SearchPreview Component for ListScreen
  * @param {string} title - title of this song/album/artist
  * @param {string} type - "Song"/"Album"/"Artist"
  * @param {string} music_id - original id from spotify
  */
-const SearchPreview = ({ object, type, cid, album_cid, navigation }) => {
-  const handleNavigate = () => {
-    switch (type) {
-      case "album":
-        return navigation.navigate("Album", {
-          content_id: cid,
-          highlighted: ""
-        });
-      case "artist":
-        return navigation.navigate("Artist", { content_id: cid });
-      case "track":
-        return navigation.navigate("Album", {
-          content_id: album_cid,
-          highlighted: cid
-        });
-      default:
-        return;
-    }
-  };
-
-  const getImage = () => {
-    switch (type) {
-      case "track":
-        return object.album.images[0]
-          ? object.album.images[0].url
-          : images.artistDefault;
-      case "album":
-      case "artist":
-        return object.images[0] ? object.images[0].url : images.artistDefault;
-      default:
-        return null;
-    }
-  };
-
-  const getReleaseDate = () => {
-    switch (type) {
-      case "track":
-        return object.album.release_date;
-      case "album":
-        return object.release_date;
-      default:
-        return null;
-    }
-  };
-  const date = getReleaseDate() ? new Date(getReleaseDate()) : null;
-  const stringDate = date
-    ? `${date.toLocaleString("default", {
-        month: "long"
-      })} ${date.getDate()}, ${date.getFullYear()}`
-    : null;
+const SearchPreview = ({ navigation, object, type }) => {
+  const date = object.string_release_date;
   return (
-    <TouchableOpacity style={styles.containerStyle} onPress={handleNavigate}>
-      <Image style={styles.imageStyle} source={{ uri: getImage() }} />
+    <TouchableOpacity
+      style={styles.containerStyle}
+      onPress={() =>
+        navigateContent(
+          navigation,
+          object.cid,
+          object.album_id,
+          null,
+          object,
+          null
+        )
+      }
+    >
+      <Image
+        style={styles.imageStyle}
+        source={{ uri: object.image || images.artistDefault }}
+      />
       <View style={styles.textWrapperStyle}>
         <Text numberOfLines={1} style={styles.textStyle}>
           {object.name}
         </Text>
-        {object.artists ? (
+        {object.artist_name ? (
           <Text numberOfLines={1} style={styles.subtextStyle}>
-            {object.artists[0].name}
+            {object.artist_name}
           </Text>
         ) : null}
-        {stringDate ? (
+        {date ? (
           <Text numberOfLines={1} style={styles.dateStyle}>
-            {stringDate}
+            {date}
           </Text>
         ) : null}
       </View>

@@ -9,50 +9,16 @@ const ResultsList = ({ users, searchType, search }) => {
   } else {
     switch (searchType) {
       case "track":
-        return (
-          <View style={{ flex: 1 }}>
-            <FlatList
-              data={search.tracks.items.slice(0, 20)}
-              keyExtractor={searchItem => searchItem.id}
-              renderItem={({ item }) => (
-                <SearchPreview
-                  type={searchType}
-                  object={item}
-                  cid={item.id}
-                  album_cid={item.album.id}
-                />
-              )}
-            />
-          </View>
-        );
       case "album":
-        return (
-          <View style={{ flex: 1 }}>
-            <FlatList
-              data={search.albums.items.slice(0, 50)}
-              keyExtractor={searchItem => searchItem.id}
-              renderItem={({ item }) => (
-                <SearchPreview
-                  type={searchType}
-                  object={item}
-                  cid={search ? `${item.id}` : null}
-                />
-              )}
-            />
-          </View>
-        );
       case "artist":
         return (
           <View style={{ flex: 1 }}>
             <FlatList
-              data={search.artists.items.slice(0, 50)}
+              keyboardDismissMode="on-drag"
+              data={search}
               keyExtractor={searchItem => searchItem.id}
               renderItem={({ item }) => (
-                <SearchPreview
-                  type={searchType}
-                  object={item}
-                  cid={search ? `${item.id}` : null}
-                />
+                <SearchPreview type={searchType} object={item} cid={item.id} />
               )}
             />
           </View>

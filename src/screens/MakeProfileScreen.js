@@ -20,7 +20,7 @@ const MakeProfileScreen = ({
   const [error, setError] = useState("");
   const handleRef = useRef(null);
   const bioRef = useRef(null);
-  let firestore = useContext(context);
+  const { firestore } = useContext(context);
   return (
     <View style={styles.containerStyle}>
       {!active ? <Logo subtext="Let's make that bio,"></Logo> : null}

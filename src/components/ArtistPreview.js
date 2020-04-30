@@ -6,23 +6,17 @@ import colors from "../constants/colors";
  * @param {string} result album object from spotify API
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ArtistPreview = ({ result, navigation }) => {
-  // check if there is a picture with height 300px
-  const hasOne = result.images.find(i => i.height == 300);
-  let date = new Date(result.release_date); //casting date to a date object
-  const imageSource = { uri: hasOne ? hasOne.url : result.images[0].url };
+const ArtistPreview = ({ content, navigation }) => {
   return (
     <TouchableOpacity
       style={styles.containerStyle}
-      onPress={() => navigation.navigate("Album", { content_id: result.id })}
+      onPress={() => navigation.navigate("Album", { content_id: content.id })}
     >
-      <Image style={styles.imageStyle} source={imageSource} />
+      <Image style={styles.imageStyle} source={{ uri: content.image }} />
       <Text style={styles.textStyle} numberOfLines={1}>
-        {result.name}
+        {content.name}
       </Text>
-      <Text style={styles.dateStyle}>{`${date.toLocaleString("default", {
-        month: "long"
-      })} ${date.getDate()}, ${date.getFullYear()}`}</Text>
+      <Text>{content.string_release_date}</Text>
     </TouchableOpacity>
   );
 };

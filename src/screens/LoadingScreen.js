@@ -7,7 +7,7 @@ import Container from "../components/Container";
 import context from "../context/context";
 
 const LoadingScreen = ({ navigation }) => {
-  let firestore = useContext(context);
+  let { firestore } = useContext(context);
   useEffect(() => {
     const routeState = () => {
       return auth().onAuthStateChanged(async user => {

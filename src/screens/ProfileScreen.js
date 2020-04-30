@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   TouchableOpacity,
   Image,
   ScrollView
@@ -18,18 +17,15 @@ import images from "../constants/images";
 import FollowButton from "../components/FollowButton";
 import LoadingIndicator from "../components/LoadingIndicator";
 import BarGraph from "../components/Graphs/BarGraph";
-import useMusic from "../hooks/useMusic";
-import simplifyContent from "../helpers/simplifyContent";
 
 const UserProfileScreen = ({ navigation }) => {
-  const firestore = useContext(context);
+  const { firestore, useMusic } = useContext(context);
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
   const [following, setFollowing] = useState(null);
   const [followers, setFollowers] = useState(null);
   const [content, setContent] = useState(null);
-  const { findContent } = useMusic();
 
   const fetchFollow = async () => {
     await firestore.getFollowing(uid).then(res => setFollowing(res));
@@ -52,9 +48,9 @@ const UserProfileScreen = ({ navigation }) => {
     for (let [type, cids] of Object.entries(cid_byType)) {
       cids = Array.from(cids);
       if (!cids.length) continue;
-      await findContent(cids, type).then(result =>
-        result.forEach(el => (temp_content[el.id] = simplifyContent(el, type)))
-      );
+      await useMusic
+        .findContent(cids, type)
+        .then(result => result.forEach(el => (temp_content[el.id] = el)));
     }
     setContent(temp_content);
     firestore.getUser(uid).then(res => setUser(res));

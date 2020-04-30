@@ -2,32 +2,69 @@
  * @description - Simplifies the objects returned from spotify API
  *
  */
+import images from "../constants/images";
+
 export default simplifyContent = (content, type) => {
+  const toStringDate = num_date => {
+    const date = new Date(num_date);
+    return `${date.toLocaleString("default", {
+      month: "long"
+    })} ${date.getDate()}, ${date.getFullYear()}`;
+  };
   switch (type) {
     case "track": {
       return {
         artist_name: content.album.artists[0].name,
+        artist_id: content.album.artists[0].id,
         album_name: content.album.name,
         album_id: content.album.id,
-        image: content.album.images[0]["url"],
+        image: content.album.images.length
+          ? content.album.images[0]["url"]
+          : images.artistDefault,
         name: content.name,
-        id: content.id
+        release_date: content.album.release_date,
+        string_release_date: toStringDate(content.album.release_date),
+        id: content.id,
+        type: "track"
+      };
+    }
+    case "track_album": {
+      return {
+        artist_name: content.artists[0].name,
+        artist_id: content.artists[0].id,
+        name: content.name,
+        id: content.id,
+        track_number: content.track_number,
+        type: "track"
       };
     }
     case "album": {
       return {
         artist_name: content.artists[0].name,
         artist_id: content.artists[0].id,
-        image: content.images[0]["url"],
+        image: content.images.length
+          ? content.images[0]["url"]
+          : images.artistDefault,
         name: content.name,
-        id: content.id
+        release_date: content.release_date,
+        string_release_date: toStringDate(content.release_date),
+        id: content.id,
+        tracks: content.tracks
+          ? content.tracks.items.map(track =>
+              simplifyContent(track, "track_album")
+            )
+          : null,
+        type: "album"
       };
     }
     case "artist": {
       return {
         name: content.name,
         id: content.id,
-        image: content.images[0]["url"]
+        image: content.images.length
+          ? content.images[0]["url"]
+          : images.artistDefault,
+        type: "artist"
       };
     }
   }

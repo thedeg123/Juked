@@ -2,47 +2,33 @@ import { useState } from "react";
 const { config } = require("../api/musicConfig");
 import { Buffer } from "buffer";
 import axios from "axios";
+import firebase from "firebase";
+import "firebase/firestore";
+import simplifyContent from "../helpers/simplifyContent";
 
-const BASE_PATH = "https://api.spotify.com/v1";
-
-export default () => {
-  //TODO: convert this to use the user's country code
-  const COUNTRY_CODE = "US";
-
-  /**
-   * @async
-   * @function requestAccessToken
-   * @param {string} id - client id
-   * @param {string} secret - client secret
-   * @return {Promise<Object>} - {access_token, token_type, expire_in}
-   */
-  const requestAccessToken = async (id, secret, backoff = 10000) => {
-    try {
-      let buff = Buffer.from(id + ":" + secret);
-      let base64data = buff.toString("base64");
-      const postRequestHeader = {
-        Authorization: "Basic " + base64data
-      };
-      const response = await axios.post(
-        "https://accounts.spotify.com/api/token",
-        "grant_type=client_credentials",
-        {
-          headers: postRequestHeader
-        }
-      );
-      return response.data;
-    } catch (error) {
-      if (error.response.status == 504) {
-        return await setTimeout(
-          () => requestAccessToken(id, secret, backoff * 2),
-          backoff
-        );
-      } else {
-        console.error("FROM REQUEST TOKEN:", error);
-        return error;
-      }
-    }
-  };
+export default class useMusic {
+  constructor() {
+    this.db = firebase.firestore();
+    this.token = null;
+    this.remover = null;
+    this.country_code = "US";
+    this.base_path = "https://api.spotify.com/v1";
+  }
+  async connectToken() {
+    console.log("connecting token");
+    //setting update of token
+    this.remover = await this.db
+      .collection("token")
+      .doc("spotify")
+      .onSnapshot(doc => (this.token = doc.data()));
+    //setting initial value of token
+    this.token = await this.db
+      .collection("token")
+      .doc("spotify")
+      .get()
+      .then(doc => doc.data());
+    return this.token;
+  }
   /**
    * @async
    * @function requestAPI
@@ -50,89 +36,52 @@ export default () => {
    * @param {string} path - request path
    * @return {Promise<Object>} - the data object of the request
    */
-
-  const requestAPI = async (accessToken, path, params) => {
+  async requestAPI(path, params) {
+    if (!this.token) await this.connectToken();
+    const fullPath = this.base_path + path;
     try {
       const authHeader = {
-        Authorization: accessToken.token_type + " " + accessToken.access_token
+        Authorization: this.token.token_type + " " + this.token.access_token
       };
-      const response = await axios.get(path, {
+      const response = await axios.get(fullPath, {
         headers: authHeader,
         params
       });
       return response.data;
     } catch (error) {
-      return error;
+      return console.error("FROM REQUEST API:", error);
     }
-  };
-
-  const reducer = async (updateState, action) => {
-    const accessToken = await requestAccessToken(config.id, config.secret);
-    let response = null;
-    switch (action.RequestType) {
-      case "find_tracks":
-        response = await requestAPI(accessToken, `${BASE_PATH}/tracks`, {
-          ids: action.ids,
-          market: COUNTRY_CODE
-        });
-        updateState(response);
-        return response;
-      case "find_albums":
-        response = await requestAPI(accessToken, `${BASE_PATH}/albums`, {
-          ids: action.ids,
-          market: COUNTRY_CODE
-        });
-        updateState(response);
-        return response;
-      case "find_albums_of_an_artist":
-        response = await requestAPI(
-          accessToken,
-          `${BASE_PATH}/artists/${action.ids}/albums`,
-          { country: COUNTRY_CODE, limit: 50 }
-        );
-        updateState(response);
-        return response;
-      case "find_artists": {
-        response = await requestAPI(accessToken, `${BASE_PATH}/artists`, {
-          ids: action.ids
-        });
-        updateState(response);
-        return response;
-      }
-      case "search_api":
-        response = await requestAPI(accessToken, `${BASE_PATH}/search`, {
-          q: action.searchTerm,
-          type: action.catagory,
-          market: COUNTRY_CODE,
-          limit: 20
-        });
-        updateState(response);
-        return response;
-      default:
-        return;
-    }
-  };
-  const [tracks, setTracks] = useState(null);
-  const [albums, setAlbums] = useState(null);
-  const [artists, setArtists] = useState(null);
-  const [search, setSearch] = useState(null);
-  const [err, setErr] = useState("");
-
+  }
   /**
    * @async
    * @function findTracks
    * @param {Array} ids - an array of 1+ unique IDs for tracks
+   * @description - querys spotify API for the given track
+   * @return {Object} - returns a track object for the given track
+   */
+  async findTracks(ids) {
+    if (!ids) console.error("Find tracks should be passed ids");
+    ids = Array.isArray(ids) ? ids.join(",") : ids;
+    return await this.requestAPI("/tracks", {
+      ids: ids,
+      market: this.country_code
+    }).then(tracks =>
+      tracks.tracks.map(track => simplifyContent(track, "track"))
+    );
+  }
+  /**
+   * @async
+   * @function findTrack
+   * @param {String} - the unique ID for the track
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findTracks = async ids => {
-    if (!ids) return;
-    ids = Array.isArray(ids) ? ids.join(",") : ids;
-    return await reducer(setTracks, {
-      RequestType: "find_tracks",
-      ids
-    }).then(tracks => tracks.tracks);
-  };
+  async findTrack(id) {
+    if (!id) console.error("Find track should be passed id");
+    return await this.requestAPI(`/tracks/${id}`, {
+      market: this.country_code
+    }).then(track => simplifyContent(track, "track"));
+  }
   /**
    * @async
    * @function findAlbums
@@ -140,21 +89,38 @@ export default () => {
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findAlbums = async ids => {
-    if (!ids) return;
+  async findAlbums(ids) {
+    if (!ids) console.error("Find albums should be passed ids");
     ids = Array.isArray(ids) ? ids.join(",") : ids;
-    return await reducer(setAlbums, {
-      RequestType: "find_albums",
-      ids
-    }).then(albums => albums.albums);
-  };
-  const findAlbumsOfAnArtist = async id => {
-    if (!id) return;
-    return await reducer(setAlbums, {
-      RequestType: "find_albums_of_an_artist",
-      ids: id
-    });
-  };
+    return await this.requestAPI("/albums", {
+      ids: ids,
+      market: this.country_code
+    }).then(albums =>
+      albums.albums.map(album => simplifyContent(album, "album"))
+    );
+  }
+  /**
+   * @async
+   * @function findAlbum
+   * @param {String} - the unique ID for the aalbum
+   * @description - updates the value of songs with found track
+   * @return {null}
+   */
+  async findAlbum(id) {
+    if (!id) console.error("Find albums should be passed ids");
+    return await this.requestAPI(`/albums/${id}`, {
+      market: this.country_code
+    }).then(album => simplifyContent(album, "album"));
+  }
+  async findAlbumsOfAnArtist(id) {
+    if (!id) console.error("Find albums of artist should be passed id");
+    return await this.requestAPI(`/artists/${id}/albums`, {
+      country: this.country_code,
+      limit: 50
+    }).then(albums =>
+      albums.items.map(album => simplifyContent(album, "album"))
+    );
+  }
   /**
    * @async
    * @function findArtists
@@ -162,34 +128,54 @@ export default () => {
    * @description - updates the value of songs with found track
    * @return {null}
    */
-  const findArtists = async ids => {
-    if (!ids) return;
+  async findArtists(ids) {
+    if (!ids) console.error("Find artists should be passed ids");
     ids = Array.isArray(ids) ? ids.join(",") : ids;
-    return await reducer(setArtists, {
-      RequestType: "find_artists",
-      ids
-    }).then(artists => artists.artists);
-  };
+    return await this.requestAPI("/artists", {
+      ids: ids
+    }).then(artists =>
+      artists.artists.map(artist => simplifyContent(artist, "artist"))
+    );
+  }
   /**
    * @async
-   * @function findContent
-   * @param {Array} ids - an array of 1+ unique IDs for artists
-   * @param {String} type - the kind of content to get
-   * @description - a convinience function which returns content of a given type
+   * @function findTrack
+   * @param {String} - the unique ID for the artist
+   * @description - updates the value of songs with found artist
    * @return {null}
    */
-  const findContent = async (ids, type) => {
+  async findArtist(id) {
+    if (!id) console.error("Find artist should be passed id");
+    return await this.requestAPI(`/artists/${id}`, {
+      market: this.country_code
+    }).then(artist => simplifyContent(artist, "artist"));
+  }
+  async findContent(ids, type) {
     switch (type) {
       case "artist":
-        return findArtists(ids);
+        return this.findArtists(ids);
       case "album":
-        return findAlbums(ids);
+        return this.findAlbums(ids);
       case "track":
-        return findTracks(ids);
+        return this.findTracks(ids);
       default:
         console.error("Content must be one of type: track, album, artist");
     }
-  };
+  }
+
+  async findOneContent(id, type) {
+    switch (type) {
+      case "artist":
+        return this.findArtist(id);
+      case "album":
+        return this.findAlbum(id);
+      case "track":
+        return this.findTrack(id);
+      default:
+        console.error("Content must be one of type: track, album, artist");
+    }
+  }
+
   /**
    * @async
    * @function searchAPI
@@ -198,25 +184,15 @@ export default () => {
    * @description - updates the value of search with found object
    * @return {null}
    */
-  const searchAPI = async (searchTerm, catagory) => {
-    if (!searchTerm) return;
-    return await reducer(setSearch, {
-      RequestType: "search_api",
-      searchTerm: searchTerm.replace(/ /g, "+"), //because the api must have searches replaced with +
-      catagory
-    });
-  };
-  return {
-    tracks,
-    albums,
-    artists,
-    search,
-    findAlbums,
-    findAlbumsOfAnArtist,
-    findArtists,
-    findTracks,
-    findContent,
-    searchAPI,
-    setSearch
-  };
-};
+  async searchAPI(searchTerm, catagory) {
+    if (!catagory) console.error("Search should be passed category");
+    return await this.requestAPI("/search", {
+      q: searchTerm.replace(/ /g, "+"), //because the api must have searches replaced with +
+      type: catagory,
+      market: this.country_code,
+      limit: 20
+    }).then(res =>
+      res[catagory + "s"].items.map(r => simplifyContent(r, catagory))
+    );
+  }
+}
