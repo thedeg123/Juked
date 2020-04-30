@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,34 @@ import {
   TouchableOpacity
 } from "react-native";
 
-import Container from "../components/Container";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import TopButton from "../components/TopButton";
+import firebase from "firebase";
+import "firebase/firestore";
 
 const ReviewScreen = ({ navigation }) => {
-  const review = navigation.getParam("review");
+  const firestore = firebase.firestore();
+  const [review, setReview] = useState(navigation.getParam("review"));
   const user = navigation.getParam("user");
   const content = navigation.getParam("content");
+  let remover = null;
   if (!review || !content || !user)
     console.error("ReviewScreen should be passed review, content, user");
   const date = new Date(review.data.last_modified);
-
+  useEffect(() => {
+    const listener = navigation.addListener("didFocus", async () => {
+      remover = await firestore
+        .collection("reviews")
+        .doc(review.id)
+        .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
+    });
+    return () => {
+      remover ? remover() : null;
+      listener.remove();
+    };
+  }, []);
   return (
     <View style={styles.containerStyle}>
       <View style={styles.headerStyle}>
