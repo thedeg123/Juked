@@ -6,7 +6,7 @@ import context from "../context/context";
 import Logo from "../components/Logo";
 import Button from "../components/AuthButton";
 const SignInScreen = ({ navigation }) => {
-  const firebase = useContext(context);
+  const { firestore } = useContext(context);
   const [error, setError] = useState(null);
   return (
     <View style={styles.containerStyle}>
@@ -14,9 +14,8 @@ const SignInScreen = ({ navigation }) => {
       <KeyboardAvoidingView behavior="position">
         {<Text style={styles.errorText}>{error ? error : null}</Text>}
         <AuthForm
-          headerText="Welcome back!"
           submitButtonAction={(email, password) =>
-            firebase
+            firestore
               .signin(email, password)
               .then(error => (error ? setError(error) : null))
           }

@@ -6,7 +6,7 @@ import context from "../context/context";
 import Logo from "../components/Logo";
 import Button from "../components/AuthButton";
 const SignUpScreen = ({ navigation }) => {
-  const firestore = useContext(context);
+  const { firestore } = useContext(context);
   let [error, setError] = useState(null);
   return (
     <View style={styles.containerStyle}>
