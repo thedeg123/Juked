@@ -11,26 +11,36 @@ import { AntDesign } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import Container from "../components/Container";
+import UserPreview from "../components/UserPreview";
 import ListPreview from "../components/ListPreview";
 import context from "../context/context";
 import images from "../constants/images";
 import FollowButton from "../components/FollowButton";
 import LoadingIndicator from "../components/LoadingIndicator";
 import BarGraph from "../components/Graphs/BarGraph";
+import firebase from "firebase";
+import "firebase/firestore";
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, useMusic } = useContext(context);
+  const firestoreConcurrent = firebase.firestore();
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
-  const [following, setFollowing] = useState(null);
-  const [followers, setFollowers] = useState(null);
   const [content, setContent] = useState(null);
+  const [followsYou, setFollowsYou] = useState(null);
+  const [userFollowing, setUserFollowing] = useState(null);
+  let remover = null;
 
-  const fetchFollow = async () => {
-    await firestore.getFollowing(uid).then(res => setFollowing(res));
-    await firestore.getFollowers(uid).then(res => setFollowers(res));
+  const updateFollow = async () => {
+    await firestore
+      .followingRelationExists(uid, firestore.fetchCurrentUID())
+      .then(res => setFollowsYou(res));
+    return await firestore
+      .followingRelationExists(firestore.fetchCurrentUID(), uid)
+      .then(res => setUserFollowing(res));
   };
+
   const fetch = async () => {
     if (!uid) uid = firestore.fetchCurrentUID();
     const reviews = await firestore.getReviewsByAuthor(uid, 10).then(res => {
@@ -53,15 +63,37 @@ const UserProfileScreen = ({ navigation }) => {
         .then(result => result.forEach(el => (temp_content[el.id] = el)));
     }
     setContent(temp_content);
-    firestore.getUser(uid).then(res => setUser(res));
-    fetchFollow();
+    updateFollow();
   };
   useEffect(() => {
+    remover = firestoreConcurrent
+      .collection("users")
+      .doc(uid)
+      .onSnapshot(res => setUser(res.data()));
     fetch();
     const listener = navigation.addListener("didFocus", () => fetch()); //any time we return to this screen we do another fetch
-    return () => listener.remove();
+    return () => {
+      listener.remove();
+      return remover ? remover() : null;
+    };
   }, []);
-  if (!user || !reviews || !followers || !content || !following) {
+
+  const navigateFollow = (title, follow) =>
+    navigation.push("List", {
+      title,
+      ids: follow,
+      fetchData: data => firestore.batchAuthorRequest(data),
+      renderItem: ({ item }) => <UserPreview user={item.data} />,
+      keyExtractor: item => item.id
+    });
+
+  if (
+    !user ||
+    !reviews ||
+    typeof followsYou !== "boolean" ||
+    typeof userFollowing !== "boolean" ||
+    !content
+  ) {
     return (
       <Container>
         <LoadingIndicator></LoadingIndicator>
@@ -84,32 +116,42 @@ const UserProfileScreen = ({ navigation }) => {
           <Text style={styles.handleStyle}>@{user.handle}</Text>
         </View>
         <View style={styles.followContainer}>
-          {uid == firestore.fetchCurrentUID() ? null : followers.has(
-              firestore.fetchCurrentUID()
-            ) ? (
+          {userFollowing ? (
             <FollowButton
               following
               onPress={() =>
-                firestore.unfollowUser(uid).then(() => fetchFollow())
+                firestore.unfollowUser(uid).then(() => updateFollow())
               }
             ></FollowButton>
-          ) : (
+          ) : firestore.fetchCurrentUID() != uid ? (
             <FollowButton
               following={false}
               onPress={() =>
-                firestore.followUser(uid).then(() => fetchFollow())
+                firestore.followUser(uid).then(() => updateFollow())
               }
             ></FollowButton>
-          )}
+          ) : null}
           <View style={styles.numberStyle}>
-            <TouchableOpacity onPress={() => navigation.navigate("List")}>
-              <Text style={styles.followStyle}>{followers.size} Followers</Text>
+            <TouchableOpacity
+              onPress={async () =>
+                navigateFollow("Followers", await firestore.getFollowers(uid))
+              }
+            >
+              <Text style={styles.followStyle}>
+                {user.num_follower} Followers
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("List")}>
-              <Text style={styles.followStyle}>{following.size} Following</Text>
+            <TouchableOpacity
+              onPress={async () =>
+                navigateFollow("Following", await firestore.getFollowing(uid))
+              }
+            >
+              <Text style={styles.followStyle}>
+                {user.num_following} Following
+              </Text>
             </TouchableOpacity>
           </View>
-          {following.has(firestore.fetchCurrentUID()) ? (
+          {followsYou ? (
             <View style={styles.followsYouWrapper}>
               <Text style={styles.followsYou}>Follows You</Text>
             </View>
