@@ -55,6 +55,16 @@ class useFirestore {
             }
       );
   }
+  async likeReview(rid) {
+    return await this.reviews_db.doc(rid).update({
+      likes: firebase.firestore.FieldValue.arrayUnion(this.fetchCurrentUID())
+    });
+  }
+  async unLikeReview(rid) {
+    return await this.reviews_db.doc(rid).update({
+      likes: firebase.firestore.FieldValue.arrayRemove(this.fetchCurrentUID())
+    });
+  }
   async getReview(rid) {
     return await this.reviews_db
       .doc(rid)
@@ -72,6 +82,9 @@ class useFirestore {
         res.forEach(r => ret.push({ id: r.id, data: r.data() }));
         return ret;
       });
+  }
+  async deleteReview(rid) {
+    return await this.reviews_db.doc(rid).delete();
   }
   async getUser(uid) {
     return await this.users_db
@@ -155,6 +168,7 @@ class useFirestore {
       text,
       title,
       type,
+      likes: [],
       is_review: Boolean(title.length)
     });
   }
@@ -188,6 +202,12 @@ class useFirestore {
   async unfollowUser(uid) {
     return await this.follow_db.doc(this.auth.currentUser.email + uid).delete();
   }
+  async followingRelationExists(follower_uid, following_uid) {
+    return await this.follow_db
+      .doc(follower_uid + following_uid)
+      .get()
+      .then(doc => doc.exists);
+  }
   /**
    * @argument {String} uid - the unique id of the user we want to get the followers of
    * @return {Set} - the set of followers UIDs.
@@ -197,8 +217,8 @@ class useFirestore {
       .where("following", "==", uid)
       .get()
       .then(res => {
-        let ret = new Set();
-        res.forEach(d => ret.add(d.data().follower));
+        let ret = [];
+        res.forEach(d => ret.push(d.data().follower));
         return ret;
       });
   }
@@ -211,8 +231,8 @@ class useFirestore {
       .where("follower", "==", uid)
       .get()
       .then(res => {
-        let ret = new Set();
-        res.forEach(d => ret.add(d.data().following));
+        let ret = [];
+        res.forEach(d => ret.push(d.data().following));
         return ret;
       });
   }
