@@ -18,9 +18,49 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
       bio: "",
       profile_url: "",
       created: Date.now(),
+      num_follower: 0,
+      num_following: 0,
       review_data: new Array(11).fill(0)
     });
 });
+
+exports.Onfollow = functions.firestore
+  .document("follow/{fid}")
+  .onCreate(async (snap, context) => {
+    var batch = firestore.batch();
+    const newFollow = snap.data();
+    const refFollowing = firestore.collection("users").doc(newFollow.following);
+    const dataFollowing = refFollowing.get();
+    const refFollower = firestore.collection("users").doc(newFollow.follower);
+    const dataFollower = refFollower.get();
+    batch.update(refFollowing, {
+      num_follower: dataFollowing.num_follower + 1 || 1
+    });
+    batch.update(refFollower, {
+      num_following: dataFollower.num_following + 1 || 1
+    });
+    return batch.commit();
+  });
+
+exports.OnUnfollow = functions.firestore
+  .document("follow/{fid}")
+  .onDelete(async (snap, context) => {
+    var batch = firestore.batch();
+    const newUnfollow = snap.data();
+    const refFollowing = firestore
+      .collection("users")
+      .doc(newUnfollow.following);
+    const dataFollowing = refFollowing.get();
+    const refFollower = firestore.collection("users").doc(newUnfollow.follower);
+    const dataFollower = refFollower.get();
+    batch.update(refFollowing, {
+      num_follower: dataFollowing.num_follower - 1 || 0
+    });
+    batch.update(refFollower, {
+      num_following: dataFollower.num_following - 1 || 0
+    });
+    return batch.commit();
+  });
 
 exports.updateContent = functions.firestore
   .document("reviews/{rid}")
