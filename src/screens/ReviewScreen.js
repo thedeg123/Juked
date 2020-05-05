@@ -1,42 +1,60 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView
 } from "react-native";
-
+import context from "../context/context";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import firebase from "firebase";
 import "firebase/firestore";
+import Modal from "react-native-modal";
+import LikeBox from "../components/LikeBox";
+import ModalCard from "../components/ModalCard";
 
 const ReviewScreen = ({ navigation }) => {
-  const firestore = firebase.firestore();
+  const { firestore } = useContext(context);
+  const firestoreConcurrent = firebase.firestore();
   const [review, setReview] = useState(navigation.getParam("review"));
   const user = navigation.getParam("user");
   const content = navigation.getParam("content");
-  let remover = null;
+  const [showModal, setShowModal] = useState(false);
   if (!review || !content || !user)
     console.error("ReviewScreen should be passed review, content, user");
-  const date = new Date(review.data.last_modified);
+  let remover = null;
+  let userLikes = review.data
+    ? review.data.likes.includes(firestore.fetchCurrentUID())
+    : null;
+  const date = review.data ? new Date(review.data.last_modified) : null;
+
   useEffect(() => {
+    navigation.setParams({ setShowModal });
     const listener = navigation.addListener("didFocus", async () => {
-      remover = await firestore
-        .collection("reviews")
-        .doc(review.id)
-        .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
+      try {
+        remover = await firestoreConcurrent
+          .collection("reviews")
+          .doc(review.id)
+          .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
+      } catch {
+        console.log("caught error");
+        remover ? remover() : null;
+      }
     });
     return () => {
       remover ? remover() : null;
       listener.remove();
     };
   }, []);
+  if (!review.data) {
+    return <View></View>;
+  }
   return (
-    <View style={styles.containerStyle}>
+    <ScrollView style={styles.containerStyle}>
       <View style={styles.headerStyle}>
         <View style={styles.headerTextContainerStyle}>
           <Text numberOfLines={2} style={styles.headerText}>
@@ -59,10 +77,39 @@ const ReviewScreen = ({ navigation }) => {
         <Text style={styles.titleText}>{review.data.title}</Text>
         <Text style={styles.ratingText}>{review.data.rating}</Text>
       </View>
-      <ScrollView>
-        <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
-      </ScrollView>
-    </View>
+      <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
+      <LikeBox
+        onPress={() => {
+          userLikes
+            ? firestore.unLikeReview(review.id)
+            : firestore.likeReview(review.id);
+          userLikes = !userLikes;
+        }}
+        liked={userLikes}
+        numLikes={review ? review.data.likes.length : 0}
+      ></LikeBox>
+      <View>
+        <Modal
+          isVisible={showModal}
+          onSwipeComplete={() => setShowModal(false)}
+          swipeDirection={["up", "left", "right", "down"]}
+          style={styles.cardStyle}
+        >
+          <ModalCard
+            onDelete={() => {
+              firestore.deleteReview(review.id);
+              setShowModal(false);
+              return navigation.pop();
+            }}
+            onEdit={() => {
+              setShowModal(false);
+              return navigation.navigate("WriteReview", { rid: review.id });
+            }}
+            onClose={() => setShowModal(false)}
+          ></ModalCard>
+        </Modal>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -70,6 +117,10 @@ const styles = StyleSheet.create({
   containerStyle: {
     marginTop: 10,
     marginHorizontal: 10
+  },
+  cardStyle: {
+    justifyContent: "flex-end",
+    margin: 0
   },
   headerStyle: {
     borderBottomColor: colors.shadow,
@@ -119,16 +170,11 @@ const styles = StyleSheet.create({
 });
 
 ReviewScreen.navigationOptions = ({ navigation }) => {
+  const setShowModal = navigation.getParam("setShowModal");
   return {
     headerRight: () =>
       navigation.getParam("user").email === auth().currentUser.email ? (
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("WriteReview", {
-              rid: navigation.getParam("review").id
-            })
-          }
-        >
+        <TouchableOpacity onPress={() => setShowModal(true)}>
           <TopButton text={"Edit"}></TopButton>
         </TouchableOpacity>
       ) : null
