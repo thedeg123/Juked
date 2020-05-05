@@ -7,21 +7,27 @@ import { withNavigation } from "react-navigation";
 
 /**
  * UserPreview Component for ListScreen
- * @param {string} handle - username of this user
- * @param {Object} profile_url - information regards of the image of user's avatar
- * @param {string} id - user's Id, if needed
+ * @param {Object} User - a user profile object
  * @param {Object} navigation - navigation objected passed from screen
  */
-const UserPreview = ({ handle, profile_url, uid, navigation }) => {
+const UserPreview = ({ navigation, user }) => {
+  if (!user) {
+    return <View></View>;
+  }
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("Profile", { uid })}>
+    <TouchableOpacity
+      onPress={() => navigation.push("Profile", { uid: user.email })}
+    >
       <View style={styles.containerStyle}>
         <Image
           style={styles.imageStyle}
-          source={{ uri: profile_url || images.profileDefault }}
+          source={{ uri: user.profile_url || images.profileDefault }}
         />
-        <Text style={styles.textStyle}>@{handle}</Text>
+        <Text style={styles.textStyle}>@{user.handle}</Text>
         <View style={styles.iconWrapper}>
+          <Text style={styles.numberStyle}>
+            {user.review_data ? user.review_data.reduce((a, b) => a + b) : 0}
+          </Text>
           <EvilIcons name="chevron-right" style={styles.iconStyle} />
         </View>
       </View>
@@ -33,16 +39,23 @@ const styles = StyleSheet.create({
   containerStyle: {
     borderRadius: 5,
     marginVertical: 5,
-    paddingLeft: 10,
+    marginHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     height: 85,
-    backgroundColor: colors.object,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.shadow
+    backgroundColor: colors.white,
+    borderWidth: 2,
+    borderColor: colors.secondary
+  },
+  numberStyle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: colors.primary
   },
   iconWrapper: {
+    flexDirection: "row",
     alignItems: "flex-end",
+    justifyContent: "flex-end",
     flex: 1,
     marginLeft: 1,
     left: 6
@@ -57,12 +70,12 @@ const styles = StyleSheet.create({
     flex: 1
   },
   imageStyle: {
-    width: 70,
+    width: 84,
     aspectRatio: 1,
     borderRadius: 5,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: colors.shadow
+    borderColor: colors.secondary,
+    borderWidth: 2,
+    right: 2
   }
 });
 

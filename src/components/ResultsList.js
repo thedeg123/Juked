@@ -29,13 +29,7 @@ const ResultsList = ({ users, searchType, search }) => {
             <FlatList
               data={users}
               keyExtractor={user => user.handle + user.created}
-              renderItem={({ item }) => (
-                <UserPreview
-                  handle={item.handle ? `${item.handle}` : `${item.email}`}
-                  profile_url={item.profile_url}
-                  uid={item.email}
-                />
-              )}
+              renderItem={({ item }) => <UserPreview user={item} />}
             />
           </View>
         );
