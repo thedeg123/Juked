@@ -50,9 +50,6 @@ const HomeScreen = ({ navigation }) => {
   };
   useEffect(() => {
     fetchHomeScreenData(10, filter);
-    const listener = navigation.addListener("didFocus", () => {
-      return fetchHomeScreenData(10, filter);
-    }); //any time we return to this screen we do another fetch
     return () => listener.remove();
   }, []);
   return (
