@@ -22,7 +22,6 @@ const ModalReviewCard = ({
           onDelete={onDelete}
           onEdit={() => {
             setShowModal(false);
-            setReview("waiting");
             return navigation.navigate("WriteReview", {
               review,
               content
@@ -33,7 +32,6 @@ const ModalReviewCard = ({
       ) : (
         <ModalReviewContent
           onCreate={() => {
-            setReview("waiting");
             setShowModal(false);
             return navigation.navigate("WriteReview", {
               content

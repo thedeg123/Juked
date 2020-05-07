@@ -28,6 +28,13 @@ const AlbumScreen = ({ navigation }) => {
 
   const [showModal, setShowModal] = useState(false);
   // initialization
+
+  const updateReview = () => {
+    firestore.getReviewsByAuthorContent(email, content_id).then(res => {
+      return setReview(res.exists ? res : null);
+    });
+    firestore.getContentData(content_id).then(res => setAlbumData(res));
+  };
   const init = async () => {
     navigation.setParams({ setShowModal });
     //getting album rating
@@ -48,10 +55,7 @@ const AlbumScreen = ({ navigation }) => {
           })
       );
     });
-    firestore.getReviewsByAuthorContent(email, content_id).then(res => {
-      return setReview(res.exists ? res : null);
-    });
-    firestore.getContentData(content_id).then(res => setAlbumData(res));
+    updateReview();
     // TODO: set avg ratinngs and album ratings
     setAvg_ratings(5);
   };
@@ -143,7 +147,7 @@ const AlbumScreen = ({ navigation }) => {
         onDelete={() => {
           firestore.deleteReview(review.id);
           setShowModal(false);
-          return navigation.pop();
+          return updateReview();
         }}
       ></ModalReviewCard>
     </View>
