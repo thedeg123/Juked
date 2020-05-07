@@ -7,49 +7,49 @@ import {
   FlatList,
   ImageBackground
 } from "react-native";
-import useMusic from "../hooks/useMusic";
-import { auth } from "firebase";
 import ArtistPreview from "../components/ArtistPreview";
 import Container from "../components/Container";
 import colors from "../constants/colors";
-import images from "../constants/images";
 import LoadingIndicator from "../components/LoadingIndicator";
-import ReviewButton from "../components/ReviewButton";
+import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
 import ButtonList from "../components/ButtonList";
+import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
   if (!content_id) console.error("ArtistScreen must be called with content_id");
-  const email = auth().currentUser.email;
 
   const [albums, setAlbums] = useState(null);
   const [artist, setArtist] = useState(null);
 
   // data from review database
-  const [rating, setRating] = useState(null);
+  const [review, setReview] = useState("waiting");
   const [avg_rating, setAvg_rating] = useState(null);
   const { firestore, useMusic } = useContext(context);
+  const email = firestore.fetchCurrentUID();
   const [contentData, setContentData] = useState(null);
 
+  const [showModal, setShowModal] = useState(false);
+
   const init = () => {
+    navigation.setParams({ setShowModal });
     // init and get all data needed via api
     firestore
       .getReviewsByAuthorContent(email, content_id)
-      .then(review => setRating(review.exists ? review.data.rating : null));
+      .then(review => setReview(review.exists ? review : null));
     useMusic.findArtist(content_id).then(artist => setArtist(artist));
     useMusic.findAlbumsOfAnArtist(content_id).then(albums => setAlbums(albums));
     firestore.getContentData(content_id).then(res => setContentData(res));
   };
 
   useEffect(() => {
-    init();
     const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
     return () => listener.remove(); //prevents memory leaks if the indexScreen is ever closed
   }, []);
 
-  if (!artist || !contentData)
+  if (!artist || review === "waiting" || !contentData)
     return (
       <Container>
         <LoadingIndicator></LoadingIndicator>
@@ -83,9 +83,9 @@ const ArtistScreen = ({ navigation }) => {
         ></ButtonList>
       </View>
       <View style={{ flexDirection: "row", alignSelf: "center" }}>
-        {rating ? (
+        {review ? (
           <Text style={styles.subtitle}>
-            Your rating: <Text style={styles.rating}>{rating}</Text>
+            Your rating: <Text style={styles.rating}>{review.data.rating}</Text>
           </Text>
         ) : null}
         <Text style={styles.subtitle}>
@@ -101,28 +101,37 @@ const ArtistScreen = ({ navigation }) => {
 
   // render main component
   return (
-    <FlatList
-      data={albums}
-      keyExtracter={({ item }) => item.id}
-      renderItem={({ item }) => (
-        <ArtistPreview content={item} navigation={navigation} />
-      )}
-      columnWrapperStyle={styles.column}
-      numColumns={2}
-      ListHeaderComponent={headerComponent}
-    />
+    <View style={{ flex: 1 }}>
+      <FlatList
+        data={albums}
+        keyExtracter={({ item }) => item.id}
+        renderItem={({ item }) => (
+          <ArtistPreview content={item} navigation={navigation} />
+        )}
+        columnWrapperStyle={styles.column}
+        numColumns={2}
+        ListHeaderComponent={headerComponent}
+      />
+      <ModalReviewCard
+        showModal={showModal}
+        setShowModal={v => setShowModal(v)}
+        setReview={v => setReview(v)}
+        review={review}
+        content={artist}
+        onDelete={() => {
+          firestore.deleteReview(review.id);
+          return setShowModal(false);
+        }}
+      ></ModalReviewCard>
+    </View>
   );
 };
 
 //Allows customization of header
 ArtistScreen.navigationOptions = ({ navigation }) => {
+  const setShowModal = navigation.getParam("setShowModal");
   return {
-    headerRight: () => (
-      <ReviewButton
-        content_id={navigation.getParam("content_id")}
-        content_type="artist"
-      ></ReviewButton>
-    )
+    headerRight: () => <ModalButton setShowModal={setShowModal}></ModalButton>
   };
 };
 

@@ -27,42 +27,21 @@ import context from "../context/context";
  */
 
 const WriteReviewScreen = ({ navigation }) => {
-  const rid = navigation.getParam("rid");
-  let content_id = navigation.getParam("content_id");
-  let content_type = navigation.getParam("content_type");
-  const { firestore, useMusic } = useContext(context);
-  const [content, setContent] = useState(null);
+  const review = navigation.getParam("review");
+  const content = navigation.getParam("content");
+  const { firestore } = useContext(context);
   const [text, setText] = useState("");
   const [rating, setRating] = useState([5]);
   const [title, setTitle] = useState("");
   useEffect(() => {
-    const listener = navigation.addListener("didFocus", async () => {
-      navigation.setParams({ firestore: firestore });
-      //if we have an rid, we populate the review with the content thats already there
-      if (rid) {
-        const response = await firestore.getReview(rid);
-        if (!response)
-          console.error(`Was given rid: ${rid} but found no review`);
-        setRating([response.rating]);
-        setText(response.text);
-        setTitle(response.title === " " ? "" : response.title);
-        content_id = response.content_id;
-        content_type = response.type;
-      }
-      await useMusic
-        .findOneContent(content_id, content_type)
-        .then(content => setContent(content));
-      navigation.setParams({ rating: [5], title: "", text: "" }); //setting default values for navigation
-    });
-    return () => listener.remove();
+    if (review) {
+      setText(review.data.text);
+      setRating([review.data.rating]);
+      setTitle(review.data.title);
+    }
   }, []);
-
   if (!content) {
-    return (
-      <Container>
-        <LoadingIndicator></LoadingIndicator>
-      </Container>
-    );
+    return console.error("Should be passed content but was passed:", content);
   }
   return (
     <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
@@ -73,9 +52,7 @@ const WriteReviewScreen = ({ navigation }) => {
       >
         <View style={styles.headerStyle}>
           <View style={styles.headerTextContainerStyle}>
-            <Text numberOfLines={2} style={styles.headerText}>
-              {content.name}
-            </Text>
+            <Text style={styles.headerText}>{content.name}</Text>
             <Text style={styles.subheaderText}>{content.artist_name}</Text>
           </View>
         </View>
@@ -122,18 +99,18 @@ const WriteReviewScreen = ({ navigation }) => {
             borderRadius: 5
           }}
           onPress={() => {
-            rid
+            review
               ? firestore.updateReview(
-                  rid,
-                  content_id,
-                  content_type,
+                  review.id,
+                  review.data.content_id,
+                  review.data.content_type,
                   text && !title ? " " : title,
                   rating[0],
                   text
                 )
               : firestore.addReview(
-                  content_id,
-                  content_type,
+                  content.id,
+                  content.type,
                   text && !title ? " " : title,
                   rating[0],
                   text
@@ -144,7 +121,7 @@ const WriteReviewScreen = ({ navigation }) => {
           <Text
             style={{ fontWeight: "bold", color: colors.white, fontSize: 18 }}
           >
-            {rid ? "Update" : "Add"}
+            {review ? "Update" : "Add"}
           </Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>

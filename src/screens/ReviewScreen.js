@@ -13,9 +13,9 @@ import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import firebase from "firebase";
 import "firebase/firestore";
-import Modal from "react-native-modal";
 import LikeBox from "../components/LikeBox";
-import ModalCard from "../components/ModalCard";
+import ModalWrapper from "../components/ModalCards/ModalWrapper";
+import ModalReviewContent from "../components/ModalCards/ModalReviewContent";
 
 const ReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
@@ -57,9 +57,7 @@ const ReviewScreen = ({ navigation }) => {
     <ScrollView style={styles.containerStyle}>
       <View style={styles.headerStyle}>
         <View style={styles.headerTextContainerStyle}>
-          <Text numberOfLines={2} style={styles.headerText}>
-            {content.name}
-          </Text>
+          <Text style={styles.headerText}>{content.name}</Text>
           <Text style={styles.subheaderText}>{content.artist_name}</Text>
         </View>
         <View style={styles.headerUserContainerStyle}>
@@ -88,27 +86,23 @@ const ReviewScreen = ({ navigation }) => {
         liked={userLikes}
         numLikes={review ? review.data.likes.length : 0}
       ></LikeBox>
-      <View>
-        <Modal
-          isVisible={showModal}
-          onSwipeComplete={() => setShowModal(false)}
-          swipeDirection={["up", "left", "right", "down"]}
-          style={styles.cardStyle}
-        >
-          <ModalCard
-            onDelete={() => {
-              firestore.deleteReview(review.id);
-              setShowModal(false);
-              return navigation.pop();
-            }}
-            onEdit={() => {
-              setShowModal(false);
-              return navigation.navigate("WriteReview", { rid: review.id });
-            }}
-            onClose={() => setShowModal(false)}
-          ></ModalCard>
-        </Modal>
-      </View>
+      <ModalWrapper
+        isVisible={showModal}
+        onSwipeComplete={() => setShowModal(false)}
+      >
+        <ModalReviewContent
+          onDelete={() => {
+            firestore.deleteReview(review.id);
+            setShowModal(false);
+            return navigation.pop();
+          }}
+          onEdit={() => {
+            setShowModal(false);
+            return navigation.navigate("WriteReview", { review, content });
+          }}
+          onClose={() => setShowModal(false)}
+        ></ModalReviewContent>
+      </ModalWrapper>
     </ScrollView>
   );
 };
@@ -118,10 +112,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginHorizontal: 10
   },
-  cardStyle: {
-    justifyContent: "flex-end",
-    margin: 0
-  },
+
   headerStyle: {
     borderBottomColor: colors.shadow,
     borderBottomWidth: 1,

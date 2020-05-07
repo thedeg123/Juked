@@ -5,9 +5,10 @@ import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
 import Container from "../components/Container";
 import LoadingIndicator from "../components/LoadingIndicator";
-import ReviewButton from "../components/ReviewButton";
+import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
+import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -22,11 +23,13 @@ const AlbumScreen = ({ navigation }) => {
   // data from review database
   const [track_reviews, setTrack_reviews] = useState(null);
   const [avg_ratings, setAvg_ratings] = useState(null);
-  const [albumRating, setAlbumRating] = useState(null);
+  const [review, setReview] = useState("waiting");
   const [albumData, setAlbumData] = useState(null);
 
+  const [showModal, setShowModal] = useState(false);
   // initialization
   const init = async () => {
+    navigation.setParams({ setShowModal });
     //getting album rating
     await useMusic.findAlbum(content_id).then(async album => {
       setAlbum(album);
@@ -46,7 +49,7 @@ const AlbumScreen = ({ navigation }) => {
       );
     });
     firestore.getReviewsByAuthorContent(email, content_id).then(res => {
-      return setAlbumRating(res.exists ? res.data.rating : null);
+      return setReview(res.exists ? res : null);
     });
     firestore.getContentData(content_id).then(res => setAlbumData(res));
     // TODO: set avg ratinngs and album ratings
@@ -54,12 +57,19 @@ const AlbumScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    init();
     const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
-    return () => listener.remove();
+    return () => {
+      listener.remove();
+    };
   }, []);
   // wait until get data from all APIs
-  if (!album || !track_reviews || !avg_ratings || !albumData)
+  if (
+    !album ||
+    review === "waiting" ||
+    !track_reviews ||
+    !avg_ratings ||
+    !albumData
+  )
     return (
       <Container style={styles.container}>
         <LoadingIndicator></LoadingIndicator>
@@ -89,9 +99,9 @@ const AlbumScreen = ({ navigation }) => {
       </View>
       <BarGraph data={albumData.rating_nums}></BarGraph>
       <View style={{ flexDirection: "row", alignSelf: "center" }}>
-        {albumRating ? (
+        {review ? (
           <Text style={styles.subtitle}>
-            Your rating: <Text style={styles.rating}>{albumRating}</Text>
+            Your rating: <Text style={styles.rating}>{review.data.rating}</Text>
           </Text>
         ) : null}
         <Text style={styles.subtitle}>
@@ -104,41 +114,46 @@ const AlbumScreen = ({ navigation }) => {
     </View>
   );
   return (
-    <FlatList
-      style={{ paddingHorizontal: 10 }}
-      data={album.tracks}
-      keyExtracter={({ item }) => item.track_number}
-      renderItem={({ item, index }) => {
-        return (
-          <View>
-            <AlbumPreview
-              content={item}
-              rating={
-                track_reviews[item.id]
-                  ? track_reviews[item.id].data.rating
-                  : null
-              }
-              avg_rating={" "}
-              rid={track_reviews[item.id] ? track_reviews[item.id].id : null}
-              highlighted={highlighted == item.id}
-            />
-          </View>
-        );
-      }}
-      ListHeaderComponent={headerComponent}
-      ListHeaderComponentStyle={{ alignItems: "center" }}
-    />
+    <View style={{ flex: 1 }}>
+      <FlatList
+        style={{ paddingHorizontal: 10 }}
+        data={album.tracks}
+        keyExtracter={({ item }) => item.track_number}
+        renderItem={({ item, index }) => {
+          return (
+            <View>
+              <AlbumPreview
+                content={item}
+                review={track_reviews[item.id]}
+                avg_rating={" "}
+                highlighted={highlighted == item.id}
+              />
+            </View>
+          );
+        }}
+        ListHeaderComponent={headerComponent}
+        ListHeaderComponentStyle={{ alignItems: "center" }}
+      />
+      <ModalReviewCard
+        showModal={showModal}
+        setShowModal={v => setShowModal(v)}
+        setReview={v => setReview(v)}
+        review={review}
+        content={album}
+        onDelete={() => {
+          firestore.deleteReview(review.id);
+          setShowModal(false);
+          return navigation.pop();
+        }}
+      ></ModalReviewCard>
+    </View>
   );
 };
 
 AlbumScreen.navigationOptions = ({ navigation }) => {
+  setShowModal = navigation.getParam("setShowModal");
   return {
-    headerRight: () => (
-      <ReviewButton
-        content_id={navigation.getParam("content_id")}
-        content_type={"album"}
-      ></ReviewButton>
-    )
+    headerRight: () => <ModalButton setShowModal={setShowModal}></ModalButton>
   };
 };
 

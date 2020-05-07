@@ -15,9 +15,8 @@ import { withNavigation } from "react-navigation";
 const AlbumPreview = ({
   navigation,
   content,
-  rating,
+  review,
   avg_rating,
-  rid,
   highlighted
 }) => {
   return (
@@ -26,9 +25,8 @@ const AlbumPreview = ({
       <TouchableOpacity
         onPress={() =>
           navigation.navigate("WriteReview", {
-            content_id: content.id,
-            rid,
-            content_type: "track"
+            content: content,
+            review
           })
         }
         style={{
@@ -39,11 +37,11 @@ const AlbumPreview = ({
         <Text style={styles.textStyle} numberOfLines={1}>
           {content.name}
         </Text>
-        {rating ? <Text style={styles.scoreStyle}>{rating}</Text> : null}
-        {avg_rating ? (
-          <Text style={styles.avgScoreStyle}>{avg_rating}</Text>
+        {review ? (
+          <Text style={styles.scoreStyle}>{review.data.rating}</Text>
         ) : null}
-        {rid ? (
+        {review ? <Text style={styles.avgScoreStyle}>{avg_rating}</Text> : null}
+        {review ? (
           <Feather name="message-square" style={styles.iconStyle} />
         ) : null}
       </TouchableOpacity>
