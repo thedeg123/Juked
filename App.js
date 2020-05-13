@@ -18,8 +18,9 @@ import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
 import MakeProfileScreen from "./src/screens/MakeProfileScreen";
-import { Foundation, FontAwesome, Octicons } from "@expo/vector-icons";
+import { Foundation, Octicons } from "@expo/vector-icons";
 import colors from "./src/constants/colors";
+import heights from "./src/constants/heights";
 import WriteReviewScreen from "./src/screens/WriteReviewScreen";
 import StackHeader from "./src/components/StackHeader";
 import HeaderBackButton from "./src/components/HeaderBackButton.js";
@@ -38,7 +39,15 @@ const exploreFlow = {
 const tabBarOptions = {
   activeTintColor: colors.primary, // active icon color
   inactiveTintColor: colors.shadow, // inactive icon color,
-  style: { backgroundColor: colors.object } //background color
+  style: {
+    backgroundColor: colors.translucentWhite,
+    position: "absolute",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderColor: colors.shadow,
+    borderWidth: 1,
+    height: heights.tabBarHeight
+  }
 };
 
 const defaultNavigationOptions = {
@@ -116,7 +125,7 @@ const mainStack = createBottomTabNavigator(
       screen: homeStack,
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
-          <Foundation name="home" style={{ fontSize: 35 }} color={tintColor} />
+          <Foundation name="home" style={{ fontSize: 25 }} color={tintColor} />
         ),
         tabBarOptions
       }
@@ -125,9 +134,9 @@ const mainStack = createBottomTabNavigator(
       screen: searchStack,
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
-          <FontAwesome
+          <Octicons
             name="search"
-            style={{ fontSize: 35 }}
+            style={{ fontSize: 25, top: 2 }}
             color={tintColor}
           />
         ),
@@ -138,7 +147,7 @@ const mainStack = createBottomTabNavigator(
       screen: profileStack,
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
-          <Octicons name="person" style={{ fontSize: 35 }} color={tintColor} />
+          <Octicons name="person" style={{ fontSize: 25 }} color={tintColor} />
         ),
         tabBarOptions
       }
