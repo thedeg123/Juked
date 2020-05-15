@@ -16,6 +16,7 @@ import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
 import ButtonList from "../components/ButtonList";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
+import TextRatings from "../components/TextRatings";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
@@ -33,15 +34,19 @@ const ArtistScreen = ({ navigation }) => {
 
   const [showModal, setShowModal] = useState(false);
 
-  const init = () => {
-    navigation.setParams({ setShowModal });
-    // init and get all data needed via api
+  const getReview = () => {
     firestore
       .getReviewsByAuthorContent(email, content_id)
       .then(review => setReview(review.exists ? review : null));
+    firestore.getContentData(content_id).then(res => setContentData(res));
+  };
+
+  const init = () => {
+    navigation.setParams({ setShowModal });
+    // init and get all data needed via ap
     useMusic.findArtist(content_id).then(artist => setArtist(artist));
     useMusic.findAlbumsOfAnArtist(content_id).then(albums => setAlbums(albums));
-    firestore.getContentData(content_id).then(res => setContentData(res));
+    getReview();
   };
 
   useEffect(() => {
@@ -62,7 +67,7 @@ const ArtistScreen = ({ navigation }) => {
       <View>
         <ImageBackground
           source={{ uri: artist.image }}
-          blurRadius={20}
+          blurRadius={70}
           style={styles.imageBackgroundStyle}
         >
           <View style={styles.contentContainer}>
@@ -82,19 +87,10 @@ const ArtistScreen = ({ navigation }) => {
           review_num={contentData.number_reviews}
         ></ButtonList>
       </View>
-      <View style={{ flexDirection: "row", alignSelf: "center" }}>
-        {review ? (
-          <Text style={styles.subtitle}>
-            Your rating: <Text style={styles.rating}>{review.data.rating}</Text>
-          </Text>
-        ) : null}
-        <Text style={styles.subtitle}>
-          Average rating:{" "}
-          <Text style={styles.rating}>
-            {Math.round(contentData.avg * 10) / 10}
-          </Text>
-        </Text>
-      </View>
+      <TextRatings
+        review={review}
+        averageReview={contentData.avg}
+      ></TextRatings>
       <Text style={styles.sectionStyle}>Albums</Text>
     </View>
   );
@@ -103,6 +99,7 @@ const ArtistScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1 }}>
       <FlatList
+        contentContainerStyle={{ paddingBottom: 85 }}
         data={albums}
         keyExtracter={({ item }) => item.id}
         renderItem={({ item }) => (
@@ -120,7 +117,8 @@ const ArtistScreen = ({ navigation }) => {
         content={artist}
         onDelete={() => {
           firestore.deleteReview(review.id);
-          return setShowModal(false);
+          setShowModal(false);
+          return getReview();
         }}
       ></ModalReviewCard>
     </View>

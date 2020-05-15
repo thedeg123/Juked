@@ -6,6 +6,7 @@ const ModalWrapper = ({ children, isVisible, onSwipeComplete }) => {
   return (
     <View style={{ flex: 1 }}>
       <Modal
+        backdropOpacity={0.8}
         isVisible={isVisible}
         onSwipeComplete={onSwipeComplete}
         animationIn="slideInUp"

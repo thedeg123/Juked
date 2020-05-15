@@ -17,11 +17,11 @@ const HomeScreenItem = ({ review, content, author }) => {
             cid={content.id}
             type={review.type}
             album_cid={review.data.type === "track" ? content.album_id : null}
-            width={120}
+            width={100}
           ></ContentPic>
           <ContentTitle
             header={content.name}
-            subheader={content.artist_name || ""}
+            subheader={content.artist_name}
             date={new Date(review.data.last_modified)}
             review={Boolean(review.data.title)}
           ></ContentTitle>

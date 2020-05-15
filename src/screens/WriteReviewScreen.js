@@ -18,6 +18,7 @@ import colors from "../constants/colors";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import TopButton from "../components/TopButton";
 import context from "../context/context";
+import ScrollViewPadding from "../components/ScrollViewPadding";
 
 /**
  *

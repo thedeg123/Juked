@@ -9,6 +9,8 @@ import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
+import ModalTrackCard from "../components/ModalCards/ModalTrackCard";
+import TextRatings from "../components/TextRatings";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -21,12 +23,12 @@ const AlbumScreen = ({ navigation }) => {
   const [album, setAlbum] = useState(null);
 
   // data from review database
-  const [track_reviews, setTrack_reviews] = useState(null);
-  const [avg_ratings, setAvg_ratings] = useState(null);
   const [review, setReview] = useState("waiting");
   const [albumData, setAlbumData] = useState(null);
 
-  const [showModal, setShowModal] = useState(false);
+  const [showReviewCard, setShowReviewCard] = useState(false);
+  const [showTrackCard, setShowTrackCard] = useState(false);
+  const [trackData, setTrackData] = useState(null);
   // initialization
 
   const updateReview = () => {
@@ -36,28 +38,10 @@ const AlbumScreen = ({ navigation }) => {
     firestore.getContentData(content_id).then(res => setAlbumData(res));
   };
   const init = async () => {
-    navigation.setParams({ setShowModal });
+    navigation.setParams({ setShowModal: setShowReviewCard });
     //getting album rating
-    await useMusic.findAlbum(content_id).then(async album => {
-      setAlbum(album);
-      return setTrack_reviews(
-        await firestore
-          .batchGetReviewsByAuthorContent(
-            email,
-            album.tracks.map(obj => obj.id)
-          )
-          .then(ret => {
-            let track_reviews_by_content_id = {};
-            ret.forEach(
-              r => (track_reviews_by_content_id[r.data.content_id] = r)
-            );
-            return track_reviews_by_content_id;
-          })
-      );
-    });
+    await useMusic.findAlbum(content_id).then(async album => setAlbum(album));
     updateReview();
-    // TODO: set avg ratinngs and album ratings
-    setAvg_ratings(5);
   };
 
   useEffect(() => {
@@ -67,19 +51,12 @@ const AlbumScreen = ({ navigation }) => {
     };
   }, []);
   // wait until get data from all APIs
-  if (
-    !album ||
-    review === "waiting" ||
-    !track_reviews ||
-    !avg_ratings ||
-    !albumData
-  )
+  if (!album || review === "waiting" || !albumData)
     return (
       <Container style={styles.container}>
         <LoadingIndicator></LoadingIndicator>
       </Container>
     );
-  const date = new Date(album.release_date);
   const headerComponent = (
     <View style={styles.headerContainer}>
       <View
@@ -102,24 +79,13 @@ const AlbumScreen = ({ navigation }) => {
         </View>
       </View>
       <BarGraph data={albumData.rating_nums}></BarGraph>
-      <View style={{ flexDirection: "row", alignSelf: "center" }}>
-        {review ? (
-          <Text style={styles.subtitle}>
-            Your rating: <Text style={styles.rating}>{review.data.rating}</Text>
-          </Text>
-        ) : null}
-        <Text style={styles.subtitle}>
-          Average rating:{" "}
-          <Text style={styles.rating}>
-            {Math.round(albumData.avg * 10) / 10}
-          </Text>
-        </Text>
-      </View>
+      <TextRatings review={review} averageReview={albumData.avg}></TextRatings>
     </View>
   );
   return (
     <View style={{ flex: 1 }}>
       <FlatList
+        contentContainerStyle={{ paddingBottom: 85 }}
         style={{ paddingHorizontal: 10 }}
         data={album.tracks}
         keyExtracter={({ item }) => item.track_number}
@@ -128,8 +94,10 @@ const AlbumScreen = ({ navigation }) => {
             <View>
               <AlbumPreview
                 content={item}
-                review={track_reviews[item.id]}
-                avg_rating={" "}
+                showTrackCard={() => {
+                  setTrackData(item);
+                  return setShowTrackCard(true);
+                }}
                 highlighted={highlighted == item.id}
               />
             </View>
@@ -139,17 +107,22 @@ const AlbumScreen = ({ navigation }) => {
         ListHeaderComponentStyle={{ alignItems: "center" }}
       />
       <ModalReviewCard
-        showModal={showModal}
-        setShowModal={v => setShowModal(v)}
+        showModal={showReviewCard}
+        setShowModal={v => setShowReviewCard(v)}
         setReview={v => setReview(v)}
         review={review}
         content={album}
         onDelete={() => {
           firestore.deleteReview(review.id);
-          setShowModal(false);
+          setShowReviewCard(false);
           return updateReview();
         }}
       ></ModalReviewCard>
+      <ModalTrackCard
+        showModal={showTrackCard}
+        setShowModal={setShowTrackCard}
+        content={trackData}
+      ></ModalTrackCard>
     </View>
   );
 };
@@ -172,20 +145,10 @@ const styles = StyleSheet.create({
     marginTop: 20
   },
   title: { fontSize: 25, color: colors.text, textAlign: "center" },
-  subtitle: {
-    fontSize: 20,
-    color: colors.text,
-    padding: 10,
-    paddingBottom: 40
-  },
   text: {
     fontSize: 15,
     marginTop: 5,
     textAlign: "center"
-  },
-  rating: {
-    color: colors.primary,
-    fontWeight: "bold"
   }
 });
 

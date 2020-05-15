@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import colors from "../constants/colors";
-import { withNavigation } from "react-navigation";
+
 /**
  * ReviewPreview Component for ListScreen
  * @param {string} title - title of this song
@@ -12,23 +12,12 @@ import { withNavigation } from "react-navigation";
  * @param {Object} navigation - navigation objected passed from screen
  * @param {boolean} highlighted - this song will be highlighted or not
  */
-const AlbumPreview = ({
-  navigation,
-  content,
-  review,
-  avg_rating,
-  highlighted
-}) => {
+const AlbumPreview = ({ content, showTrackCard, highlighted }) => {
   return (
     <View style={{ flexDirection: "row" }}>
       <Text style={styles.track_numberStyle}>{content.track_number}</Text>
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("WriteReview", {
-            content: content,
-            review
-          })
-        }
+        onPress={showTrackCard}
         style={{
           ...styles.containerStyle,
           backgroundColor: highlighted ? colors.highlight : colors.background
@@ -37,13 +26,6 @@ const AlbumPreview = ({
         <Text style={styles.textStyle} numberOfLines={1}>
           {content.name}
         </Text>
-        {review ? (
-          <Text style={styles.scoreStyle}>{review.data.rating}</Text>
-        ) : null}
-        {review ? <Text style={styles.avgScoreStyle}>{avg_rating}</Text> : null}
-        {review ? (
-          <Feather name="message-square" style={styles.iconStyle} />
-        ) : null}
       </TouchableOpacity>
     </View>
   );
@@ -94,4 +76,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigation(AlbumPreview);
+export default AlbumPreview;

@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end"
   },
   imageStyle: {
-    width: 50,
+    width: 40,
     aspectRatio: 1,
     borderColor: colors.shadow,
     borderWidth: 1,
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   textStyle: {
     marginVertical: 1,
     color: colors.white,
-    fontSize: 11
+    fontSize: 12
   }
 });
 

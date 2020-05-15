@@ -20,6 +20,7 @@ import LoadingIndicator from "../components/LoadingIndicator";
 import BarGraph from "../components/Graphs/BarGraph";
 import firebase from "firebase";
 import "firebase/firestore";
+import ScrollViewPadding from "../components/ScrollViewPadding";
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, useMusic } = useContext(context);
@@ -101,98 +102,103 @@ const UserProfileScreen = ({ navigation }) => {
     );
   }
   return user ? (
-    <ScrollView
-      style={styles.containerStyle}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.headerContainer}>
-        <View>
-          <Image
-            source={{
-              uri: user.profile_url || images.profileDefault
-            }}
-            style={styles.imageStyle}
-          />
-          <Text style={styles.handleStyle}>@{user.handle}</Text>
-        </View>
-        <View style={styles.followContainer}>
-          {userFollowing ? (
-            <FollowButton
-              following
-              onPress={() =>
-                firestore.unfollowUser(uid).then(() => updateFollow())
-              }
-            ></FollowButton>
-          ) : firestore.fetchCurrentUID() != uid ? (
-            <FollowButton
-              following={false}
-              onPress={() =>
-                firestore.followUser(uid).then(() => updateFollow())
-              }
-            ></FollowButton>
-          ) : null}
-          <View style={styles.numberStyle}>
-            <TouchableOpacity
-              onPress={async () =>
-                navigateFollow("Followers", await firestore.getFollowers(uid))
-              }
-            >
-              <Text style={styles.followStyle}>
-                {user.num_follower} Followers
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={async () =>
-                navigateFollow("Following", await firestore.getFollowing(uid))
-              }
-            >
-              <Text style={styles.followStyle}>
-                {user.num_following} Following
-              </Text>
-            </TouchableOpacity>
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={styles.containerStyle}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 85 }}
+      >
+        <View style={styles.headerContainer}>
+          <View>
+            <Image
+              source={{
+                uri: user.profile_url || images.profileDefault
+              }}
+              style={styles.imageStyle}
+            />
+            <Text style={styles.handleStyle}>@{user.handle}</Text>
           </View>
-          {followsYou ? (
-            <View style={styles.followsYouWrapper}>
-              <Text style={styles.followsYou}>Follows You</Text>
+          <View style={styles.followContainer}>
+            {userFollowing ? (
+              <FollowButton
+                following
+                onPress={() =>
+                  firestore.unfollowUser(uid).then(() => updateFollow())
+                }
+              ></FollowButton>
+            ) : firestore.fetchCurrentUID() != uid ? (
+              <FollowButton
+                following={false}
+                onPress={() =>
+                  firestore.followUser(uid).then(() => updateFollow())
+                }
+              ></FollowButton>
+            ) : null}
+            <View style={styles.numberStyle}>
+              <TouchableOpacity
+                onPress={async () =>
+                  navigateFollow("Followers", await firestore.getFollowers(uid))
+                }
+              >
+                <Text style={styles.followStyle}>
+                  {user.num_follower} Followers
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={async () =>
+                  navigateFollow("Following", await firestore.getFollowing(uid))
+                }
+              >
+                <Text style={styles.followStyle}>
+                  {user.num_following} Following
+                </Text>
+              </TouchableOpacity>
             </View>
-          ) : null}
+            {followsYou ? (
+              <View style={styles.followsYouWrapper}>
+                <Text style={styles.followsYou}>Follows You</Text>
+              </View>
+            ) : null}
+          </View>
         </View>
-      </View>
-      <View style={{ marginHorizontal: 10 }}>
-        {user.bio ? (
-          <Text style={styles.bioStyle}>{user.bio}</Text>
-        ) : uid === firestore.fetchCurrentUID() ? (
-          <Text style={styles.bioStyle}>Add a bio from the Account screen</Text>
-        ) : null}
-        <Text style={styles.reviewTitleStyle}>Reviews</Text>
-      </View>
-      {/* TODO: DELETE OR CASE BEFORE LAUNCH */}
-      <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-        <BarGraph data={user.review_data || new Array(11).fill(0)} />
-      </View>
-      <ListPreview
-        title="Most Recent Artists"
-        content={content}
-        user={user}
-        data={reviews["artist"]}
-        onPress={() => navigation.navigate("List")}
-      />
-      <ListPreview
-        title="Most Recent Albums"
-        user={user}
-        content={content}
-        data={reviews["album"]}
-        onPress={() => navigation.navigate("List")}
-      />
-      <ListPreview
-        title="Most Recent Songs"
-        user={user}
-        content={content}
-        data={reviews["track"]}
-        onPress={() => navigation.navigate("List")}
-        marginBottom={10}
-      />
-    </ScrollView>
+        <View style={{ marginHorizontal: 10 }}>
+          {user.bio ? (
+            <Text style={styles.bioStyle}>{user.bio}</Text>
+          ) : uid === firestore.fetchCurrentUID() ? (
+            <Text style={styles.bioStyle}>
+              Add a bio from the Account screen
+            </Text>
+          ) : null}
+          <Text style={styles.reviewTitleStyle}>Reviews</Text>
+        </View>
+        {/* TODO: DELETE OR CASE BEFORE LAUNCH */}
+        <View style={{ marginTop: 10, marginHorizontal: 10 }}>
+          <BarGraph data={user.review_data || new Array(11).fill(0)} />
+        </View>
+        <ListPreview
+          title="Most Recent Artists"
+          content={content}
+          user={user}
+          data={reviews["artist"]}
+          onPress={() => navigation.navigate("List")}
+        />
+        <ListPreview
+          title="Most Recent Albums"
+          user={user}
+          content={content}
+          data={reviews["album"]}
+          onPress={() => navigation.navigate("List")}
+        />
+        <ListPreview
+          title="Most Recent Songs"
+          user={user}
+          content={content}
+          data={reviews["track"]}
+          onPress={() => navigation.navigate("List")}
+          marginBottom={10}
+        />
+      </ScrollView>
+    </View>
   ) : null;
 };
 

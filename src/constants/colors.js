@@ -9,5 +9,6 @@ export default {
   highlight: "#95b6ed",
   textLight: "#37373b",
   errorText: "#9a3732",
+  translucentWhite: "rgba(255,255,255,0.95)",
   white: "#FFF"
 };

@@ -22,6 +22,7 @@ const HomeScreen = ({ navigation }) => {
       filter === "Following"
         ? await firestore.getMostRecentReviews(limit)
         : await firestore.getMostRecentReviews(limit);
+
     let cid_byType = { track: new Set(), album: new Set(), artist: new Set() };
     reviews.forEach(r => {
       return cid_byType[r.data.type].add(r.data.content_id);
@@ -53,16 +54,10 @@ const HomeScreen = ({ navigation }) => {
     return () => listener.remove();
   }, []);
   return (
-    <View style={{ flex: 1, marginTop: 10, marginHorizontal: 10 }}>
-      <ButtonFilter
-        options={[Tab1, Tab2]}
-        onPress={update => {
-          fetchHomeScreenData(10, update);
-          return setFilter(update);
-        }}
-      />
+    <View style={{ flex: 1, marginHorizontal: 5 }}>
       {content && reviews && authors ? (
         <FlatList
+          contentContainerStyle={{ paddingBottom: 85 }}
           keyExtractor={reviewItem =>
             reviewItem.data.last_modified + reviewItem.id
           }

@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
   headerTitleStyle: {
     marginTop: Dimensions.get("window").height * 0.037,
     fontSize: 18,
-    fontWeight: "500"
+    fontWeight: "500",
+    color: colors.text
   },
   buttonWrapper: {
     marginTop: Dimensions.get("window").height * 0.037

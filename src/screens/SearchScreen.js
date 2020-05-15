@@ -4,6 +4,7 @@ import SearchBar from "../components/SearchBar";
 import SearchStyle from "../components/SearchStyle";
 import ResultsList from "../components/ResultsList";
 import context from "../context/context";
+import ScrollViewPadding from "../components/ScrollViewPadding";
 
 const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");

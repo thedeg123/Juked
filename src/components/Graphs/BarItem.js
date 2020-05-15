@@ -29,7 +29,8 @@ const BarItem = ({ value, width, height, total_height, label, setNum }) => {
             backgroundColor: activated ? colors.white : colors.white,
             opacity: activated ? 0.95 : 0.3,
             marginHorizontal: 1,
-            borderRadius: 5
+            borderTopLeftRadius: 5,
+            borderTopRightRadius: 5
           }}
         ></View>
       </TouchableWithoutFeedback>

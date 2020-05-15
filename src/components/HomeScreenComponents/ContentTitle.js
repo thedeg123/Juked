@@ -4,15 +4,17 @@ import colors from "../../constants/colors";
 
 const ContentTitle = ({ header, subheader, date, review }) => {
   return (
-    <View style={styles.containerStyle} onPress={() => {}}>
-      <View>
+    <View style={styles.containerStyle}>
+      <View style={{ justifyContent: "center", flex: 1 }}>
         <Text numberOfLines={2} style={styles.headerStyle}>
           {header}
         </Text>
-        <Text numberOfLines={2} style={styles.subheaderStyle}>
+
+        <Text numberOfLines={1} style={styles.subheaderStyle}>
           {subheader}
         </Text>
       </View>
+
       <Text numberOfLines={1} style={styles.dateStyle}>
         {review ? "Reviewed" : "Rated"}: {date.getMonth() + 1}/{date.getDate()}/
         {date.getFullYear()}
@@ -23,23 +25,24 @@ const ContentTitle = ({ header, subheader, date, review }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
+    height: 95,
     justifyContent: "space-between",
     flex: 2,
     marginTop: 5,
-    marginBottom: 20,
     marginLeft: 5
   },
   headerStyle: {
-    fontSize: 22,
+    fontSize: 20,
     marginBottom: 5,
     fontWeight: "bold",
     color: colors.white
   },
   subheaderStyle: {
-    fontSize: 20,
+    fontSize: 18,
     color: colors.white
   },
   dateStyle: {
+    marginBottom: 5,
     fontSize: 16,
     color: colors.white
   }

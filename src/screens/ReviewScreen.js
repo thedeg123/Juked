@@ -16,6 +16,7 @@ import "firebase/firestore";
 import LikeBox from "../components/LikeBox";
 import ModalWrapper from "../components/ModalCards/ModalWrapper";
 import ModalReviewContent from "../components/ModalCards/ModalReviewContent";
+import ScrollViewPadding from "../components/ScrollViewPadding";
 
 const ReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
@@ -41,8 +42,8 @@ const ReviewScreen = ({ navigation }) => {
           .doc(review.id)
           .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
       } catch {
-        console.log("caught error");
         remover ? remover() : null;
+        console.error("error from ReviewScreen");
       }
     });
     return () => {
@@ -103,6 +104,7 @@ const ReviewScreen = ({ navigation }) => {
           onClose={() => setShowModal(false)}
         ></ModalReviewContent>
       </ModalWrapper>
+      <ScrollViewPadding></ScrollViewPadding>
     </ScrollView>
   );
 };

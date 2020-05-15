@@ -15,10 +15,12 @@ const Rating = ({ number }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     alignSelf: "flex-end",
-    bottom: 5
+    bottom: 7
   },
   numberStyle: {
-    fontSize: 50,
+    fontSize: 40,
+
+    fontWeight: "500",
     color: colors.primary
   }
 });

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
+import ScrollViewPadding from "../components/ScrollViewPadding";
 
 const ListScreen = ({ navigation }) => {
   const title = navigation.getParam("title"); // name of page
@@ -20,6 +21,7 @@ const ListScreen = ({ navigation }) => {
         renderItem={renderItem}
         keyExtractor={keyExtractor}
       ></FlatList>
+      <ScrollViewPadding></ScrollViewPadding>
     </View>
   );
 };

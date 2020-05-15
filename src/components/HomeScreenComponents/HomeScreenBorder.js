@@ -32,7 +32,7 @@ const HomeScreenBorder = ({
     >
       <ImageBackground
         source={{ uri: content.image }}
-        blurRadius={20}
+        blurRadius={70}
         style={review.data.title ? styles.withTitle : styles.noTitle}
       >
         <View style={styles.child}>{children}</View>
@@ -55,7 +55,7 @@ let boxStyle = {
 const styles = StyleSheet.create({
   withTitle: {
     ...boxStyle,
-    height: 150 //120+15+15
+    height: 135 //100+17+17
   },
   shadowEdge: {
     shadowColor: colors.shadow,
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
   },
   noTitle: {
     ...boxStyle,
-    height: 120 //120+15+15
+    height: 100 //70+15+15
   }
 });
 

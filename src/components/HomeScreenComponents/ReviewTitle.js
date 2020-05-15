@@ -16,12 +16,13 @@ const styles = StyleSheet.create({
   containerStyle: {
     alignSelf: "stretch",
     marginLeft: 5,
-    bottom: 15
+    paddingVertical: 2,
+    bottom: 10
   },
   textStyle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: colors.secondary
+    color: colors.white
   }
 });
 export default ReviewTitle;

@@ -13,10 +13,7 @@ import ProfileListItem from "./ProfileScreen/ListPreviewItem";
  */
 const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
   return (
-    <View
-      style={{ ...styles.borderStyle, marginBottom: marginBottom || 0 }}
-      onPress={onPress}
-    >
+    <View style={{ ...styles.borderStyle, marginBottom: marginBottom || 0 }}>
       <Text style={styles.reviewTitleStyle}>{title}</Text>
       <FlatList
         showsHorizontalScrollIndicator={false}
