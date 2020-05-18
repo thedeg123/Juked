@@ -32,20 +32,21 @@ const AlbumScreen = ({ navigation }) => {
   // initialization
 
   const updateReview = () => {
-    firestore.getReviewsByAuthorContent(email, content_id).then(res => {
-      return setReview(res.exists ? res : null);
-    });
+    firestore
+      .getReviewsByAuthorContent(email, content_id)
+      .then(res => setReview(res.exists ? res : null));
     firestore.getContentData(content_id).then(res => setAlbumData(res));
   };
   const init = async () => {
     navigation.setParams({ setShowModal: setShowReviewCard });
     //getting album rating
-    await useMusic.findAlbum(content_id).then(async album => setAlbum(album));
+    useMusic.findAlbum(content_id).then(async album => setAlbum(album));
     updateReview();
   };
 
   useEffect(() => {
-    const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
+    init();
+    const listener = navigation.addListener("didFocus", () => updateReview()); //any time we return to this screen we do another fetch
     return () => {
       listener.remove();
     };
@@ -66,7 +67,9 @@ const AlbumScreen = ({ navigation }) => {
           style={{
             width: "50%",
             aspectRatio: 1,
-            borderRadius: 5
+            borderRadius: 5,
+            borderWidth: 0.5,
+            borderColor: colors.shadow
           }}
           source={{
             uri: album.image

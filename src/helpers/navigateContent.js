@@ -17,7 +17,7 @@ const navigateContent = (navigation, cid, album_cid, review, content, user) => {
         return;
     }
   }
-  if (review.data.title)
+  if (review.data.is_review)
     return navigation.push("Review", { review, user, content });
   switch (review.data.type) {
     case "album":

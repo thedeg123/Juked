@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Button, Text, View } from "react-native";
+import { StyleSheet, Button, Text, TouchableOpacity, View } from "react-native";
 
 import colors from "../../constants/colors";
 
@@ -9,7 +9,14 @@ const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose }) => {
     <View style={styles.content}>
       {showDelete ? (
         <View>
-          <Text style={{ color: colors.text }}>
+          <Text
+            style={{
+              color: colors.text,
+              fontSize: 18,
+              marginVertical: 10,
+              textAlign: "center"
+            }}
+          >
             Are you sure you want to delete this review?
           </Text>
           <View
@@ -27,6 +34,7 @@ const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose }) => {
         </View>
       ) : (
         <View>
+          <Button onPress={onClose} title="Done" />
           {onEdit ? (
             <Button onPress={onEdit} title="Edit Review" />
           ) : (
@@ -35,7 +43,6 @@ const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose }) => {
           {onEdit ? (
             <Button onPress={() => setShowDelete(true)} title="Delete Review" />
           ) : null}
-          <Button onPress={onClose} title="Done" />
         </View>
       )}
     </View>
@@ -44,13 +51,9 @@ const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose }) => {
 
 const styles = StyleSheet.create({
   content: {
-    backgroundColor: colors.background,
-    padding: 20,
+    backgroundColor: colors.cardColor,
     paddingBottom: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 5,
-    borderColor: colors.heat
+    borderRadius: 5
   },
   contentTitle: {
     fontSize: 20,

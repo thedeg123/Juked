@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexDirection: "row",
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.12)"
+    backgroundColor: colors.darkener
   },
   rightContent: {
     justifyContent: "center",

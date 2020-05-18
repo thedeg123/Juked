@@ -33,12 +33,10 @@ const WriteReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const [text, setText] = useState("");
   const [rating, setRating] = useState([5]);
-  const [title, setTitle] = useState("");
   useEffect(() => {
     if (review) {
       setText(review.data.text);
       setRating([review.data.rating]);
-      setTitle(review.data.title);
     }
   }, []);
   if (!content) {
@@ -72,14 +70,6 @@ const WriteReviewScreen = ({ navigation }) => {
             ></MultiSlider>
           </View>
         </View>
-
-        <Input
-          value={title}
-          blurOnSubmit
-          placeholder={"Title"}
-          onChangeText={setTitle}
-          inputStyle={styles.titleText}
-        ></Input>
         <TextInput
           value={text}
           onChangeText={setText}
@@ -105,17 +95,10 @@ const WriteReviewScreen = ({ navigation }) => {
                   review.id,
                   review.data.content_id,
                   review.data.content_type,
-                  text && !title ? " " : title,
                   rating[0],
                   text
                 )
-              : firestore.addReview(
-                  content.id,
-                  content.type,
-                  text && !title ? " " : title,
-                  rating[0],
-                  text
-                );
+              : firestore.addReview(content.id, content.type, rating[0], text);
             return navigation.pop();
           }}
         >
@@ -165,12 +148,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginRight: 10,
     alignSelf: "center"
-  },
-  titleText: {
-    color: colors.text,
-    fontSize: 30,
-    fontWeight: "bold",
-    flex: 1
   },
   subheaderText: {
     color: colors.text,

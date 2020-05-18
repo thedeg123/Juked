@@ -8,22 +8,22 @@ import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
 
 const HomeScreenItem = ({ review, content, author }) => {
+  console.log(review);
   return (
     <>
       <HomeScreenBorder content={content} review={review} author={author}>
         <View style={styles.contentStyle}>
           <ContentPic
             img={content.image}
-            cid={content.id}
-            type={review.type}
-            album_cid={review.data.type === "track" ? content.album_id : null}
             width={100}
+            is_review={review.data.is_review}
           ></ContentPic>
           <ContentTitle
             header={content.name}
             subheader={content.artist_name}
             date={new Date(review.data.last_modified)}
-            review={Boolean(review.data.title)}
+            review={review.data.is_review}
+            type={review.data.type}
           ></ContentTitle>
           <View style={styles.textStyle}>
             <UserPreview
@@ -34,8 +34,8 @@ const HomeScreenItem = ({ review, content, author }) => {
             <Rating number={review.data.rating}></Rating>
           </View>
         </View>
-        {review.data.title ? (
-          <ReviewTitle title={review.data.title}></ReviewTitle>
+        {review.data.is_review ? (
+          <ReviewTitle title={review.data.text}></ReviewTitle>
         ) : null}
       </HomeScreenBorder>
     </>

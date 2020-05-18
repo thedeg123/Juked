@@ -50,8 +50,11 @@ const ArtistScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
-    return () => listener.remove(); //prevents memory leaks if the indexScreen is ever closed
+    init();
+    const listener = navigation.addListener("didFocus", () => getReview()); //any time we return to this screen we do another fetch
+    return () => {
+      listener.remove();
+    };
   }, []);
 
   if (!artist || review === "waiting" || !contentData)
@@ -67,13 +70,10 @@ const ArtistScreen = ({ navigation }) => {
       <View>
         <ImageBackground
           source={{ uri: artist.image }}
-          blurRadius={70}
           style={styles.imageBackgroundStyle}
+          resizeMode="repeat"
         >
-          <View style={styles.contentContainer}>
-            <Text style={styles.title}>{artist.name}</Text>
-            <Image style={styles.imageStyle} source={{ uri: artist.image }} />
-          </View>
+          <Text style={styles.title}>{artist.name}</Text>
         </ImageBackground>
       </View>
       <Text style={styles.sectionStyle}>Reviews</Text>
@@ -136,9 +136,9 @@ ArtistScreen.navigationOptions = ({ navigation }) => {
 const styles = StyleSheet.create({
   column: { flexShrink: 1, width: "50%" },
   title: {
-    fontSize: 40,
-    alignSelf: "center",
+    fontSize: 50,
     fontWeight: "bold",
+    marginHorizontal: 10,
     color: colors.primary
   },
   sectionStyle: {
@@ -153,23 +153,10 @@ const styles = StyleSheet.create({
     color: colors.text,
     padding: 10
   },
-  contentContainer: {
-    backgroundColor: "rgba(0,0,0,0.12)",
-    alignContent: "center",
-    justifyContent: "space-evenly",
-    flex: 1
-  },
-  imageStyle: {
-    alignSelf: "center",
-    width: "50%",
-    aspectRatio: 1,
-    borderRadius: 5,
-    borderWidth: 2,
-    borderColor: colors.primary
-  },
   imageBackgroundStyle: {
     flex: 1,
-    height: 350,
+    justifyContent: "flex-end",
+    height: 250,
     resizeMode: "cover",
     overflow: "hidden",
     alignSelf: "stretch",

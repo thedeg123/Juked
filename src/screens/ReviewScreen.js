@@ -3,7 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
+  ImageBackground,
   ScrollView
 } from "react-native";
 import context from "../context/context";
@@ -13,10 +15,11 @@ import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import firebase from "firebase";
 import "firebase/firestore";
-import LikeBox from "../components/LikeBox";
-import ModalWrapper from "../components/ModalCards/ModalWrapper";
-import ModalReviewContent from "../components/ModalCards/ModalReviewContent";
+import LikeBox from "../components/ReviewScreenComponents/LikeBox";
 import ScrollViewPadding from "../components/ScrollViewPadding";
+import ReviewHeader from "../components/ReviewScreenComponents/ReviewHeader";
+import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
+import UserListItem from "../components/UserPreview";
 
 const ReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
@@ -31,8 +34,6 @@ const ReviewScreen = ({ navigation }) => {
   let userLikes = review.data
     ? review.data.likes.includes(firestore.fetchCurrentUID())
     : null;
-  const date = review.data ? new Date(review.data.last_modified) : null;
-
   useEffect(() => {
     navigation.setParams({ setShowModal });
     const listener = navigation.addListener("didFocus", async () => {
@@ -55,110 +56,82 @@ const ReviewScreen = ({ navigation }) => {
     return <View></View>;
   }
   return (
-    <ScrollView style={styles.containerStyle}>
-      <View style={styles.headerStyle}>
-        <View style={styles.headerTextContainerStyle}>
-          <Text style={styles.headerText}>{content.name}</Text>
-          <Text style={styles.subheaderText}>{content.artist_name}</Text>
-        </View>
-        <View style={styles.headerUserContainerStyle}>
-          <UserPreview
-            img={user.profile_url}
-            username={user.handle}
-            uid={review.data.author}
-          ></UserPreview>
-          <Text style={styles.dateText}>{`${date.toLocaleString("default", {
-            month: "long"
-          })} ${date.getDate()}, ${date.getFullYear()}`}</Text>
-        </View>
-      </View>
-      <View style={styles.headerStyle}>
-        <Text style={styles.titleText}>{review.data.title}</Text>
-        <Text style={styles.ratingText}>{review.data.rating}</Text>
-      </View>
-      <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
-      <LikeBox
-        onPress={() => {
-          userLikes
-            ? firestore.unLikeReview(review.id)
-            : firestore.likeReview(review.id);
-          userLikes = !userLikes;
+    <ImageBackground
+      style={{ flex: 1 }}
+      blurRadius={70}
+      source={{ uri: content.image }}
+    >
+      <View
+        style={{
+          backgroundColor: colors.darkener,
+          paddingHorizontal: 10,
+          flex: 1
         }}
-        liked={userLikes}
-        numLikes={review ? review.data.likes.length : 0}
-      ></LikeBox>
-      <ModalWrapper
-        isVisible={showModal}
-        onSwipeComplete={() => setShowModal(false)}
       >
-        <ModalReviewContent
-          onDelete={() => {
-            firestore.deleteReview(review.id);
-            setShowModal(false);
-            return navigation.pop();
-          }}
-          onEdit={() => {
-            setShowModal(false);
-            return navigation.navigate("WriteReview", { review, content });
-          }}
-          onClose={() => setShowModal(false)}
-        ></ModalReviewContent>
-      </ModalWrapper>
-      <ScrollViewPadding></ScrollViewPadding>
-    </ScrollView>
+        <ScrollView style={styles.containerStyle}>
+          <ReviewHeader
+            date={review.data ? new Date(review.data.last_modified) : null}
+            content={content}
+            user={user}
+            rating={review.data.rating}
+            type={review.data.type}
+          ></ReviewHeader>
+          <View style={{ marginHorizontal: 5, marginTop: 10 }}>
+            <View style={{ flexDirection: "row" }}>
+              <LikeBox
+                onLike={() => {
+                  userLikes
+                    ? firestore.unLikeReview(review.id)
+                    : firestore.likeReview(review.id);
+                  userLikes = !userLikes;
+                }}
+                onPress={() =>
+                  navigation.push("List", {
+                    title: "Likes",
+                    fetchData: () =>
+                      firestore.batchAuthorRequest(review.data.likes),
+                    renderItem: ({ item }) => <UserListItem user={item.data} />,
+                    keyExtractor: item => item.id
+                  })
+                }
+                liked={userLikes}
+                numLikes={review ? review.data.likes.length : 0}
+              ></LikeBox>
+              <TextInput
+                style={{
+                  borderWidth: 1,
+                  flex: 1,
+                  alignSelf: "center",
+                  height: 50,
+                  marginLeft: 5,
+                  borderRadius: 10
+                }}
+                placeholder={"Comments go here"}
+              ></TextInput>
+            </View>
+            <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
+          </View>
+          <ModalReviewCard
+            showModal={showModal}
+            setShowModal={setShowModal}
+            review={review}
+            content={content}
+            onDelete={() => {
+              firestore.deleteReview(review.id);
+              setShowModal(false);
+              return navigation.pop();
+            }}
+          ></ModalReviewCard>
+        </ScrollView>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  containerStyle: {
-    marginTop: 10,
-    marginHorizontal: 10
-  },
-
-  headerStyle: {
-    borderBottomColor: colors.shadow,
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    flexDirection: "row",
-    justifyContent: "space-between"
-  },
-  headerTextContainerStyle: {
-    flexDirection: "column",
-    justifyContent: "space-between",
-    flex: 2
-  },
-  headerUserContainerStyle: {
-    flexDirection: "column",
-    justifyContent: "space-between",
-    flex: 1
-  },
-  headerText: {
-    color: colors.text,
-    fontWeight: "bold",
-    fontSize: 30
-  },
-  titleText: {
-    color: colors.text,
-    fontSize: 30,
-    fontWeight: "bold",
-    flex: 1
-  },
-  subheaderText: {
-    color: colors.text,
-    fontSize: 28
-  },
-  dateText: {
-    color: colors.text,
-    fontSize: 15,
-    textAlign: "right"
-  },
-  ratingText: {
-    color: colors.primary,
-    fontSize: 80
-  },
   reviewTextStyle: {
-    color: colors.text,
-    fontSize: 18
+    color: colors.white,
+    fontSize: 24
   }
 });
 

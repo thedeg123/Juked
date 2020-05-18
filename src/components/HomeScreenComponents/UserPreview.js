@@ -4,7 +4,10 @@ import colors from "../../constants/colors";
 import images from "../../constants/images";
 import { withNavigation } from "react-navigation";
 
-const UserPreview = ({ navigation, img, username, uid }) => {
+const UserPreview = ({ navigation, img, username, uid, size, color }) => {
+  size = size || 40;
+  const fontSize = size * 0.3;
+  color = color || colors.white;
   img = img || images.profileDefault; //becuase we cant set a default val from another file
   return (
     <TouchableOpacity
@@ -13,28 +16,25 @@ const UserPreview = ({ navigation, img, username, uid }) => {
         navigation.navigate("Profile", { uid });
       }}
     >
-      <Image style={styles.imageStyle} source={{ uri: img }}></Image>
-      <Text style={styles.textStyle}>@{username}</Text>
+      <Image
+        style={{
+          width: size,
+          aspectRatio: 1,
+          borderColor: colors.shadow,
+          borderWidth: 1,
+          borderRadius: 5
+        }}
+        source={{ uri: img }}
+      ></Image>
+      <Text style={{ marginVertical: 1, color, fontSize }}>{username}</Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   containerStyle: {
-    alignItems: "flex-end",
-    alignSelf: "flex-end"
-  },
-  imageStyle: {
-    width: 40,
-    aspectRatio: 1,
-    borderColor: colors.shadow,
-    borderWidth: 1,
-    borderRadius: 5
-  },
-  textStyle: {
-    marginVertical: 1,
-    color: colors.white,
-    fontSize: 12
+    alignSelf: "flex-end",
+    alignItems: "flex-end"
   }
 });
 

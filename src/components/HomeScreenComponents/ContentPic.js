@@ -3,15 +3,16 @@ import { StyleSheet, Image, View } from "react-native";
 import colors from "../../constants/colors";
 import images from "../../constants/images";
 
-const ContentPic = ({ img, width }) => {
+const ContentPic = ({ img, width, is_review }) => {
   img = img || images.artistDefault; //becuase we cant set a default val from another file
   return (
     <View style={styles.contentStyle}>
       <View
         style={{
           borderRightWidth: 3,
+          borderBottomWidth: is_review ? 3 : 0,
           borderRadius: 5,
-          borderRightColor: colors.primary
+          borderColor: colors.primary
         }}
       >
         <Image

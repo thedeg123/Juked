@@ -30,9 +30,9 @@ exports.Onfollow = functions.firestore
     var batch = firestore.batch();
     const newFollow = snap.data();
     const refFollowing = firestore.collection("users").doc(newFollow.following);
-    const dataFollowing = refFollowing.get();
+    const dataFollowing = await refFollowing.get().then(res => res.data());
     const refFollower = firestore.collection("users").doc(newFollow.follower);
-    const dataFollower = refFollower.get();
+    const dataFollower = await refFollower.get().then(res => res.data());
     batch.update(refFollowing, {
       num_follower: dataFollowing.num_follower + 1 || 1
     });
@@ -50,9 +50,9 @@ exports.OnUnfollow = functions.firestore
     const refFollowing = firestore
       .collection("users")
       .doc(newUnfollow.following);
-    const dataFollowing = refFollowing.get();
+    const dataFollowing = await refFollowing.get().then(res => res.data());
     const refFollower = firestore.collection("users").doc(newUnfollow.follower);
-    const dataFollower = refFollower.get();
+    const dataFollower = await refFollower.get().then(res => res.data());
     batch.update(refFollowing, {
       num_follower: dataFollowing.num_follower - 1 || 0
     });

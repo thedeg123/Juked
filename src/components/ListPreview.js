@@ -14,7 +14,18 @@ import ProfileListItem from "./ProfileScreen/ListPreviewItem";
 const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
   return (
     <View style={{ ...styles.borderStyle, marginBottom: marginBottom || 0 }}>
-      <Text style={styles.reviewTitleStyle}>{title}</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          marginRight: 10,
+          justifyContent: "space-between"
+        }}
+      >
+        <Text style={styles.reviewTitleStyle}>{title}</Text>
+        <TouchableOpacity onPress={onPress}>
+          <Text style={styles.seeAllText}>See All</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         showsHorizontalScrollIndicator={false}
         horizontal
@@ -31,9 +42,6 @@ const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
         }
         keyExtractor={item => item.id}
       ></FlatList>
-      <TouchableOpacity onPress={onPress}>
-        <Text style={styles.seeAllText}>See All</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -44,6 +52,7 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     fontSize: 15,
+    fontWeight: "300",
     marginTop: 5,
     marginLeft: 10,
     color: colors.text

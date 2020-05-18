@@ -57,7 +57,7 @@ const ModalTrackContent = ({ navigation, onClose, content }) => {
 const styles = StyleSheet.create({
   content: {
     paddingTop: 5,
-    backgroundColor: colors.background,
+    backgroundColor: colors.cardColor,
     paddingBottom: 50,
     paddingHorizontal: 10,
     justifyContent: "center",

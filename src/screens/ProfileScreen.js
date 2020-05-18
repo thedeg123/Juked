@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  RefreshControl,
   ScrollView
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
@@ -20,7 +21,7 @@ import LoadingIndicator from "../components/LoadingIndicator";
 import BarGraph from "../components/Graphs/BarGraph";
 import firebase from "firebase";
 import "firebase/firestore";
-import ScrollViewPadding from "../components/ScrollViewPadding";
+import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, useMusic } = useContext(context);
@@ -31,6 +32,7 @@ const UserProfileScreen = ({ navigation }) => {
   const [content, setContent] = useState(null);
   const [followsYou, setFollowsYou] = useState(null);
   const [userFollowing, setUserFollowing] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   let remover = null;
 
   const updateFollow = async () => {
@@ -44,11 +46,11 @@ const UserProfileScreen = ({ navigation }) => {
 
   const fetch = async () => {
     if (!uid) uid = firestore.fetchCurrentUID();
-    const reviews = await firestore.getReviewsByAuthor(uid, 10).then(res => {
-      const ret = { track: [], album: [], artist: [] };
-      res.forEach(r => ret[r.data.type].push(r));
-      return ret;
-    });
+    const reviews = {
+      track: await firestore.getReviewsByAuthorType(uid, ["track"], 5),
+      album: await firestore.getReviewsByAuthorType(uid, ["album"], 5),
+      artist: await firestore.getReviewsByAuthorType(uid, ["artist"], 5)
+    };
     setReviews(reviews);
     let cid_byType = {
       track: new Set(reviews["track"].map(r => r.data.content_id)),
@@ -72,9 +74,7 @@ const UserProfileScreen = ({ navigation }) => {
       .doc(uid)
       .onSnapshot(res => setUser(res.data()));
     fetch();
-    const listener = navigation.addListener("didFocus", () => fetch()); //any time we return to this screen we do another fetch
     return () => {
-      listener.remove();
       return remover ? remover() : null;
     };
   }, []);
@@ -82,11 +82,39 @@ const UserProfileScreen = ({ navigation }) => {
   const navigateFollow = (title, follow) =>
     navigation.push("List", {
       title,
-      ids: follow,
-      fetchData: data => firestore.batchAuthorRequest(data),
+      fetchData: () => firestore.batchAuthorRequest(follow),
       renderItem: ({ item }) => <UserPreview user={item.data} />,
       keyExtractor: item => item.id
     });
+  const navigateContent = (title, types) => {
+    return navigation.push("List", {
+      title,
+      fetchData: async () => {
+        const reviews = await firestore.getReviewsByAuthorType(uid, types);
+        const music = await useMusic
+          .findContent(
+            reviews.map(review => review.data.content_id),
+            types[0]
+          )
+          .then(res => {
+            const ret = {};
+            res.forEach(m => (ret[m.id] = m));
+            return ret;
+          });
+        return reviews.map(r => {
+          return { review: r, content: music[r.data.content_id] };
+        });
+      },
+      renderItem: ({ item }) => (
+        <HomeScreenItem
+          review={item.review}
+          content={item.content}
+          author={user}
+        ></HomeScreenItem>
+      ),
+      keyExtractor: item => item.review.id + item.review.content_id
+    });
+  };
 
   if (
     !user ||
@@ -107,6 +135,16 @@ const UserProfileScreen = ({ navigation }) => {
         style={styles.containerStyle}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 85 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={async () => {
+              setRefreshing(true);
+              fetch();
+              return setRefreshing(false);
+            }}
+          />
+        }
       >
         <View style={styles.headerContainer}>
           <View>
@@ -180,21 +218,21 @@ const UserProfileScreen = ({ navigation }) => {
           content={content}
           user={user}
           data={reviews["artist"]}
-          onPress={() => navigation.navigate("List")}
+          onPress={() => navigateContent("Artists", ["artist"])}
         />
         <ListPreview
           title="Most Recent Albums"
           user={user}
           content={content}
           data={reviews["album"]}
-          onPress={() => navigation.navigate("List")}
+          onPress={() => navigateContent("Albums", ["album"])}
         />
         <ListPreview
           title="Most Recent Songs"
           user={user}
           content={content}
           data={reviews["track"]}
-          onPress={() => navigation.navigate("List")}
+          onPress={() => navigateContent("Songs", ["track"])}
           marginBottom={10}
         />
       </ScrollView>

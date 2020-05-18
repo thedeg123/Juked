@@ -9,7 +9,6 @@ const ContentTitle = ({ header, subheader, date, review }) => {
         <Text numberOfLines={2} style={styles.headerStyle}>
           {header}
         </Text>
-
         <Text numberOfLines={1} style={styles.subheaderStyle}>
           {subheader}
         </Text>
@@ -43,7 +42,7 @@ const styles = StyleSheet.create({
   },
   dateStyle: {
     marginBottom: 5,
-    fontSize: 16,
+    fontSize: 14,
     color: colors.white
   }
 });

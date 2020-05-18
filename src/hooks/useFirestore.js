@@ -71,18 +71,45 @@ class useFirestore {
       .get()
       .then(review => review.data());
   }
-  async getReviewsByAuthor(uid, limit) {
+  async getReviewsByAuthor(uid, limit = 100) {
     let ret = [];
     return await this.reviews_db
       .where("author", "==", uid)
       .orderBy("last_modified", "desc")
-      .limit(limit || 100)
+      .limit(limit)
       .get()
       .then(res => {
         res.forEach(r => ret.push({ id: r.id, data: r.data() }));
         return ret;
       });
   }
+  async getReviewsByAuthorType(uid, types, limit = 100) {
+    let ret = [];
+    return await this.reviews_db
+      .where("author", "==", uid)
+      .orderBy("last_modified", "desc")
+      .where("type", "in", types)
+      .limit(limit)
+      .get()
+      .then(res => {
+        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
+        return ret;
+      });
+  }
+
+  async getReviewsByType(types, limit = 100) {
+    let ret = [];
+    return await this.reviews_db
+      .orderBy("last_modified", "desc")
+      .where("type", "in", types)
+      .limit(limit)
+      .get()
+      .then(res => {
+        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
+        return ret;
+      });
+  }
+
   async deleteReview(rid) {
     return await this.reviews_db.doc(rid).delete();
   }
@@ -159,25 +186,23 @@ class useFirestore {
     }
     return ret;
   }
-  async addReview(cid, type, title, rating, text) {
+  async addReview(cid, type, rating, text) {
     return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
       author: this.auth.currentUser.email,
       content_id: cid,
       last_modified: new Date().getTime(),
       rating,
       text,
-      title,
       type,
       likes: [],
-      is_review: Boolean(title.length)
+      is_review: Boolean(text.length)
     });
   }
-  async updateReview(rid, cid, type, title, rating, text) {
+  async updateReview(rid, cid, type, rating, text) {
     let body = {};
     typeof text == "string" ? (body["text"] = text) : null;
-    typeof title == "string" ? (body["title"] = title) : null;
     rating ? (body["rating"] = rating) : null;
-    body["is_review"] = title ? true : false;
+    body["is_review"] = text.length ? true : false;
     body["last_modified"] = new Date().valueOf();
     return this.reviews_db.doc(rid).update(body);
   }

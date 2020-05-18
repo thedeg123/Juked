@@ -7,7 +7,6 @@ const ModalReviewCard = ({
   navigation,
   showModal,
   setShowModal,
-  setReview,
   review,
   content,
   onDelete
