@@ -5,6 +5,7 @@ import colors from "../constants/colors";
 import images from "../constants/images";
 import { withNavigation } from "react-navigation";
 import navigateContent from "../helpers/navigateContent";
+import ArtistNames from "./ArtistNames";
 /**
  * SearchPreview Component for ListScreen
  * @param {string} title - title of this song/album/artist
@@ -35,10 +36,12 @@ const SearchPreview = ({ navigation, object, type }) => {
         <Text numberOfLines={1} style={styles.textStyle}>
           {object.name}
         </Text>
-        {object.artist_name ? (
-          <Text numberOfLines={1} style={styles.subtextStyle}>
-            {object.artist_name}
-          </Text>
+        {object.artists ? (
+          <ArtistNames
+            artists={object.artists}
+            allowPress={false}
+            textStyle={styles.subtextStyle}
+          ></ArtistNames>
         ) : null}
         {date ? (
           <Text numberOfLines={1} style={styles.dateStyle}>
@@ -74,8 +77,9 @@ const styles = StyleSheet.create({
     marginLeft: 1
   },
   textWrapperStyle: {
+    marginVertical: 5,
     flex: 10,
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     justifyContent: "center"
   },
   textStyle: {
@@ -85,13 +89,15 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   subtextStyle: {
+    marginTop: 5,
     fontSize: 18,
-    fontWeight: "300",
+    fontWeight: "400",
     color: colors.text
   },
   dateStyle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "300",
+
     color: colors.text
   },
   typeStyle: {

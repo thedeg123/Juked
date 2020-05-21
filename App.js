@@ -44,7 +44,7 @@ const tabBarOptions = {
     position: "absolute",
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-    borderColor: colors.shadow,
+    borderColor: colors.lightShadow,
     borderWidth: 1,
     height: heights.tabBarHeight
   }
@@ -125,7 +125,7 @@ const mainStack = createBottomTabNavigator(
       screen: homeStack,
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
-          <Foundation name="home" style={{ fontSize: 25 }} color={tintColor} />
+          <Foundation name="home" style={{ fontSize: 22 }} color={tintColor} />
         ),
         tabBarOptions
       }
@@ -136,7 +136,7 @@ const mainStack = createBottomTabNavigator(
         tabBarLabel: ({ tintColor }) => (
           <Octicons
             name="search"
-            style={{ fontSize: 25, top: 2 }}
+            style={{ fontSize: 22, top: 2 }}
             color={tintColor}
           />
         ),
@@ -147,7 +147,7 @@ const mainStack = createBottomTabNavigator(
       screen: profileStack,
       navigationOptions: {
         tabBarLabel: ({ tintColor }) => (
-          <Octicons name="person" style={{ fontSize: 25 }} color={tintColor} />
+          <Octicons name="person" style={{ fontSize: 22 }} color={tintColor} />
         ),
         tabBarOptions
       }

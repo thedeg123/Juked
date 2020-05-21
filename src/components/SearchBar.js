@@ -6,19 +6,26 @@ import {
   Text,
   StyleSheet
 } from "react-native";
-import { FontAwesome, AntDesign } from "@expo/vector-icons";
+import { AntDesign, Octicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 
-const SearchBar = ({ term, onTermChange, onTermSubmit }) => {
+const SearchBar = ({
+  term,
+  onTermChange,
+  onTermSubmit,
+  setSearchType,
+  keyboardIsActive
+}) => {
   const [cancel, setCancel] = useState(false);
+
   const inputRef = useRef(null);
   return (
     <View style={styles.wrapper}>
       <View style={styles.backgroundStyle}>
-        <FontAwesome
+        <Octicons
           name="search"
           style={styles.iconStyle}
-          color={colors.primary}
+          color={keyboardIsActive ? colors.primary : colors.shadow}
         />
         <TextInput
           ref={inputRef}
@@ -30,15 +37,21 @@ const SearchBar = ({ term, onTermChange, onTermSubmit }) => {
           returnKeyType={"search"}
           value={term}
           onChangeText={onTermChange}
-          onEndEditing={onTermSubmit}
           onFocus={() => setCancel(true)}
-          onSubmitEditing={() => setCancel(false)}
+          onSubmitEditing={() => {
+            onTermSubmit(term);
+            return setCancel(false);
+          }}
         />
         {term !== "" ? (
           <AntDesign
             name="close"
             style={styles.iconStyle}
-            onPress={() => onTermChange("")}
+            color={colors.primary}
+            onPress={() => {
+              onTermSubmit("");
+              inputRef.current.focus();
+            }}
           />
         ) : null}
       </View>
@@ -46,6 +59,8 @@ const SearchBar = ({ term, onTermChange, onTermSubmit }) => {
         <TouchableOpacity
           onPress={() => {
             inputRef.current.blur();
+            onTermSubmit("");
+            setSearchType("track");
             return setCancel(false);
           }}
         >
@@ -60,7 +75,7 @@ const styles = StyleSheet.create({
   backgroundStyle: {
     borderRadius: 5,
     marginBottom: 10,
-    backgroundColor: "#ccc",
+    backgroundColor: colors.lightShadow,
     height: 40,
     flex: 1,
     flexDirection: "row"
@@ -71,19 +86,19 @@ const styles = StyleSheet.create({
     flexDirection: "row"
   },
   cancelStyle: {
+    marginLeft: 5,
     color: colors.primary,
     fontSize: 18,
     bottom: 5
   },
   inputStyle: {
-    marginHorizontal: 10,
+    marginRight: 10,
     fontSize: 18,
     flex: 1
   },
   iconStyle: {
-    color: colors.primary,
-    marginHorizontal: 10,
-    fontSize: 25,
+    padding: 10,
+    fontSize: 16,
     alignSelf: "center"
   }
 });

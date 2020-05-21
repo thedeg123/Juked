@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     fontSize: 30
   },
   container: {
-    paddingHorizontal: 15
+    paddingHorizontal: 20
   }
 });
 

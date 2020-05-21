@@ -2,6 +2,7 @@ import React from "react";
 import { Text, View, StyleSheet, FlatList } from "react-native";
 import SearchPreview from "./SearchPreview";
 import UserPreview from "./UserPreview";
+import colors from "../constants/colors";
 
 const ResultsList = ({ users, searchType, search }) => {
   if (search === null && searchType !== "user") {
@@ -12,7 +13,14 @@ const ResultsList = ({ users, searchType, search }) => {
       case "album":
       case "artist":
         return (
-          <View style={{ flex: 1 }}>
+          <View
+            style={{
+              flex: 1,
+              marginTop: 10,
+              borderTopWidth: 0.5,
+              borderColor: colors.lightShadow
+            }}
+          >
             <FlatList
               contentContainerStyle={{ paddingBottom: 85 }}
               keyboardDismissMode="on-drag"

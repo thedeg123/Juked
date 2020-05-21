@@ -22,9 +22,11 @@ const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
         }}
       >
         <Text style={styles.reviewTitleStyle}>{title}</Text>
-        <TouchableOpacity onPress={onPress}>
-          <Text style={styles.seeAllText}>See All</Text>
-        </TouchableOpacity>
+        {data.length ? (
+          <TouchableOpacity onPress={onPress}>
+            <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
       <FlatList
         showsHorizontalScrollIndicator={false}

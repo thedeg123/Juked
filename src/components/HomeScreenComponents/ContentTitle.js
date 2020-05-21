@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
+import ArtistNames from "../ArtistNames";
 
 const ContentTitle = ({ header, subheader, date, review }) => {
   return (
@@ -9,9 +10,13 @@ const ContentTitle = ({ header, subheader, date, review }) => {
         <Text numberOfLines={2} style={styles.headerStyle}>
           {header}
         </Text>
-        <Text numberOfLines={1} style={styles.subheaderStyle}>
-          {subheader}
-        </Text>
+        {subheader ? (
+          <ArtistNames
+            artists={subheader}
+            allowPress={false}
+            textStyle={styles.subheaderStyle}
+          ></ArtistNames>
+        ) : null}
       </View>
 
       <Text numberOfLines={1} style={styles.dateStyle}>

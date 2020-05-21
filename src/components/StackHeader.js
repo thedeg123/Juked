@@ -13,12 +13,12 @@ const StackHeader = ({ title, leftButton, previous, rightButton }) => {
         height: height
       }}
     >
-      {!previous && rightComponent ? <View style={{ width: 40 }}></View> : null}
+      {!previous && rightComponent ? <View style={{ width: 60 }}></View> : null}
       <View style={styles.buttonWrapper}>{leftButton}</View>
       <View style={{ flex: 1, alignItems: "center" }}>
         <Text style={styles.headerTitleStyle}>{title}</Text>
       </View>
-      {previous && !rightComponent ? <View style={{ width: 40 }}></View> : null}
+      {previous && !rightComponent ? <View style={{ width: 50 }}></View> : null}
       {rightComponent ? (
         <View style={styles.buttonWrapper}>{rightComponent}</View>
       ) : null}
