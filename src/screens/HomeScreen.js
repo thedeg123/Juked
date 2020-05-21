@@ -16,6 +16,7 @@ const HomeScreen = ({ navigation }) => {
   const [contentTypes, setContentTypes] = useState(
     new Set(["track", "album", "artist"])
   );
+  const [ratingTypes, setRatingTypes] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const { firestore, useMusic } = useContext(context);
 
@@ -35,9 +36,14 @@ const HomeScreen = ({ navigation }) => {
       ? await firestore.getReviewsByAuthorType(
           userShow,
           Array.from(contentTypes),
-          limit
+          limit,
+          ratingTypes
         )
-      : await firestore.getReviewsByType(Array.from(contentTypes), limit);
+      : await firestore.getReviewsByType(
+          Array.from(contentTypes),
+          limit,
+          ratingTypes
+        );
 
     let cid_byType = { track: new Set(), album: new Set(), artist: new Set() };
     reviews.forEach(r => {
@@ -109,6 +115,8 @@ const HomeScreen = ({ navigation }) => {
         setShowModal={setShowModal}
         refreshData={() => fetchHomeScreenData(10)}
         contentTypes={contentTypes}
+        ratingTypes={ratingTypes}
+        setRatingTypes={setRatingTypes}
         following={following}
         userShow={userShow}
         setUserShow={val => {

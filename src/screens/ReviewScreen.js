@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   ImageBackground,
-  ScrollView
+  ScrollView,
+  Keyboard
 } from "react-native";
 import context from "../context/context";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
@@ -16,10 +16,11 @@ import TopButton from "../components/TopButton";
 import firebase from "firebase";
 import "firebase/firestore";
 import LikeBox from "../components/ReviewScreenComponents/LikeBox";
-import ScrollViewPadding from "../components/ScrollViewPadding";
 import ReviewHeader from "../components/ReviewScreenComponents/ReviewHeader";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import UserListItem from "../components/UserPreview";
+import CommentBar from "../components/ReviewScreenComponents/CommentBar";
+import CommentsSection from "../components/ReviewScreenComponents/CommentsSection";
 
 const ReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
@@ -27,15 +28,33 @@ const ReviewScreen = ({ navigation }) => {
   const [review, setReview] = useState(navigation.getParam("review"));
   const user = navigation.getParam("user");
   const content = navigation.getParam("content");
-  const [showModal, setShowModal] = useState(false);
   if (!review || !content || !user)
     console.error("ReviewScreen should be passed review, content, user");
+
+  const [showModal, setShowModal] = useState(false);
+  const [keyboardIsActive, setKeyboardIsActive] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentUsers, setCommentUsers] = useState(null);
+
   let remover = null;
   let userLikes = review.data
     ? review.data.likes.includes(firestore.fetchCurrentUID())
     : null;
+
+  const fetchComments = async () => {
+    const comments = await firestore.getComments(review.id);
+    const userComments = new Set(comments.map(com => com.data.author));
+    const theUsers = {};
+    await firestore
+      .batchAuthorRequest(Array.from(userComments))
+      .then(res => res.forEach(u => (theUsers[u.id] = u)));
+    setCommentUsers(theUsers);
+    return setComments(comments);
+  };
+
   useEffect(() => {
     navigation.setParams({ setShowModal });
+    fetchComments();
     const listener = navigation.addListener("didFocus", async () => {
       try {
         remover = await firestoreConcurrent
@@ -47,14 +66,88 @@ const ReviewScreen = ({ navigation }) => {
         console.error("error from ReviewScreen");
       }
     });
+    const keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () =>
+      setKeyboardIsActive(true)
+    );
+    const keyboardCloseListenter = Keyboard.addListener(
+      "keyboardWillHide",
+      () => setKeyboardIsActive(false)
+    );
     return () => {
       remover ? remover() : null;
+      keyboardOpenListenter.remove();
+      keyboardCloseListenter.remove();
       listener.remove();
     };
   }, []);
   if (!review.data) {
     return <View></View>;
   }
+  const headerComponent = (
+    <View style={{ flex: 1 }}>
+      <ReviewHeader
+        date={review.data ? new Date(review.data.last_modified) : null}
+        content={content}
+        user={user}
+        rating={review.data.rating}
+        type={review.data.type}
+      ></ReviewHeader>
+      <View style={{ marginHorizontal: 10, marginTop: 10 }}>
+        <View style={{ flexDirection: "row" }}>
+          {keyboardIsActive ? null : (
+            <LikeBox
+              onLike={() => {
+                userLikes
+                  ? firestore.unLikeReview(review.id)
+                  : firestore.likeReview(review.id);
+                userLikes = !userLikes;
+              }}
+              onPress={() =>
+                navigation.push("List", {
+                  title: "Likes",
+                  fetchData: () =>
+                    firestore.batchAuthorRequest(review.data.likes),
+                  renderItem: ({ item }) => <UserListItem user={item.data} />,
+                  keyExtractor: item => item.id
+                })
+              }
+              liked={userLikes}
+              numLikes={review ? review.data.likes.length : 0}
+            ></LikeBox>
+          )}
+          <CommentBar
+            keyboardIsActive={keyboardIsActive}
+            submitComment={comment =>
+              firestore
+                .addComment(review.id, comment)
+                .then(() => fetchComments())
+            }
+          ></CommentBar>
+        </View>
+        <View style={{ marginVertical: 15 }}>
+          <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
+        </View>
+      </View>
+      <View
+        style={{
+          alignSelf: "stretch",
+          borderTopWidth: 1,
+          borderTopColor: colors.veryTranslucentWhite
+        }}
+      >
+        <Text
+          style={{
+            marginLeft: 10,
+            marginVertical: 10,
+            fontSize: 16,
+            color: colors.translucentWhite
+          }}
+        >
+          {comments.length} Comments
+        </Text>
+      </View>
+    </View>
+  );
   return (
     <ImageBackground
       style={{ flex: 1 }}
@@ -64,66 +157,30 @@ const ReviewScreen = ({ navigation }) => {
       <View
         style={{
           backgroundColor: colors.darkener,
-          paddingHorizontal: 10,
           flex: 1
         }}
       >
-        <ScrollView style={styles.containerStyle}>
-          <ReviewHeader
-            date={review.data ? new Date(review.data.last_modified) : null}
-            content={content}
-            user={user}
-            rating={review.data.rating}
-            type={review.data.type}
-          ></ReviewHeader>
-          <View style={{ marginHorizontal: 5, marginTop: 10 }}>
-            <View style={{ flexDirection: "row" }}>
-              <LikeBox
-                onLike={() => {
-                  userLikes
-                    ? firestore.unLikeReview(review.id)
-                    : firestore.likeReview(review.id);
-                  userLikes = !userLikes;
-                }}
-                onPress={() =>
-                  navigation.push("List", {
-                    title: "Likes",
-                    fetchData: () =>
-                      firestore.batchAuthorRequest(review.data.likes),
-                    renderItem: ({ item }) => <UserListItem user={item.data} />,
-                    keyExtractor: item => item.id
-                  })
-                }
-                liked={userLikes}
-                numLikes={review ? review.data.likes.length : 0}
-              ></LikeBox>
-              <TextInput
-                style={{
-                  borderWidth: 1,
-                  flex: 1,
-                  alignSelf: "center",
-                  height: 50,
-                  marginLeft: 5,
-                  borderRadius: 10
-                }}
-                placeholder={"Comments go here"}
-              ></TextInput>
-            </View>
-            <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
-          </View>
-          <ModalReviewCard
-            showModal={showModal}
-            setShowModal={setShowModal}
-            review={review}
-            content={content}
-            onDelete={() => {
-              firestore.deleteReview(review.id);
-              setShowModal(false);
-              return navigation.pop();
-            }}
-          ></ModalReviewCard>
-        </ScrollView>
+        <CommentsSection
+          headerComponent={headerComponent}
+          comments={comments}
+          commentUsers={commentUsers}
+          currentUser={firestore.fetchCurrentUID()}
+          deleteComment={did =>
+            firestore.deleteComment(did).then(fetchComments())
+          }
+        ></CommentsSection>
       </View>
+      <ModalReviewCard
+        showModal={showModal}
+        setShowModal={setShowModal}
+        review={review}
+        content={content}
+        onDelete={() => {
+          firestore.deleteReview(review.id);
+          setShowModal(false);
+          return navigation.pop();
+        }}
+      ></ModalReviewCard>
     </ImageBackground>
   );
 };
@@ -131,12 +188,13 @@ const ReviewScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   reviewTextStyle: {
     color: colors.white,
-    fontSize: 24
+    fontSize: 20
   }
 });
 
 ReviewScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
+
   return {
     headerRight: () =>
       navigation.getParam("user").email === auth().currentUser.email ? (

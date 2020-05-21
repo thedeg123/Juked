@@ -9,7 +9,36 @@ class useFirestore {
     this.users_db = this.db.collection("users");
     this.content_db = this.db.collection("content");
     this.auth = firebase.auth();
+    this.comments_db = this.db.collection("comments");
   }
+
+  /**
+   * @argument {String} uid - the unique id of the author whos reviews we want to get
+   * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
+   */
+  async batchRequest(db, key, ids) {
+    const uids = [...new Set(ids)];
+    let ret = [];
+    for (let i = 0; i < uids.length; i += 10) {
+      await db
+        .where(
+          key || firebase.firestore.FieldPath.documentId(),
+          "in",
+          uids.slice(i, i + 10)
+        )
+        .get()
+        .then(res => {
+          res.forEach(r => {
+            return ret.push({ id: r.id, data: r.data() });
+          });
+        });
+    }
+    return ret;
+  }
+
+  // -----------------------------------------------------------------------------------------------------------
+  // Authentication relations
+
   /**
    * @argument {String} uid - the unique id of the author whos reviews we want to get
    * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
@@ -33,14 +62,10 @@ class useFirestore {
   async signout() {
     return await this.auth.signOut().catch(err => err.message);
   }
-  async getReviewsByAuthorContent(uid, content_id) {
-    return await this.reviews_db
-      .doc(content_id + uid)
-      .get()
-      .then(res => {
-        return { id: res.id, exists: res.exists, data: res.data() };
-      });
-  }
+
+  // -----------------------------------------------------------------------------------------------------------
+  // Content relations
+
   async getContentData(cid) {
     return await this.content_db
       .doc(cid)
@@ -55,22 +80,86 @@ class useFirestore {
             }
       );
   }
+
+  // -----------------------------------------------------------------------------------------------------------
+  // Like relations
+
   async likeReview(rid) {
     return await this.reviews_db.doc(rid).update({
+      popularity: firebase.firestore.FieldValue.increment(1),
+      num_likes: firebase.firestore.FieldValue.increment(1),
       likes: firebase.firestore.FieldValue.arrayUnion(this.fetchCurrentUID())
     });
   }
+
   async unLikeReview(rid) {
     return await this.reviews_db.doc(rid).update({
+      popularity: firebase.firestore.FieldValue.increment(-1),
+      num_likes: firebase.firestore.FieldValue.increment(-1),
       likes: firebase.firestore.FieldValue.arrayRemove(this.fetchCurrentUID())
     });
   }
+
+  // -----------------------------------------------------------------------------------------------------------
+  // Review relations
+
   async getReview(rid) {
     return await this.reviews_db
       .doc(rid)
       .get()
       .then(review => review.data());
   }
+  async addReview(cid, type, rating, text) {
+    return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
+      author: this.auth.currentUser.email,
+      content_id: cid,
+      last_modified: new Date().getTime(),
+      rating,
+      text,
+      type,
+      likes: [],
+      num_comments: 0,
+      num_likes: 0,
+      popularity: 0,
+      is_review: Boolean(text.length)
+    });
+  }
+  async updateReview(rid, cid, type, rating, text) {
+    let body = {};
+    typeof text == "string" ? (body["text"] = text) : null;
+    rating ? (body["rating"] = rating) : null;
+    body["is_review"] = text.length ? true : false;
+    body["last_modified"] = new Date().valueOf();
+    return this.reviews_db.doc(rid).update(body);
+  }
+
+  async deleteReview(rid) {
+    return await this.reviews_db.doc(rid).delete();
+  }
+  async getMostRecentReviews(limit) {
+    return await this.reviews_db
+      .orderBy("last_modified", "desc")
+      .limit(limit)
+      .get()
+      .then(content => {
+        let ret = [];
+        content.forEach(element =>
+          ret.push({ id: element.id, data: element.data() })
+        );
+        return ret;
+      });
+  }
+  async batchReviewRequest(cids) {
+    return await this.batchRequest(this.reviews_db, null, cids);
+  }
+  async batchGetReviewsByAuthorContent(uid, cids) {
+    return await this.batchRequest(
+      this.reviews_db.where("author", "==", uid),
+      "content_id",
+      cids
+    );
+  }
+
   async getReviewsByAuthor(uid, limit = 100) {
     let ret = [];
     return await this.reviews_db
@@ -83,12 +172,33 @@ class useFirestore {
         return ret;
       });
   }
-  async getReviewsByAuthorType(uid, types, limit = 100) {
-    let ret = [];
+
+  async getReviewsByAuthorContent(uid, content_id) {
     return await this.reviews_db
+      .doc(content_id + uid)
+      .get()
+      .then(res => {
+        return { id: res.id, exists: res.exists, data: res.data() };
+      });
+  }
+
+  /**
+   * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
+   * @argument {Array} types - an array of at least one "artist", "album", "track"
+   */
+  async getReviewsByAuthorType(uid, types, limit = 100, review_type) {
+    let ret = [];
+    let base = this.reviews_db
       .where("author", "==", uid)
       .orderBy("last_modified", "desc")
-      .where("type", "in", types)
+      .where("type", "in", types);
+
+    if (review_type === true) {
+      base = base.where("is_review", "==", true);
+    } else if (review_type === false) {
+      base = base.where("is_review", "==", false);
+    }
+    return base
       .limit(limit)
       .get()
       .then(res => {
@@ -97,11 +207,22 @@ class useFirestore {
       });
   }
 
-  async getReviewsByType(types, limit = 100) {
+  /**
+   * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
+   * @argument {Array} types - an array of at least one "artist", "album", "track"
+   */
+  async getReviewsByType(types, limit = 100, review_type) {
     let ret = [];
-    return await this.reviews_db
+    let base = this.reviews_db
       .orderBy("last_modified", "desc")
-      .where("type", "in", types)
+      .where("type", "in", types);
+
+    if (review_type === true) {
+      base = base.where("is_review", "==", true);
+    } else if (review_type === false) {
+      base = base.where("is_review", "==", false);
+    }
+    return await base
       .limit(limit)
       .get()
       .then(res => {
@@ -110,9 +231,9 @@ class useFirestore {
       });
   }
 
-  async deleteReview(rid) {
-    return await this.reviews_db.doc(rid).delete();
-  }
+  // -----------------------------------------------------------------------------------------------------------
+  // User relations
+
   async getUser(uid) {
     return await this.users_db
       .doc(uid)
@@ -137,74 +258,8 @@ class useFirestore {
     profile_url ? (body["profile_url"] = profile_url) : null;
     return await this.users_db.doc(this.auth.currentUser.email).update(body);
   }
-  async getMostRecentReviews(limit) {
-    return await this.reviews_db
-      .orderBy("last_modified", "desc")
-      .limit(limit)
-      .get()
-      .then(content => {
-        let ret = [];
-        content.forEach(element =>
-          ret.push({ id: element.id, data: element.data() })
-        );
-        return ret;
-      });
-  }
   async batchAuthorRequest(uids) {
     return await this.batchRequest(this.users_db, null, uids);
-  }
-  async batchReviewRequest(cids) {
-    return await this.batchRequest(this.reviews_db, null, cids);
-  }
-  async batchGetReviewsByAuthorContent(uid, cids) {
-    return await this.batchRequest(
-      this.reviews_db.where("author", "==", uid),
-      "content_id",
-      cids
-    );
-  }
-  /**
-   * @argument {String} uid - the unique id of the author whos reviews we want to get
-   * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
-   */
-  async batchRequest(db, key, ids) {
-    const uids = [...new Set(ids)];
-    let ret = [];
-    for (let i = 0; i < uids.length; i += 10) {
-      await db
-        .where(
-          key || firebase.firestore.FieldPath.documentId(),
-          "in",
-          uids.slice(i, i + 10)
-        )
-        .get()
-        .then(res => {
-          res.forEach(r => {
-            return ret.push({ id: r.id, data: r.data() });
-          });
-        });
-    }
-    return ret;
-  }
-  async addReview(cid, type, rating, text) {
-    return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
-      author: this.auth.currentUser.email,
-      content_id: cid,
-      last_modified: new Date().getTime(),
-      rating,
-      text,
-      type,
-      likes: [],
-      is_review: Boolean(text.length)
-    });
-  }
-  async updateReview(rid, cid, type, rating, text) {
-    let body = {};
-    typeof text == "string" ? (body["text"] = text) : null;
-    rating ? (body["rating"] = rating) : null;
-    body["is_review"] = text.length ? true : false;
-    body["last_modified"] = new Date().valueOf();
-    return this.reviews_db.doc(rid).update(body);
   }
   async searchUser(term) {
     return await this.users_db
@@ -218,6 +273,10 @@ class useFirestore {
         return ret;
       });
   }
+
+  // -----------------------------------------------------------------------------------------------------------
+  // Follow relations
+
   async followUser(uid) {
     return await this.follow_db.doc(this.auth.currentUser.email + uid).set({
       follower: this.auth.currentUser.email,
@@ -261,5 +320,46 @@ class useFirestore {
         return ret;
       });
   }
+
+  // -----------------------------------------------------------------------------------------------------------
+  // Comments relations
+  /**
+   * @argument {String} rid - the review id to get the comments for
+   * @return {Array<Object>} - Array of comment objects
+   */
+  async getComments(rid) {
+    return await this.comments_db
+      .where("review", "==", rid)
+      .orderBy("last_modified", "desc")
+      .get()
+      .then(res => {
+        let ret = [];
+        res.forEach(comment =>
+          ret.push({ id: comment.id, data: comment.data() })
+        );
+        return ret;
+      });
+  }
+  /**
+   * @argument {String} rid - the review id to get the comments for
+   * @argument {String} text - the text of the comment
+   */
+  async addComment(rid, text) {
+    console.log(rid, text, this.fetchCurrentUID());
+
+    return await this.comments_db.add({
+      author: this.fetchCurrentUID(),
+      review: rid,
+      last_modified: Date.now(),
+      text
+    });
+  }
+  /**
+   * @argument {String} did - the unique id of the comment to delete
+   */
+  async deleteComment(did) {
+    return await this.comments_db.doc(did).delete();
+  }
 }
+
 export default useFirestore;
