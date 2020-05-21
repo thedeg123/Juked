@@ -1,5 +1,12 @@
 import React, { useState, useContext, useEffect } from "react";
-import { View, Text, Image, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity
+} from "react-native";
 import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
@@ -11,6 +18,7 @@ import BarGraph from "../components/Graphs/BarGraph";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import ModalTrackCard from "../components/ModalCards/ModalTrackCard";
 import TextRatings from "../components/TextRatings";
+import ArtistNames from "../components/ArtistNames";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -26,6 +34,9 @@ const AlbumScreen = ({ navigation }) => {
   const [review, setReview] = useState("waiting");
   const [albumData, setAlbumData] = useState(null);
 
+  const [showHighlightedTrackCard, setShowHighlightedTrackCard] = useState(
+    navigation.getParam("highlighted")
+  );
   const [showReviewCard, setShowReviewCard] = useState(false);
   const [showTrackCard, setShowTrackCard] = useState(false);
   const [trackData, setTrackData] = useState(null);
@@ -77,7 +88,12 @@ const AlbumScreen = ({ navigation }) => {
         />
         <View style={{ alignItems: "center", width: "50%" }}>
           <Text style={styles.title}>{album.name}</Text>
-          <Text style={styles.text}>{album.artist_name}</Text>
+          <ArtistNames
+            horizontal={false}
+            artists={album.artists}
+            allowPress={true}
+            textStyle={styles.text}
+          ></ArtistNames>
           <Text style={styles.text}>{album.string_release_date}</Text>
         </View>
       </View>
@@ -89,10 +105,11 @@ const AlbumScreen = ({ navigation }) => {
     <View style={{ flex: 1 }}>
       <FlatList
         contentContainerStyle={{ paddingBottom: 85 }}
-        style={{ paddingHorizontal: 10 }}
+        style={{ flex: 1, paddingHorizontal: 10 }}
+        scrollIndicatorInsets={{ right: 1 }}
         data={album.tracks}
         keyExtracter={({ item }) => item.track_number}
-        renderItem={({ item, index }) => {
+        renderItem={({ item }) => {
           return (
             <View>
               <AlbumPreview
@@ -102,6 +119,7 @@ const AlbumScreen = ({ navigation }) => {
                   return setShowTrackCard(true);
                 }}
                 highlighted={highlighted == item.id}
+                showHighlightedTrackCard={showHighlightedTrackCard == item.id}
               />
             </View>
           );
@@ -125,6 +143,7 @@ const AlbumScreen = ({ navigation }) => {
         showModal={showTrackCard}
         setShowModal={setShowTrackCard}
         content={trackData}
+        setShowHighlightedTrackCard={setShowHighlightedTrackCard}
       ></ModalTrackCard>
     </View>
   );

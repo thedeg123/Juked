@@ -14,7 +14,6 @@ import LoadingIndicator from "../components/LoadingIndicator";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
-import ButtonList from "../components/ButtonList";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import TextRatings from "../components/TextRatings";
 
@@ -80,13 +79,7 @@ const ArtistScreen = ({ navigation }) => {
       <View style={{ marginHorizontal: 10 }}>
         <BarGraph data={contentData.rating_nums}></BarGraph>
       </View>
-      <View style={{ marginHorizontal: 5, marginVertical: 10 }}>
-        <ButtonList
-          user_num={contentData.number_ratings}
-          list_num={5}
-          review_num={contentData.number_reviews}
-        ></ButtonList>
-      </View>
+      <View style={{ marginHorizontal: 5, marginVertical: 10 }}></View>
       <TextRatings
         review={review}
         averageReview={contentData.avg}
@@ -101,6 +94,8 @@ const ArtistScreen = ({ navigation }) => {
       <FlatList
         contentContainerStyle={{ paddingBottom: 85 }}
         data={albums}
+        style={{ flex: 1 }}
+        scrollIndicatorInsets={{ right: 1 }}
         keyExtracter={({ item }) => item.id}
         renderItem={({ item }) => (
           <ArtistPreview content={item} navigation={navigation} />
