@@ -10,7 +10,7 @@ const ArtistPreview = ({ content, navigation }) => {
   return (
     <TouchableOpacity
       style={styles.containerStyle}
-      onPress={() => navigation.navigate("Album", { content_id: content.id })}
+      onPress={() => navigation.push("Album", { content_id: content.id })}
     >
       <Image style={styles.imageStyle} source={{ uri: content.image }} />
       <Text style={styles.textStyle} numberOfLines={1}>

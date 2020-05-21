@@ -14,8 +14,9 @@ export default simplifyContent = (content, type) => {
   switch (type) {
     case "track": {
       return {
-        artist_name: content.album.artists[0].name,
-        artist_id: content.album.artists[0].id,
+        artists: content.artists.map(artist => {
+          return { name: artist.name, id: artist.id };
+        }),
         album_name: content.album.name,
         album_id: content.album.id,
         image: content.album.images.length
@@ -40,8 +41,9 @@ export default simplifyContent = (content, type) => {
     }
     case "album": {
       return {
-        artist_name: content.artists[0].name,
-        artist_id: content.artists[0].id,
+        artists: content.artists.map(artist => {
+          return { name: artist.name, id: artist.id };
+        }),
         image: content.images.length
           ? content.images[0]["url"]
           : images.artistDefault,

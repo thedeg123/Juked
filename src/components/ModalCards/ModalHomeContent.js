@@ -18,7 +18,9 @@ const ModalReviewContent = ({
   onClose,
   following,
   userShow,
-  setUserShow
+  setUserShow,
+  ratingTypes,
+  setRatingTypes
 }) => {
   const [activeTrack, setActiveTrack] = useState(contentTypes.has("track"));
   const [activeAlbum, setActiveAlbum] = useState(contentTypes.has("album"));
@@ -38,6 +40,38 @@ const ModalReviewContent = ({
       </View>
       <Text style={styles.sectionTitle}>Filter</Text>
       <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
+        <TouchableOpacity
+          onPress={() => setRatingTypes(ratingTypes === true ? null : true)}
+          style={
+            ratingTypes === true
+              ? styles.deactivatedBorder
+              : styles.activatedBorder
+          }
+        >
+          <Text
+            style={
+              ratingTypes === true ? styles.deactiveText : styles.activeText
+            }
+          >
+            Ratings
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setRatingTypes(ratingTypes === false ? null : false)}
+          style={
+            ratingTypes === false
+              ? styles.deactivatedBorder
+              : styles.activatedBorder
+          }
+        >
+          <Text
+            style={
+              ratingTypes === false ? styles.deactiveText : styles.activeText
+            }
+          >
+            Reviews
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             updateContent("track");
@@ -101,41 +135,58 @@ const ModalReviewContent = ({
             All
           </Text>
         </TouchableOpacity>
-        <FlatList
-          data={following}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => {
-            return (
-              <TouchableOpacity
-                style={
-                  userShow === item.id
-                    ? styles.activatedUserItemStyle
-                    : styles.deactivatedUserItemStyle
-                }
-                onPress={() => setUserShow(userShow === item.id ? null : item)}
-              >
-                <Image
-                  style={styles.imageStyle}
-                  source={{
-                    uri: item.data.profile_url || images.profileDefault
-                  }}
-                ></Image>
-                <Text
-                  style={{
-                    marginTop: 5,
-                    fontSize: 16,
-                    color: colors.text,
-                    fontWeight: userShow === item.id ? "bold" : "normal"
-                  }}
+        {following.length ? (
+          <FlatList
+            data={following}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            renderItem={({ item }) => {
+              return (
+                <TouchableOpacity
+                  style={
+                    userShow === item.id
+                      ? styles.activatedUserItemStyle
+                      : styles.deactivatedUserItemStyle
+                  }
+                  onPress={() =>
+                    setUserShow(userShow === item.id ? null : item)
+                  }
                 >
-                  {item.data.handle}
-                </Text>
-              </TouchableOpacity>
-            );
-          }}
-          keyExtractor={item => item.id}
-        ></FlatList>
+                  <Image
+                    style={styles.imageStyle}
+                    source={{
+                      uri: item.data.profile_url || images.profileDefault
+                    }}
+                  ></Image>
+                  <Text
+                    style={{
+                      marginTop: 5,
+                      fontSize: 16,
+                      color: colors.text,
+                      fontWeight: userShow === item.id ? "bold" : "normal"
+                    }}
+                  >
+                    {item.data.handle}
+                  </Text>
+                </TouchableOpacity>
+              );
+            }}
+            keyExtractor={item => item.id}
+          ></FlatList>
+        ) : (
+          <View
+            style={{
+              justifyContent: "center",
+              flex: 1
+            }}
+          >
+            <Text
+              style={{ fontSize: 16, color: colors.text, textAlign: "center" }}
+            >
+              Follow users to filter by friends.
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -164,6 +215,10 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
     borderRadius: 5,
     borderColor: colors.heat
+  },
+  ratingNumber: {
+    fontSize: 20,
+    color: colors.primary
   },
   imageStyle: {
     marginTop: 5,

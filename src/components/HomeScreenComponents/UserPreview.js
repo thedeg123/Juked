@@ -4,14 +4,23 @@ import colors from "../../constants/colors";
 import images from "../../constants/images";
 import { withNavigation } from "react-navigation";
 
-const UserPreview = ({ navigation, img, username, uid, size, color }) => {
+const UserPreview = ({
+  navigation,
+  img,
+  username,
+  uid,
+  size,
+  color,
+  containerStyle
+}) => {
+  containerStyle = containerStyle || {};
   size = size || 40;
   const fontSize = size * 0.3;
   color = color || colors.white;
   img = img || images.profileDefault; //becuase we cant set a default val from another file
   return (
     <TouchableOpacity
-      style={styles.containerStyle}
+      style={{ ...styles.containerStyle, ...containerStyle }}
       onPress={() => {
         navigation.navigate("Profile", { uid });
       }}

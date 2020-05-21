@@ -1,16 +1,10 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ImageBackground,
-  TouchableOpacity
-} from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import colors from "../../constants/colors";
 import navigateContent from "../../helpers/navigateContent";
 import { withNavigation } from "react-navigation";
 import UserPreview from "../HomeScreenComponents/UserPreview";
+import ArtistNames from "../ArtistNames";
 
 const ReviewHeader = ({ navigation, date, content, user, rating, type }) => {
   return (
@@ -37,16 +31,12 @@ const ReviewHeader = ({ navigation, date, content, user, rating, type }) => {
           </Text>
           <Text style={styles.subheaderText}>{content.album_name}</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() =>
-            navigateContent(navigation, null, null, null, {
-              type: "artist",
-              id: content.artist_id
-            })
-          }
-        >
-          <Text style={styles.subheaderText}>{content.artist_name}</Text>
-        </TouchableOpacity>
+        <ArtistNames
+          artists={content.artists}
+          allowPress={true}
+          horizontal={false}
+          textStyle={styles.subheaderText}
+        ></ArtistNames>
         <Text style={styles.dateText}>
           Reviewed on{" "}
           {`${date.toLocaleString("default", {
@@ -69,6 +59,7 @@ const ReviewHeader = ({ navigation, date, content, user, rating, type }) => {
 
 const styles = StyleSheet.create({
   child: {
+    marginHorizontal: 5,
     marginTop: 10,
     flexDirection: "row",
     justifyContent: "space-between",

@@ -25,8 +25,7 @@ const styles = StyleSheet.create({
   containerStyle: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    width: 90
+    justifyContent: "space-between"
   },
   iconStyle: {
     alignSelf: "center",
@@ -34,8 +33,8 @@ const styles = StyleSheet.create({
   },
   textStyle: {
     alignSelf: "center",
-    fontSize: 20,
-    marginLeft: 5,
+    fontSize: 18,
+    marginHorizontal: 5,
     color: colors.white
   }
 });

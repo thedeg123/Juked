@@ -11,7 +11,7 @@ const ModalWrapper = ({
   swipeDirection = ["up", "down"]
 }) => {
   return (
-    <View style={{ flex: 1 }}>
+    <View>
       <Modal
         backdropOpacity={0.8}
         propagateSwipe={true}

@@ -2,14 +2,25 @@ import React from "react";
 import ModalWrapper from "./ModalWrapper";
 import ModalTrackContent from "./ModalTrackContent";
 
-const ModalTrackCard = ({ showModal, setShowModal, content }) => {
+const ModalTrackCard = ({
+  showModal,
+  setShowModal,
+  content,
+  setShowHighlightedTrackCard
+}) => {
   return (
     <ModalWrapper
       isVisible={showModal}
-      onSwipeComplete={() => setShowModal(false)}
+      onSwipeComplete={() => {
+        setShowHighlightedTrackCard(null);
+        setShowModal(false);
+      }}
     >
       <ModalTrackContent
-        onClose={() => setShowModal(false)}
+        onClose={() => {
+          setShowHighlightedTrackCard(null);
+          setShowModal(false);
+        }}
         content={content}
       ></ModalTrackContent>
     </ModalWrapper>

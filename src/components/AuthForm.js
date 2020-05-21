@@ -30,7 +30,7 @@ const AuthForm = ({
         selectionColor={colors.white}
         labelStyle={{ color: colors.white }}
         autoCorrect={false}
-        onEndEditing={() => passwordRef.current.focus()}
+        onSubmitEditing={() => passwordRef.current.focus()}
       ></Input>
       <View style={styles.verticalSpacerStyle}></View>
       <Input
@@ -46,7 +46,7 @@ const AuthForm = ({
         onChangeText={setPassword}
         autoCapitalize="none"
         autoCorrect={false}
-        onEndEditing={() =>
+        onSubmitEditing={() =>
           confirmPassword ? confirmPasswordRef.current.focus() : null
         }
       ></Input>

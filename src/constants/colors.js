@@ -10,7 +10,9 @@ export default {
   textLight: "#37373b",
   errorText: "#9a3732",
   translucentWhite: "rgba(255,255,255,0.95)",
+  veryTranslucentWhite: "rgba(255,255,255,0.6)",
   darkener: "rgba(0,0,0,0.15)",
   cardColor: "rgba(255,255,255,0.85)",
-  white: "#FFF"
+  white: "#FFF",
+  lightShadow: "#CCC"
 };

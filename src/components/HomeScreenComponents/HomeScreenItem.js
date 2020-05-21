@@ -8,7 +8,6 @@ import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
 
 const HomeScreenItem = ({ review, content, author }) => {
-  console.log(review);
   return (
     <>
       <HomeScreenBorder content={content} review={review} author={author}>
@@ -20,7 +19,7 @@ const HomeScreenItem = ({ review, content, author }) => {
           ></ContentPic>
           <ContentTitle
             header={content.name}
-            subheader={content.artist_name}
+            subheader={content.artists}
             date={new Date(review.data.last_modified)}
             review={review.data.is_review}
             type={review.data.type}

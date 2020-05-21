@@ -30,34 +30,28 @@ exports.Onfollow = functions.firestore
     var batch = firestore.batch();
     const newFollow = snap.data();
     const refFollowing = firestore.collection("users").doc(newFollow.following);
-    const dataFollowing = await refFollowing.get().then(res => res.data());
     const refFollower = firestore.collection("users").doc(newFollow.follower);
-    const dataFollower = await refFollower.get().then(res => res.data());
     batch.update(refFollowing, {
-      num_follower: dataFollowing.num_follower + 1 || 1
+      num_follower: admin.firestore.FieldValue.increment(1)
     });
     batch.update(refFollower, {
-      num_following: dataFollower.num_following + 1 || 1
+      num_following: admin.firestore.FieldValue.increment(1)
     });
     return batch.commit();
   });
 
-exports.OnUnfollow = functions.firestore
+exports.Onunfollow = functions.firestore
   .document("follow/{fid}")
-  .onDelete(async (snap, context) => {
+  .onCreate(async (snap, context) => {
     var batch = firestore.batch();
-    const newUnfollow = snap.data();
-    const refFollowing = firestore
-      .collection("users")
-      .doc(newUnfollow.following);
-    const dataFollowing = await refFollowing.get().then(res => res.data());
-    const refFollower = firestore.collection("users").doc(newUnfollow.follower);
-    const dataFollower = await refFollower.get().then(res => res.data());
+    const delFollow = snap.data();
+    const refFollowing = firestore.collection("users").doc(delFollow.following);
+    const refFollower = firestore.collection("users").doc(delFollow.follower);
     batch.update(refFollowing, {
-      num_follower: dataFollowing.num_follower - 1 || 0
+      num_follower: admin.firestore.FieldValue.increment(-1)
     });
     batch.update(refFollower, {
-      num_following: dataFollower.num_following - 1 || 0
+      num_following: admin.firestore.FieldValue.increment(-1)
     });
     return batch.commit();
   });
@@ -71,13 +65,14 @@ exports.updateContent = functions.firestore
     if (refContent.exists) {
       const content = refContent.data();
       const number_ratings = content.number_ratings + 1;
-      const number_reviews = content.number_reviews + Number(content.is_review);
       const sum_reviews = content.sum_reviews + newReview.rating;
       const rating_nums = content.rating_nums;
       rating_nums[Number(newReview.rating)] += 1;
       ref.update({
-        number_ratings,
-        number_reviews,
+        number_ratings: number_ratings,
+        number_reviews: admin.firestore.FieldValue.increment(
+          Number(newReview.is_review)
+        ),
         sum_reviews,
         avg: sum_reviews / number_ratings || 0,
         rating_nums
@@ -121,9 +116,10 @@ exports.updateContentOnEdit = functions.firestore
       Number(newReview.is_review);
     const sum_reviews =
       content.sum_reviews + newReview.rating - oldReview.rating;
+    //updating review popularity score
     ref.update({
       sum_reviews,
-      number_reviews,
+      number_reviews: number_reviews || 0,
       avg: sum_reviews / content.number_ratings || 0,
       rating_nums
     });
@@ -153,7 +149,7 @@ exports.updateContentOnDelete = functions.firestore
     ref.update({
       sum_reviews,
       number_ratings,
-      number_reviews,
+      number_reviews: number_reviews || 0,
       avg: sum_reviews / number_ratings || 0,
       rating_nums
     });
@@ -163,9 +159,44 @@ exports.updateContentOnDelete = functions.firestore
     //TODO: DELETE OR CASE ON LAUNCH
     const review_data = userContent.review_data || new Array(11).fill(0);
     review_data[Number(delReview.rating)] -= 1;
-    return user.update({
+    user.update({
       review_data
     });
+    return await firestore
+      .collection("comments")
+      .where("review", "==", snap.id)
+      .get()
+      .then(res => {
+        var batch = firestore.batch();
+        res.forEach(doc => batch.delete(doc.ref));
+        return batch.commit();
+      });
+  });
+
+exports.updateReviewOnAddComment = functions.firestore
+  .document("comments/{did}")
+  .onCreate(async (snap, context) => {
+    const newComment = snap.data();
+    const ref = await firestore.collection("reviews").doc(newComment.review);
+    ref.update({
+      num_comments: admin.firestore.FieldValue.increment(1),
+      popularity: admin.firestore.FieldValue.increment(1)
+    });
+  });
+
+//delete all comments when review is deleted
+
+exports.updateReviewOnDeleteComment = functions.firestore
+  .document("comments/{did}")
+  .onDelete(async (snap, context) => {
+    const delComment = snap.data();
+    const ref = await firestore.collection("reviews").doc(delComment.review);
+    const refExists = await ref.get().then(res => res.exists);
+    if (refExists)
+      ref.update({
+        num_comments: admin.firestore.FieldValue.increment(-1),
+        popularity: admin.firestore.FieldValue.increment(-1)
+      });
   });
 
 /**

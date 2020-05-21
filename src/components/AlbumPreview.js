@@ -12,7 +12,13 @@ import colors from "../constants/colors";
  * @param {Object} navigation - navigation objected passed from screen
  * @param {boolean} highlighted - this song will be highlighted or not
  */
-const AlbumPreview = ({ content, showTrackCard, highlighted }) => {
+const AlbumPreview = ({
+  content,
+  showTrackCard,
+  highlighted,
+  showHighlightedTrackCard
+}) => {
+  if (showHighlightedTrackCard) showTrackCard();
   return (
     <View style={{ flexDirection: "row" }}>
       <Text style={styles.track_numberStyle}>{content.track_number}</Text>
@@ -33,21 +39,21 @@ const AlbumPreview = ({ content, showTrackCard, highlighted }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    marginVertical: 5,
+    marginVertical: 2,
     borderRadius: 2,
     padding: 10,
     flexDirection: "row",
     alignItems: "center",
     height: 50,
     flex: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.shadow
+    borderTopWidth: 0.5,
+    borderTopColor: colors.lightShadow
   },
   track_numberStyle: {
     alignSelf: "center",
     fontSize: 20,
     color: colors.shadow,
-    fontWeight: "bold",
+    fontWeight: "300",
     marginRight: 5
   },
   iconStyle: {
