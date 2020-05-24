@@ -56,13 +56,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderRadius: 5,
-    backgroundColor: colors.secondary,
     height: 125,
     paddingTop: 5,
     paddingHorizontal: 10
   },
   textStyle: {
-    color: colors.white,
+    color: colors.secondary,
     fontSize: 24
   }
 });

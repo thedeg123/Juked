@@ -3,11 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
-  FlatList,
-  ImageBackground
+  ImageBackground,
+  ScrollView
 } from "react-native";
-import ArtistPreview from "../components/ArtistPreview";
 import Container from "../components/Container";
 import colors from "../constants/colors";
 import LoadingIndicator from "../components/LoadingIndicator";
@@ -16,94 +14,132 @@ import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import TextRatings from "../components/TextRatings";
+import ReviewSection from "../components/ReviewSection";
+import RecordRow from "../components/RecordRow";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
   if (!content_id) console.error("ArtistScreen must be called with content_id");
 
-  const [albums, setAlbums] = useState(null);
+  const [albums, setAlbums] = useState({
+    album: [],
+    single: [],
+    compilation: []
+  });
   const [artist, setArtist] = useState(null);
 
   // data from review database
   const [review, setReview] = useState("waiting");
-  const [avg_rating, setAvg_rating] = useState(null);
+  const [reviews, setReviews] = useState("waiting");
+  const [authors, setAuthors] = useState("waiting");
   const { firestore, useMusic } = useContext(context);
   const email = firestore.fetchCurrentUID();
   const [contentData, setContentData] = useState(null);
-
+  let temp_rev = null;
   const [showModal, setShowModal] = useState(false);
 
-  const getReview = () => {
-    firestore
+  const getReview = async () => {
+    temp_rev = await firestore
       .getReviewsByAuthorContent(email, content_id)
-      .then(review => setReview(review.exists ? review : null));
-    firestore.getContentData(content_id).then(res => setContentData(res));
+      .then(review => (review.exists ? review : null));
+    return setReview(temp_rev);
   };
 
-  const init = () => {
+  const getReviews = async () => {
+    const reviews = await firestore.getMostPopularReviewsByType(content_id);
+    const author_ids = temp_rev
+      ? [...reviews.map(r => r.data.author), temp_rev.data.author]
+      : reviews.map(r => r.data.author);
+    const authors = await firestore.batchAuthorRequest(author_ids).then(res => {
+      let ret = {};
+      res.forEach(r => (ret[r.id] = r.data));
+      return ret;
+    });
+    setAuthors(authors);
+    return setReviews(reviews);
+  };
+
+  const init = async () => {
+    const newAlbums = {
+      album: [],
+      single: [],
+      compilation: []
+    };
     navigation.setParams({ setShowModal });
     // init and get all data needed via ap
     useMusic.findArtist(content_id).then(artist => setArtist(artist));
-    useMusic.findAlbumsOfAnArtist(content_id).then(albums => setAlbums(albums));
-    getReview();
+    firestore.getContentData(content_id).then(res => setContentData(res));
+    useMusic
+      .findAlbumsOfAnArtist(content_id)
+      .then(res => res.forEach(a => newAlbums[a.album_type].push(a)));
+    setAlbums(newAlbums);
+    await getReview();
+    return getReviews();
   };
 
   useEffect(() => {
     init();
-    const listener = navigation.addListener("didFocus", () => getReview()); //any time we return to this screen we do another fetch
+    const listener = navigation.addListener("didFocus", async () =>
+      getReview()
+    );
     return () => {
       listener.remove();
     };
   }, []);
 
-  if (!artist || review === "waiting" || !contentData)
+  if (
+    !artist ||
+    review === "waiting" ||
+    reviews === "waiting" ||
+    authors === "waiting" ||
+    !contentData
+  )
     return (
       <Container>
         <LoadingIndicator></LoadingIndicator>
       </Container>
     );
 
-  // render header information component
-  const headerComponent = (
-    <View>
-      <View>
-        <ImageBackground
-          source={{ uri: artist.image }}
-          style={styles.imageBackgroundStyle}
-          resizeMode="repeat"
-        >
-          <Text style={styles.title}>{artist.name}</Text>
-        </ImageBackground>
-      </View>
+  return (
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingBottom: 85 }}
+      scrollIndicatorInsets={{ right: 1 }}
+    >
+      <ImageBackground
+        source={{ uri: artist.image }}
+        style={styles.imageBackgroundStyle}
+        resizeMode="repeat"
+      >
+        <Text style={styles.title}>{artist.name}</Text>
+      </ImageBackground>
       <Text style={styles.sectionStyle}>Reviews</Text>
       <View style={{ marginHorizontal: 10 }}>
         <BarGraph data={contentData.rating_nums}></BarGraph>
       </View>
-      <View style={{ marginHorizontal: 5, marginVertical: 10 }}></View>
+      <View style={{ marginHorizontal: 5, marginBottom: 10 }}></View>
       <TextRatings
         review={review}
         averageReview={contentData.avg}
       ></TextRatings>
-      <Text style={styles.sectionStyle}>Albums</Text>
-    </View>
-  );
-
-  // render main component
-  return (
-    <View style={{ flex: 1 }}>
-      <FlatList
-        contentContainerStyle={{ paddingBottom: 85 }}
-        data={albums}
-        style={{ flex: 1 }}
-        scrollIndicatorInsets={{ right: 1 }}
-        keyExtracter={({ item }) => item.id}
-        renderItem={({ item }) => (
-          <ArtistPreview content={item} navigation={navigation} />
-        )}
-        columnWrapperStyle={styles.column}
-        numColumns={2}
-        ListHeaderComponent={headerComponent}
-      />
+      <ReviewSection
+        content={artist}
+        review={review}
+        reviews={reviews}
+        authors={authors}
+      ></ReviewSection>
+      {albums["album"] ? (
+        <RecordRow title="Albums" data={albums["album"]}></RecordRow>
+      ) : null}
+      {albums["single"] ? (
+        <RecordRow title="Singles" data={albums["single"]}></RecordRow>
+      ) : null}
+      {albums["compilation"] ? (
+        <RecordRow
+          title="Compilations"
+          data={albums["compilation"]}
+        ></RecordRow>
+      ) : null}
       <ModalReviewCard
         showModal={showModal}
         setShowModal={v => setShowModal(v)}
@@ -116,7 +152,7 @@ const ArtistScreen = ({ navigation }) => {
           return getReview();
         }}
       ></ModalReviewCard>
-    </View>
+    </ScrollView>
   );
 };
 

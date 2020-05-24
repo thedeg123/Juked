@@ -5,7 +5,13 @@ import colors from "../constants/colors";
 
 const TextRatings = ({ review, averageReview }) => {
   return (
-    <View style={{ flexDirection: "row", alignSelf: "center" }}>
+    <View
+      style={{
+        flexDirection: "row",
+        alignSelf: "stretch",
+        justifyContent: "space-evenly"
+      }}
+    >
       {review ? (
         <Text style={styles.subtitle}>
           Your rating:{" "}
@@ -24,13 +30,15 @@ const TextRatings = ({ review, averageReview }) => {
 
 const styles = StyleSheet.create({
   rating: {
-    color: colors.primary,
-    fontWeight: "bold"
+    justifyContent: "center",
+    alignSelf: "center",
+    color: colors.secondary
   },
   subtitle: {
     fontSize: 20,
     color: colors.text,
-    padding: 10
+    marginVertical: 5,
+    fontWeight: "400"
   }
 });
 

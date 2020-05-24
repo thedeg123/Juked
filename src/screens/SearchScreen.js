@@ -9,7 +9,6 @@ import colors from "../constants/colors";
 const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
   const [searchType, setSearchType] = useState("track");
-  const [Tab1, Tab2, Tab3, Tab4] = ["Songs", "Albums", "Artists", "Users"];
   const [users, setUsers] = useState(null);
   const [search, setSearch] = useState(null);
   const [keyboardIsActive, setKeyboardIsActive] = useState(false);
@@ -30,13 +29,14 @@ const SearchScreen = ({ navigation }) => {
     };
   }, []);
 
-  const searchForTerm = async term => {
+  const searchForTerm = async (term, type) => {
     if (term.length) {
-      searchType === "user"
+      type === "user"
         ? firestore.searchUser(term).then(myUsers => setUsers(myUsers))
-        : setSearch(await useMusic.searchAPI(term, searchType));
+        : setSearch(await useMusic.searchAPI(term, type));
     } else {
       setSearch(null);
+      setUsers(null);
     }
   };
 
@@ -48,36 +48,26 @@ const SearchScreen = ({ navigation }) => {
           onTermChange={new_term => {
             setTerm(new_term);
             waitTime ? clearTimeout(waitTime) : null;
-            setWaitTime(setTimeout(() => searchForTerm(new_term), 500));
+            setWaitTime(
+              setTimeout(() => searchForTerm(new_term, searchType), 500)
+            );
           }}
           onTermSubmit={async new_term => {
             setTerm(new_term);
-            searchForTerm(new_term);
+            waitTime ? clearTimeout(waitTime) : null;
+            searchForTerm(new_term, searchType);
           }}
-          setSearchType={setSearchType}
           keyboardIsActive={keyboardIsActive}
         />
         {keyboardIsActive || term.length ? (
           <SearchStyle
-            options={[Tab1, Tab2, Tab3, Tab4]}
-            searchType={searchType}
-            setSearchType={setSearchType}
-            onChangeButton={async newType => {
-              if (newType !== searchType) {
-                setSearch(null);
-                setSearchType(newType);
-                if (term !== "") {
-                  if (newType === "user") {
-                    firestore.searchUser(term).then(myUsers => {
-                      setUsers(myUsers);
-                    });
-                  } else {
-                    setSearch(await useMusic.searchAPI(term, newType));
-                  }
-                }
-              }
+            onPress={new_type => {
+              setSearchType(new_type);
+              waitTime ? clearTimeout(waitTime) : null;
+              searchForTerm(term, new_type);
             }}
-          />
+            searchType={searchType}
+          ></SearchStyle>
         ) : null}
       </View>
       {search && search.length === 0 && term.length !== 0 ? (
@@ -89,9 +79,9 @@ const SearchScreen = ({ navigation }) => {
             {term}"
           </Text>
         </View>
-      ) : (
+      ) : keyboardIsActive || users || search ? (
         <ResultsList users={users} searchType={searchType} search={search} />
-      )}
+      ) : null}
     </View>
   );
 };

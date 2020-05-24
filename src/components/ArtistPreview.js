@@ -1,12 +1,13 @@
 import React from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import colors from "../constants/colors";
+import { withNavigation } from "react-navigation";
 /**
  * ListPreview Component for ListScreen
  * @param {string} result album object from spotify API
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ArtistPreview = ({ content, navigation }) => {
+const ArtistPreview = ({ navigation, content }) => {
   return (
     <TouchableOpacity
       style={styles.containerStyle}
@@ -23,9 +24,8 @@ const ArtistPreview = ({ content, navigation }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    flexDirection: "column",
     alignItems: "center",
-    width: "100%",
+    marginHorizontal: 10,
     marginBottom: 5
   },
   spacingStyle: {
@@ -33,9 +33,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   imageStyle: {
-    width: "85%",
+    width: "100%",
     aspectRatio: 1,
-    borderRadius: 3
+    borderWidth: 1,
+    borderColor: colors.lightShadow,
+    borderRadius: 5
   },
   textStyle: {
     fontSize: 16,
@@ -49,4 +51,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ArtistPreview;
+export default withNavigation(ArtistPreview);

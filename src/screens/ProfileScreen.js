@@ -12,7 +12,7 @@ import { AntDesign } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { auth } from "firebase";
 import Container from "../components/Container";
-import UserPreview from "../components/UserPreview";
+import UserListItem from "../components/UserPreview";
 import ListPreview from "../components/ListPreview";
 import context from "../context/context";
 import images from "../constants/images";
@@ -22,6 +22,7 @@ import BarGraph from "../components/Graphs/BarGraph";
 import firebase from "firebase";
 import "firebase/firestore";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
+import UserPreview from "../components/HomeScreenComponents/UserPreview";
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, useMusic } = useContext(context);
@@ -36,10 +37,10 @@ const UserProfileScreen = ({ navigation }) => {
   let remover = null;
 
   const updateFollow = async () => {
-    await firestore
+    firestore
       .followingRelationExists(uid, firestore.fetchCurrentUID())
       .then(res => setFollowsYou(res));
-    return await firestore
+    return firestore
       .followingRelationExists(firestore.fetchCurrentUID(), uid)
       .then(res => setUserFollowing(res));
   };
@@ -83,7 +84,7 @@ const UserProfileScreen = ({ navigation }) => {
     navigation.push("List", {
       title,
       fetchData: () => firestore.batchAuthorRequest(follow),
-      renderItem: ({ item }) => <UserPreview user={item.data} />,
+      renderItem: ({ item }) => <UserListItem user={item.data} />,
       keyExtractor: item => item.id
     });
   const navigateContent = (title, types) => {
@@ -147,15 +148,15 @@ const UserProfileScreen = ({ navigation }) => {
         }
       >
         <View style={styles.headerContainer}>
-          <View>
-            <Image
-              source={{
-                uri: user.profile_url || images.profileDefault
-              }}
-              style={styles.imageStyle}
-            />
-            <Text style={styles.handleStyle}>@{user.handle}</Text>
-          </View>
+          <UserPreview
+            img={user.profile_url || images.profileDefault}
+            username={user.handle}
+            containerStyle={styles.imageStyle}
+            size={125}
+            color={colors.text}
+            fontScaler={0.2}
+            allowPress={false}
+          ></UserPreview>
           <View style={styles.followContainer}>
             {userFollowing ? (
               <FollowButton
@@ -287,7 +288,6 @@ const styles = StyleSheet.create({
   },
   imageStyle: {
     aspectRatio: 1,
-    width: 125,
     alignSelf: "center",
     borderRadius: 5,
     borderWidth: 1,

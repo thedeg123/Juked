@@ -50,7 +50,7 @@ let boxStyle = {
   alignSelf: "stretch",
   marginTop: 10,
   borderWidth: 1,
-  borderColor: colors.shadow
+  borderColor: colors.lightShadow
 };
 const styles = StyleSheet.create({
   withTitle: {

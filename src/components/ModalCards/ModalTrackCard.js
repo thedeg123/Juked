@@ -21,6 +21,7 @@ const ModalTrackCard = ({
           setShowHighlightedTrackCard(null);
           setShowModal(false);
         }}
+        onFinish={() => setisFinished(true)}
         content={content}
       ></ModalTrackContent>
     </ModalWrapper>

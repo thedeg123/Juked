@@ -26,8 +26,8 @@ const BarItem = ({ value, width, height, total_height, label, setNum }) => {
           style={{
             width,
             height,
-            backgroundColor: activated ? colors.white : colors.white,
-            opacity: activated ? 0.95 : 0.3,
+            backgroundColor: colors.secondary,
+            opacity: activated ? 1 : 0.4,
             marginHorizontal: 1,
             borderTopLeftRadius: 5,
             borderTopRightRadius: 5
@@ -37,8 +37,9 @@ const BarItem = ({ value, width, height, total_height, label, setNum }) => {
       <Text
         style={{
           textAlign: "center",
-          fontWeight: activated ? "bold" : "normal",
-          color: colors.text
+          fontWeight: activated ? "bold" : "300",
+          color: colors.text,
+          fontSize: 15
         }}
       >
         {label}

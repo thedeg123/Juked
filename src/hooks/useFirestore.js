@@ -182,6 +182,20 @@ class useFirestore {
       });
   }
 
+  async getMostPopularReviewsByType(content_id, limit = 3) {
+    let ret = [];
+    return await this.reviews_db
+      .where("content_id", "==", content_id)
+      .where("is_review", "==", true)
+      .orderBy("popularity", "desc")
+      .limit(limit)
+      .get()
+      .then(res => {
+        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
+        return ret;
+      });
+  }
+
   /**
    * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
    * @argument {Array} types - an array of at least one "artist", "album", "track"

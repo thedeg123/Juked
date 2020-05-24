@@ -5,48 +5,35 @@ import UserPreview from "./UserPreview";
 import colors from "../constants/colors";
 
 const ResultsList = ({ users, searchType, search }) => {
-  if (search === null && searchType !== "user") {
-    return <View></View>;
-  } else {
-    switch (searchType) {
-      case "track":
-      case "album":
-      case "artist":
-        return (
-          <View
-            style={{
-              flex: 1,
-              marginTop: 10,
-              borderTopWidth: 0.5,
-              borderColor: colors.lightShadow
-            }}
-          >
-            <FlatList
-              contentContainerStyle={{ paddingBottom: 85 }}
-              keyboardDismissMode="on-drag"
-              data={search}
-              keyExtractor={searchItem => searchItem.id}
-              renderItem={({ item }) => (
-                <SearchPreview type={searchType} object={item} cid={item.id} />
-              )}
-            />
-          </View>
-        );
-      case "user":
-        return (
-          <View style={{ flex: 1 }}>
-            <FlatList
-              contentContainerStyle={{ paddingBottom: 85 }}
-              data={users}
-              keyExtractor={user => user.handle + user.created}
-              renderItem={({ item }) => <UserPreview user={item} />}
-            />
-          </View>
-        );
-      default:
-        return null;
-    }
-  }
+  return (
+    <View
+      style={{
+        flex: 1,
+        marginTop: 10,
+        borderTopWidth: 0.5,
+        borderColor: colors.lightShadow
+      }}
+    >
+      {searchType === "user" ? (
+        <FlatList
+          contentContainerStyle={{ paddingBottom: 85 }}
+          data={users}
+          keyExtractor={user => user.handle + user.created}
+          renderItem={({ item }) => <UserPreview user={item} />}
+        />
+      ) : !search && !users ? null : (
+        <FlatList
+          contentContainerStyle={{ paddingBottom: 85 }}
+          keyboardDismissMode="on-drag"
+          data={search}
+          keyExtractor={searchItem => searchItem.id}
+          renderItem={({ item }) => (
+            <SearchPreview type={searchType} object={item} cid={item.id} />
+          )}
+        />
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({});

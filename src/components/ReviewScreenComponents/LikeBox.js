@@ -9,7 +9,7 @@ const LikeBox = ({ onLike, liked, numLikes, onPress }) => {
         <Ionicons
           style={styles.iconStyle}
           name={liked ? "md-heart" : "md-heart-empty"}
-          color={liked ? colors.heat : colors.text}
+          color={liked ? colors.heat : colors.veryTranslucentWhite}
         />
       </TouchableOpacity>
       <TouchableOpacity disabled={!numLikes} onPress={onPress}>

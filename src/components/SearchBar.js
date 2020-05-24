@@ -9,13 +9,7 @@ import {
 import { AntDesign, Octicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 
-const SearchBar = ({
-  term,
-  onTermChange,
-  onTermSubmit,
-  setSearchType,
-  keyboardIsActive
-}) => {
+const SearchBar = ({ term, onTermChange, onTermSubmit, keyboardIsActive }) => {
   const [cancel, setCancel] = useState(false);
 
   const inputRef = useRef(null);
@@ -60,7 +54,6 @@ const SearchBar = ({
           onPress={() => {
             inputRef.current.blur();
             onTermSubmit("");
-            setSearchType("track");
             return setCancel(false);
           }}
         >

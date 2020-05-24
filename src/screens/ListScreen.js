@@ -3,12 +3,10 @@ import { View, Text, StyleSheet, FlatList } from "react-native";
 import ScrollViewPadding from "../components/ScrollViewPadding";
 
 const ListScreen = ({ navigation }) => {
-  const title = navigation.getParam("title"); // name of page
   const fetchData = navigation.getParam("fetchData");
   const renderItem = navigation.getParam("renderItem");
   const keyExtractor = navigation.getParam("keyExtractor");
   const [data, setData] = useState(null);
-  const headerComponent = () => <Text style={styles.headerStyle}>{title}</Text>;
   useEffect(() => {
     fetchData().then(data => setData(data));
   }, []);

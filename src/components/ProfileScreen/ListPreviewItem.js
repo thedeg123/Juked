@@ -37,7 +37,7 @@ const ProfileListItem = ({ navigation, content, review, width, user }) => {
           <ContentPic img={content.image} width={100}></ContentPic>
           <View style={styles.rightContent}>
             <Text style={styles.textStyle}>{review.data.rating}</Text>
-            {review.data.title ? (
+            {review.data.is_review ? (
               <Entypo
                 name="text"
                 style={styles.textStyle}

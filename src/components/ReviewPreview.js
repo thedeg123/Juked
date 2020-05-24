@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import UserPreview from "./HomeScreenComponents/UserPreview";
 import colors from "../constants/colors";
+import { withNavigation } from "react-navigation";
+
 /**
  * ReviewPreview Component for ListScreen
  * @param {string} title - title of this artist, album or song
@@ -9,28 +11,65 @@ import colors from "../constants/colors";
  * @param {string} rid - unique review identifier assigned by database
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ReviewPreview = ({ title, rating, rid, navigation }) => {
+const ReviewPreview = ({
+  navigation,
+  review,
+  author,
+  content,
+  onPress,
+  style
+}) => {
+  if (!author) return null;
+  style = style || {};
   return (
-    <View style={styles.overallStyle}>
-      <Text style={styles.textStyle}>{title}</Text>
-      <Text style={styles.scoreStyle}>{rating}</Text>
-      <TouchableOpacity onPress={() => navigation.navigate("Review", { rid })}>
-        <Feather name="message-square" style={styles.iconStyle} />
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity
+      style={[styles.container, style]}
+      onPress={async () => {
+        onPress();
+        return navigation.push("Review", {
+          review,
+          user: author,
+          content
+        });
+      }}
+    >
+      <View
+        style={{
+          marginRight: 5
+        }}
+      >
+        <UserPreview
+          img={author.profile_url}
+          username={author.handle}
+          uid={author.id}
+          size={25}
+          color={colors.text}
+          fontScaler={0.5}
+        ></UserPreview>
+
+        <Text
+          style={{
+            fontSize: 20,
+            color: colors.primary,
+            textAlign: "center"
+          }}
+        >
+          {review.data.rating}
+        </Text>
+      </View>
+      <Text numberOfLines={3} style={styles.textStyle}>
+        {review.data.text}
+      </Text>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  overallStyle: {
-    marginVertical: 10,
-    padding: 10,
+  container: {
+    marginHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
-    height: 50,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.shadow
+    justifyContent: "space-between"
   },
   iconStyle: {
     fontSize: 20,
@@ -38,9 +77,9 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 25,
-    color: colors.text,
-    flex: 1
+    fontSize: 14,
+    flex: 1,
+    color: colors.text
   },
   scoreStyle: {
     fontSize: 30,
@@ -49,4 +88,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ReviewPreview;
+export default withNavigation(ReviewPreview);

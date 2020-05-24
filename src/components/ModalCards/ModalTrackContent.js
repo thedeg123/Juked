@@ -1,28 +1,65 @@
 import React, { useEffect, useState, useContext } from "react";
-import { StyleSheet, Button, Text, View } from "react-native";
 import context from "../../context/context";
+import { StyleSheet, Button, Text, View } from "react-native";
 import { withNavigation } from "react-navigation";
 import colors from "../../constants/colors";
 import BarGraph from "../Graphs/BarGraph";
 import TextRatings from "../TextRatings";
+import ReviewSection from "../ReviewSection";
+import LoadingIndicator from "../LoadingIndicator";
 
-const ModalTrackContent = ({ navigation, onClose, content }) => {
+const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
   const { firestore } = useContext(context);
   const [contentData, setContentData] = useState(null);
   const [review, setReview] = useState("waiting");
+  const [reviews, setReviews] = useState("waiting");
+  const [authors, setAuthors] = useState("waiting");
+  let temp_rev = null;
 
-  const init = () => {
+  const getReview = async () => {
+    temp_rev = await firestore
+      .getReviewsByAuthorContent(firestore.fetchCurrentUID(), content.id)
+      .then(review => (review.exists ? review : null));
+    return setReview(temp_rev);
+  };
+
+  const getReviews = async () => {
+    const reviews = await firestore.getMostPopularReviewsByType(content.id);
+    const author_ids = temp_rev
+      ? [...reviews.map(r => r.data.author), temp_rev.data.author]
+      : reviews.map(r => r.data.author);
+    const authors = await firestore.batchAuthorRequest(author_ids).then(res => {
+      let ret = {};
+      res.forEach(r => (ret[r.id] = r.data));
+      return ret;
+    });
+    setAuthors(authors);
+    return setReviews(reviews);
+  };
+
+  const init = async () => {
     firestore.getContentData(content.id).then(v => setContentData(v));
     firestore
       .getReviewsByAuthorContent(firestore.fetchCurrentUID(), content.id)
       .then(r => setReview(r.exists ? r : null));
+    await getReview();
+    return await getReviews();
   };
 
   useEffect(() => {
-    init();
-    const listener = navigation.addListener("didFocus", () => init()); //any time we return to this screen we do another fetch
-    return () => listener.remove();
+    init().then(onLoad);
   }, []);
+  if (review === "waiting" || reviews === "waiting" || authors === "waiting") {
+    return (
+      <View style={{ alignSelf: "stretch" }}>
+        <Text style={styles.contentTitle}>{content.name}</Text>
+        <View style={{ padding: 60, backgroundColor: colors.translucentWhite }}>
+          <LoadingIndicator></LoadingIndicator>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.card}>
       <Text style={styles.contentTitle}>{content.name}</Text>
@@ -32,7 +69,7 @@ const ModalTrackContent = ({ navigation, onClose, content }) => {
           <Button
             onPress={() => {
               onClose();
-              navigation.navigate("WriteReview", {
+              navigation.push("WriteReview", {
                 content,
                 review
               });
@@ -48,6 +85,13 @@ const ModalTrackContent = ({ navigation, onClose, content }) => {
             review={review}
             averageReview={contentData ? contentData.avg : 0}
           ></TextRatings>
+          <ReviewSection
+            review={review}
+            reviews={reviews}
+            authors={authors}
+            content={content}
+            onPress={onClose}
+          ></ReviewSection>
         </View>
       </View>
     </View>
@@ -72,6 +116,8 @@ const styles = StyleSheet.create({
   },
   contentTitle: {
     fontSize: 25,
+    textAlign: "center",
+    marginHorizontal: 10,
     color: colors.primary,
     fontWeight: "bold",
     marginBottom: 10

@@ -31,11 +31,13 @@ export default simplifyContent = (content, type) => {
     }
     case "track_album": {
       return {
-        artist_name: content.artists[0].name,
-        artist_id: content.artists[0].id,
+        artists: content.artists.map(artist => {
+          return { name: artist.name, id: artist.id };
+        }),
         name: content.name,
         id: content.id,
         track_number: content.track_number,
+        image: content.image,
         type: "track"
       };
     }
@@ -51,9 +53,18 @@ export default simplifyContent = (content, type) => {
         release_date: content.release_date,
         string_release_date: toStringDate(content.release_date),
         id: content.id,
+        album_type: content.album_type,
         tracks: content.tracks
           ? content.tracks.items.map(track =>
-              simplifyContent(track, "track_album")
+              simplifyContent(
+                {
+                  ...track,
+                  image: content.images.length
+                    ? content.images[0]["url"]
+                    : images.artistDefault
+                },
+                "track_album"
+              )
             )
           : null,
         type: "album"

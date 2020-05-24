@@ -15,19 +15,23 @@ import colors from "../constants/colors";
 const AlbumPreview = ({
   content,
   showTrackCard,
+  disabled,
   highlighted,
   showHighlightedTrackCard
 }) => {
-  if (showHighlightedTrackCard) showTrackCard();
+  if (showHighlightedTrackCard && !disabled) showTrackCard();
   return (
-    <View style={{ flexDirection: "row" }}>
+    <View style={{ flexDirection: "row", marginHorizontal: 10 }}>
       <Text style={styles.track_numberStyle}>{content.track_number}</Text>
       <TouchableOpacity
+        disabled={disabled}
         onPress={showTrackCard}
-        style={{
-          ...styles.containerStyle,
-          backgroundColor: highlighted ? colors.highlight : colors.background
-        }}
+        style={[
+          styles.containerStyle,
+          {
+            backgroundColor: highlighted ? colors.highlight : colors.background
+          }
+        ]}
       >
         <Text style={styles.textStyle} numberOfLines={1}>
           {content.name}
@@ -41,7 +45,7 @@ const styles = StyleSheet.create({
   containerStyle: {
     marginVertical: 2,
     borderRadius: 2,
-    padding: 10,
+    padding: 5,
     flexDirection: "row",
     alignItems: "center",
     height: 50,
@@ -62,7 +66,7 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 20,
+    fontSize: 18,
     color: colors.text,
     flex: 1
   },

@@ -24,9 +24,9 @@ const HomeScreen = ({ navigation }) => {
   // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
   // groupby type theta join type==content_id on (select * from Music)) natural join Users;
   // except harder bc Music is from a different dbs ;)
-  const fetchFollowing = async () =>
+  const fetchFollowing = () =>
     setFollowing(
-      await firestore
+      firestore
         .getFollowing(firestore.fetchCurrentUID())
         .then(res => firestore.batchAuthorRequest(res))
     );
@@ -58,19 +58,22 @@ const HomeScreen = ({ navigation }) => {
         .then(result => result.forEach(el => (temp_content[el.id] = el)));
     }
     setContent(temp_content);
-    setAuthors(
-      await firestore
-        .batchAuthorRequest(reviews.map(review => review.data.author))
-        .then(res => {
-          let ret = {};
-          res.forEach(r => (ret[r.id] = r.data));
-          return ret;
-        })
-    );
+
+    firestore
+      .batchAuthorRequest([
+        ...new Set(reviews.map(review => review.data.author))
+      ])
+      .then(res => {
+        let ret = {};
+        res.forEach(r => (ret[r.id] = r.data));
+        return ret;
+      })
+      .then(res => setAuthors(res));
     return setReviews(
       reviews.sort((a, b) => b.last_modified - a.last_modified)
     );
   };
+
   useEffect(() => {
     navigation.setParams({ setShowModal });
     fetchFollowing();
@@ -127,7 +130,6 @@ const HomeScreen = ({ navigation }) => {
     </View>
   );
 };
-
 HomeScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
   const handle = navigation.getParam("userStream");

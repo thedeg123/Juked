@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, Image } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Image } from "react-native";
 import colors from "../../constants/colors";
 import images from "../../constants/images";
 import { withNavigation } from "react-navigation";
@@ -11,31 +11,43 @@ const UserPreview = ({
   uid,
   size,
   color,
-  containerStyle
+  containerStyle,
+  fontScaler,
+  allowPress
 }) => {
   containerStyle = containerStyle || {};
+  fontScaler = fontScaler || 0.3;
   size = size || 40;
-  const fontSize = size * 0.3;
+  allowPress = typeof allowPress === "boolean" ? allowPress : true;
+  const fontSize = size * fontScaler;
   color = color || colors.white;
   img = img || images.profileDefault; //becuase we cant set a default val from another file
   return (
     <TouchableOpacity
-      style={{ ...styles.containerStyle, ...containerStyle }}
+      style={[styles.containerStyle, containerStyle]}
+      disabled={!allowPress}
       onPress={() => {
-        navigation.navigate("Profile", { uid });
+        navigation.push("Profile", { uid });
       }}
     >
       <Image
         style={{
           width: size,
           aspectRatio: 1,
-          borderColor: colors.shadow,
-          borderWidth: 1,
-          borderRadius: 5
+          borderColor: colors.lightShadow,
+          borderWidth: 1.4 * (1 - fontScaler),
+          alignSelf: "center",
+          borderRadius: 7 * (1 - fontScaler)
         }}
         source={{ uri: img }}
       ></Image>
-      <Text style={{ marginVertical: 1, color, fontSize }}>{username}</Text>
+      <View style={{ alignSelf: "stretch" }}>
+        <Text
+          style={{ marginVertical: 1, color, fontSize, textAlign: "center" }}
+        >
+          {username}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 };

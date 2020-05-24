@@ -19,6 +19,7 @@ import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import ModalTrackCard from "../components/ModalCards/ModalTrackCard";
 import TextRatings from "../components/TextRatings";
 import ArtistNames from "../components/ArtistNames";
+import ReviewSection from "../components/ReviewSection";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -33,6 +34,8 @@ const AlbumScreen = ({ navigation }) => {
   // data from review database
   const [review, setReview] = useState("waiting");
   const [albumData, setAlbumData] = useState(null);
+  const [reviews, setReviews] = useState("waiting");
+  const [authors, setAuthors] = useState("waiting");
 
   const [showHighlightedTrackCard, setShowHighlightedTrackCard] = useState(
     navigation.getParam("highlighted")
@@ -40,80 +43,126 @@ const AlbumScreen = ({ navigation }) => {
   const [showReviewCard, setShowReviewCard] = useState(false);
   const [showTrackCard, setShowTrackCard] = useState(false);
   const [trackData, setTrackData] = useState(null);
+
+  let temp_rev = null;
+
   // initialization
 
-  const updateReview = () => {
-    firestore
+  const getReview = async () => {
+    temp_rev = await firestore
       .getReviewsByAuthorContent(email, content_id)
-      .then(res => setReview(res.exists ? res : null));
-    firestore.getContentData(content_id).then(res => setAlbumData(res));
+      .then(review => (review.exists ? review : null));
+    return setReview(temp_rev);
   };
+
+  const getReviews = async () => {
+    const reviews = await firestore.getMostPopularReviewsByType(content_id);
+    const author_ids = temp_rev
+      ? [...reviews.map(r => r.data.author), temp_rev.data.author]
+      : reviews.map(r => r.data.author);
+    const authors = await firestore.batchAuthorRequest(author_ids).then(res => {
+      let ret = {};
+      res.forEach(r => (ret[r.id] = r.data));
+      return ret;
+    });
+    setAuthors(authors);
+    return setReviews(reviews);
+  };
+
   const init = async () => {
     navigation.setParams({ setShowModal: setShowReviewCard });
     //getting album rating
+    firestore.getContentData(content_id).then(res => setAlbumData(res));
     useMusic.findAlbum(content_id).then(async album => setAlbum(album));
-    updateReview();
+    await getReview();
+    return getReviews();
   };
 
   useEffect(() => {
     init();
-    const listener = navigation.addListener("didFocus", () => updateReview()); //any time we return to this screen we do another fetch
+    const listener = navigation.addListener("didFocus", () => getReview()); //any time we return to this screen we do another fetch
     return () => {
       listener.remove();
     };
   }, []);
   // wait until get data from all APIs
-  if (!album || review === "waiting" || !albumData)
+  if (
+    !album ||
+    review === "waiting" ||
+    reviews === "waiting" ||
+    authors === "waiting" ||
+    !albumData
+  )
     return (
       <Container style={styles.container}>
         <LoadingIndicator></LoadingIndicator>
       </Container>
     );
   const headerComponent = (
-    <View style={styles.headerContainer}>
-      <View
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
-        <Image
+    <View style={{ flex: 1 }}>
+      <View style={styles.headerContainer}>
+        <View
           style={{
-            width: "50%",
-            aspectRatio: 1,
-            borderRadius: 5,
-            borderWidth: 0.5,
-            borderColor: colors.shadow
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 20,
+            marginHorizontal: 10
           }}
-          source={{
-            uri: album.image
-          }}
-        />
-        <View style={{ alignItems: "center", width: "50%" }}>
-          <Text style={styles.title}>{album.name}</Text>
-          <ArtistNames
-            horizontal={false}
-            artists={album.artists}
-            allowPress={true}
-            textStyle={styles.text}
-          ></ArtistNames>
-          <Text style={styles.text}>{album.string_release_date}</Text>
+        >
+          <Image
+            style={{
+              width: "50%",
+              aspectRatio: 1,
+              borderRadius: 5,
+              borderWidth: 1,
+              borderColor: colors.lightShadow
+            }}
+            source={{
+              uri: album.image
+            }}
+          />
+          <View style={{ alignItems: "center", width: "50%" }}>
+            <Text style={styles.title}>{album.name}</Text>
+            <ArtistNames
+              horizontal={false}
+              artists={album.artists}
+              allowPress={true}
+              textStyle={styles.text}
+            ></ArtistNames>
+            <Text style={styles.text}>{album.string_release_date}</Text>
+          </View>
+        </View>
+        <View style={{ marginHorizontal: 10 }}>
+          <BarGraph data={albumData.rating_nums}></BarGraph>
+          <TextRatings
+            review={review}
+            averageReview={albumData.avg}
+          ></TextRatings>
         </View>
       </View>
-      <BarGraph data={albumData.rating_nums}></BarGraph>
-      <TextRatings review={review} averageReview={albumData.avg}></TextRatings>
+      <ReviewSection
+        content={album}
+        review={review}
+        reviews={reviews}
+        authors={authors}
+      ></ReviewSection>
     </View>
   );
   return (
     <View style={{ flex: 1 }}>
       <FlatList
-        contentContainerStyle={{ paddingBottom: 85 }}
-        style={{ flex: 1, paddingHorizontal: 10 }}
+        contentContainerStyle={{
+          paddingBottom: 85
+        }}
         scrollIndicatorInsets={{ right: 1 }}
         data={album.tracks}
-        keyExtracter={({ item }) => item.track_number}
+        keyExtracter={({ item }) => String(item.track_number)}
         renderItem={({ item }) => {
           return (
             <View>
               <AlbumPreview
                 content={item}
+                disabled={album.tracks.length === 1}
                 showTrackCard={() => {
                   setTrackData(item);
                   return setShowTrackCard(true);
@@ -125,7 +174,9 @@ const AlbumScreen = ({ navigation }) => {
           );
         }}
         ListHeaderComponent={headerComponent}
-        ListHeaderComponentStyle={{ alignItems: "center" }}
+        ListHeaderComponentStyle={{
+          alignItems: "center"
+        }}
       />
       <ModalReviewCard
         showModal={showReviewCard}
@@ -136,7 +187,7 @@ const AlbumScreen = ({ navigation }) => {
         onDelete={() => {
           firestore.deleteReview(review.id);
           setShowReviewCard(false);
-          return updateReview();
+          return getReview();
         }}
       ></ModalReviewCard>
       <ModalTrackCard

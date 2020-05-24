@@ -51,7 +51,11 @@ const CommentBar = ({ keyboardIsActive, submitComment }) => {
           return setComment("");
         }}
       >
-        <MaterialCommunityIcons name="send" size={24} color={colors.white} />
+        <MaterialCommunityIcons
+          name="send"
+          size={24}
+          color={colors.veryTranslucentWhite}
+        />
       </TouchableOpacity>
     </View>
   );
