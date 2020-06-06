@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   ratingText: {
-    color: colors.primary,
+    color: colors.veryTranslucentWhite,
     alignSelf: "flex-end",
     fontSize: 100
   },

@@ -101,8 +101,7 @@ const CommentSection = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    flex: 1,
-    borderWidth: 1
+    flex: 1
   },
   itemWrapper: {
     borderBottomWidth: 1,

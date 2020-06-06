@@ -7,11 +7,13 @@ import BarGraph from "../Graphs/BarGraph";
 import TextRatings from "../TextRatings";
 import ReviewSection from "../ReviewSection";
 import LoadingIndicator from "../LoadingIndicator";
+import TopBar from "./TopBar";
 
 const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
   const { firestore } = useContext(context);
   const [contentData, setContentData] = useState(null);
   const [review, setReview] = useState("waiting");
+  const [author, setAuthor] = useState("waiting");
   const [reviews, setReviews] = useState("waiting");
   const [authors, setAuthors] = useState("waiting");
   let temp_rev = null;
@@ -20,11 +22,15 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
     temp_rev = await firestore
       .getReviewsByAuthorContent(firestore.fetchCurrentUID(), content.id)
       .then(review => (review.exists ? review : null));
+    if (temp_rev)
+      firestore.getUser(temp_rev.data.author).then(res => setAuthor(res));
     return setReview(temp_rev);
   };
 
   const getReviews = async () => {
-    const reviews = await firestore.getMostPopularReviewsByType(content.id);
+    const reviews = await firestore
+      .getMostPopularReviewsByType(content.id)
+      .then(res => res[0]);
     const author_ids = temp_rev
       ? [...reviews.map(r => r.data.author), temp_rev.data.author]
       : reviews.map(r => r.data.author);
@@ -64,8 +70,8 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
     <View style={styles.card}>
       <Text style={styles.contentTitle}>{content.name}</Text>
       <View style={styles.content}>
-        <View style={styles.buttonWrapper}>
-          <Button onPress={onClose} title="Done" />
+        <TopBar onClose={onClose} link={content.url}></TopBar>
+        <View style={{ alignSelf: "flex-end", marginRight: 5 }}>
           <Button
             onPress={() => {
               onClose();
@@ -88,6 +94,7 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
           <ReviewSection
             review={review}
             reviews={reviews}
+            author={author}
             authors={authors}
             content={content}
             onPress={onClose}
@@ -100,10 +107,9 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: 5,
     backgroundColor: colors.cardColor,
     paddingBottom: 50,
-    paddingHorizontal: 10,
+
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "stretch",
@@ -121,11 +127,6 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: "bold",
     marginBottom: 10
-  },
-  buttonWrapper: {
-    alignSelf: "stretch",
-    justifyContent: "space-between",
-    flexDirection: "row"
   }
 });
 

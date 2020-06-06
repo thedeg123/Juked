@@ -19,6 +19,7 @@ const HomeScreenBorder = ({
   return (
     <TouchableOpacity
       style={styles.shadowEdge}
+      activeOpacity={0.8}
       onPress={() =>
         navigateContent(
           navigation,
@@ -49,7 +50,7 @@ let boxStyle = {
   overflow: "hidden",
   alignSelf: "stretch",
   marginTop: 10,
-  borderWidth: 1,
+  borderWidth: 0.5,
   borderColor: colors.lightShadow
 };
 const styles = StyleSheet.create({

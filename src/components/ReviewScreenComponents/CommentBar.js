@@ -20,7 +20,9 @@ const CommentBar = ({ keyboardIsActive, submitComment }) => {
           fontSize: 18,
           padding: 10,
           paddingTop: 10, //you need both for the placeholder text
-          borderColor: keyboardIsActive ? colors.primary : colors.white
+          borderColor: keyboardIsActive
+            ? colors.primary
+            : colors.veryTranslucentWhite
         }}
         onContentSizeChange={e => {
           if (e.nativeEvent.contentSize.height > rawHeight) {

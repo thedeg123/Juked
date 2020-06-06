@@ -117,11 +117,12 @@ const ReviewScreen = ({ navigation }) => {
           )}
           <CommentBar
             keyboardIsActive={keyboardIsActive}
-            submitComment={comment =>
+            submitComment={comment => {
+              Keyboard.dismiss();
               firestore
                 .addComment(review.id, comment)
-                .then(() => fetchComments())
-            }
+                .then(() => fetchComments());
+            }}
           ></CommentBar>
         </View>
         <View style={{ marginVertical: 15 }}>

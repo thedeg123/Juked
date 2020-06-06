@@ -11,7 +11,6 @@ import colors from "../constants/colors";
 
 const SearchBar = ({ term, onTermChange, onTermSubmit, keyboardIsActive }) => {
   const [cancel, setCancel] = useState(false);
-
   const inputRef = useRef(null);
   return (
     <View style={styles.wrapper}>

@@ -1,6 +1,3 @@
-import { useState } from "react";
-const { config } = require("../api/musicConfig");
-import { Buffer } from "buffer";
 import axios from "axios";
 import firebase from "firebase";
 import "firebase/firestore";
@@ -28,6 +25,10 @@ export default class useMusic {
       .get()
       .then(doc => doc.data());
     return this.token;
+  }
+
+  disconnect() {
+    return this.remover ? this.remover() : null;
   }
   /**
    * @async

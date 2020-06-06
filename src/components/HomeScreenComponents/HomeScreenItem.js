@@ -30,7 +30,10 @@ const HomeScreenItem = ({ review, content, author }) => {
               img={author.profile_url}
               uid={review.data.author}
             ></UserPreview>
-            <Rating number={review.data.rating}></Rating>
+            <Rating
+              number={review.data.rating}
+              size={review.data.is_review ? 50 : 40}
+            ></Rating>
           </View>
         </View>
         {review.data.is_review ? (

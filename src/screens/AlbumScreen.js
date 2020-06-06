@@ -33,6 +33,7 @@ const AlbumScreen = ({ navigation }) => {
 
   // data from review database
   const [review, setReview] = useState("waiting");
+  const [author, setAuthor] = useState("waiting");
   const [albumData, setAlbumData] = useState(null);
   const [reviews, setReviews] = useState("waiting");
   const [authors, setAuthors] = useState("waiting");
@@ -52,14 +53,16 @@ const AlbumScreen = ({ navigation }) => {
     temp_rev = await firestore
       .getReviewsByAuthorContent(email, content_id)
       .then(review => (review.exists ? review : null));
+    if (temp_rev)
+      firestore.getUser(temp_rev.data.author).then(res => setAuthor(res));
     return setReview(temp_rev);
   };
 
   const getReviews = async () => {
-    const reviews = await firestore.getMostPopularReviewsByType(content_id);
-    const author_ids = temp_rev
-      ? [...reviews.map(r => r.data.author), temp_rev.data.author]
-      : reviews.map(r => r.data.author);
+    const reviews = await firestore
+      .getMostPopularReviewsByType(content_id)
+      .then(res => res[0]);
+    const author_ids = reviews.map(r => r.data.author);
     const authors = await firestore.batchAuthorRequest(author_ids).then(res => {
       let ret = {};
       res.forEach(r => (ret[r.id] = r.data));
@@ -82,17 +85,12 @@ const AlbumScreen = ({ navigation }) => {
     init();
     const listener = navigation.addListener("didFocus", () => getReview()); //any time we return to this screen we do another fetch
     return () => {
+      setShowHighlightedTrackCard(false);
       listener.remove();
     };
   }, []);
   // wait until get data from all APIs
-  if (
-    !album ||
-    review === "waiting" ||
-    reviews === "waiting" ||
-    authors === "waiting" ||
-    !albumData
-  )
+  if (!album || review === "waiting" || !albumData)
     return (
       <Container style={styles.container}>
         <LoadingIndicator></LoadingIndicator>
@@ -114,7 +112,7 @@ const AlbumScreen = ({ navigation }) => {
               width: "50%",
               aspectRatio: 1,
               borderRadius: 5,
-              borderWidth: 1,
+              borderWidth: 0.5,
               borderColor: colors.lightShadow
             }}
             source={{
@@ -143,6 +141,7 @@ const AlbumScreen = ({ navigation }) => {
       <ReviewSection
         content={album}
         review={review}
+        author={author}
         reviews={reviews}
         authors={authors}
       ></ReviewSection>

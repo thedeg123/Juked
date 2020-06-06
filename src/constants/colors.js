@@ -14,5 +14,7 @@ export default {
   darkener: "rgba(0,0,0,0.15)",
   cardColor: "rgba(255,255,255,0.85)",
   white: "#FFF",
+  spotifyBackground: "rgb(24,20,20)",
+  spotifyText: "rgb(101,211,110)",
   lightShadow: "#CCC"
 };

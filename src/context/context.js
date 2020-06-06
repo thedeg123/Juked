@@ -9,7 +9,11 @@ export const Provider = ({ children }) => {
     firestore: new useFiresore(),
     useMusic: new useMusic()
   };
-  return <context.Provider value={dbs}>{children}</context.Provider>;
+  return (
+    <context.Provider value={{ ...dbs, disconnect: dbs.useMusic.disconnect }}>
+      {children}
+    </context.Provider>
+  );
 };
 
 export default context;

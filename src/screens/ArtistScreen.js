@@ -31,6 +31,7 @@ const ArtistScreen = ({ navigation }) => {
   // data from review database
   const [review, setReview] = useState("waiting");
   const [reviews, setReviews] = useState("waiting");
+  const [author, setAuthor] = useState("waiting");
   const [authors, setAuthors] = useState("waiting");
   const { firestore, useMusic } = useContext(context);
   const email = firestore.fetchCurrentUID();
@@ -42,11 +43,15 @@ const ArtistScreen = ({ navigation }) => {
     temp_rev = await firestore
       .getReviewsByAuthorContent(email, content_id)
       .then(review => (review.exists ? review : null));
+    if (temp_rev)
+      firestore.getUser(temp_rev.data.author).then(res => setAuthor(res));
     return setReview(temp_rev);
   };
 
   const getReviews = async () => {
-    const reviews = await firestore.getMostPopularReviewsByType(content_id);
+    const reviews = await firestore
+      .getMostPopularReviewsByType(content_id)
+      .then(res => res[0]);
     const author_ids = temp_rev
       ? [...reviews.map(r => r.data.author), temp_rev.data.author]
       : reviews.map(r => r.data.author);
@@ -87,13 +92,7 @@ const ArtistScreen = ({ navigation }) => {
     };
   }, []);
 
-  if (
-    !artist ||
-    review === "waiting" ||
-    reviews === "waiting" ||
-    authors === "waiting" ||
-    !contentData
-  )
+  if (!artist || review === "waiting" || !contentData)
     return (
       <Container>
         <LoadingIndicator></LoadingIndicator>
@@ -125,16 +124,17 @@ const ArtistScreen = ({ navigation }) => {
       <ReviewSection
         content={artist}
         review={review}
+        author={author}
         reviews={reviews}
         authors={authors}
       ></ReviewSection>
-      {albums["album"] ? (
+      {albums["album"].length ? (
         <RecordRow title="Albums" data={albums["album"]}></RecordRow>
       ) : null}
-      {albums["single"] ? (
+      {albums["single"].length ? (
         <RecordRow title="Singles" data={albums["single"]}></RecordRow>
       ) : null}
-      {albums["compilation"] ? (
+      {albums["compilation"].length ? (
         <RecordRow
           title="Compilations"
           data={albums["compilation"]}

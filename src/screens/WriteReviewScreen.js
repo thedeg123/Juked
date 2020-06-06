@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   Keyboard,
   Dimensions,
+  ImageBackground,
   KeyboardAvoidingView,
   TouchableWithoutFeedback
 } from "react-native";
 import colors from "../constants/colors";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import context from "../context/context";
+import ArtistNames from "../components/ArtistNames";
 
 /**
  *
@@ -37,80 +39,114 @@ const WriteReviewScreen = ({ navigation }) => {
     return console.error("Should be passed content but was passed:", content);
   }
   return (
-    <TouchableWithoutFeedback style={{ flex: 1 }} onPress={Keyboard.dismiss}>
-      <KeyboardAvoidingView
-        behavior="position"
-        keyboardVerticalOffset={Dimensions.get("window").height * 0.098}
-        contentContainerStyle={{ margin: 10 }}
+    <ImageBackground
+      style={{ flex: 1 }}
+      blurRadius={70}
+      source={{ uri: content.image }}
+    >
+      <View
+        style={{
+          backgroundColor: colors.darkener,
+          flex: 1
+        }}
       >
-        <View style={styles.headerStyle}>
-          <View style={styles.headerTextContainerStyle}>
-            <Text style={styles.headerText}>{content.name}</Text>
-            <Text style={styles.subheaderText}>{content.artist_name}</Text>
-          </View>
-        </View>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.ratingStyle}>{rating}</Text>
-          <View style={styles.sliderStyle}>
-            <MultiSlider
-              values={rating}
-              onValuesChange={setRating}
-              snapped
-              min={0}
-              max={10}
-              step={1}
-              selectedStyle={{ backgroundColor: colors.secondary, height: 5 }}
-              sliderLength={250}
-            ></MultiSlider>
-          </View>
-        </View>
-        <TextInput
-          value={text}
-          onChangeText={setText}
-          multiline
-          style={{
-            ...styles.reviewTextStyle,
-            height: Dimensions.get("window").height * 0.24
-          }}
-        ></TextInput>
-
-        <TouchableOpacity
-          style={{
-            alignSelf: "center",
-            marginTop: 10,
-            padding: 10,
-            paddingHorizontal: 20,
-            backgroundColor: colors.primary,
-            borderRadius: 5
-          }}
-          onPress={() => {
-            review
-              ? firestore.updateReview(
-                  review.id,
-                  review.data.content_id,
-                  review.data.content_type,
-                  rating[0],
-                  text
-                )
-              : firestore.addReview(content.id, content.type, rating[0], text);
-            return navigation.pop();
-          }}
+        <TouchableWithoutFeedback
+          style={{ flex: 1 }}
+          onPress={Keyboard.dismiss}
         >
-          <Text
-            style={{ fontWeight: "bold", color: colors.white, fontSize: 18 }}
+          <KeyboardAvoidingView
+            behavior="position"
+            keyboardVerticalOffset={Dimensions.get("window").height * 0.098}
+            contentContainerStyle={{ margin: 10 }}
           >
-            {review ? "Update" : "Add"}
-          </Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+            <View style={styles.headerStyle}>
+              <View style={styles.headerTextContainerStyle}>
+                <Text style={styles.headerText}>{content.name}</Text>
+                <ArtistNames
+                  artists={content.artists}
+                  allowPress={false}
+                  textStyle={styles.subheaderText}
+                ></ArtistNames>
+              </View>
+            </View>
+            <View style={styles.ratingContainer}>
+              <Text style={styles.ratingStyle}>{rating}</Text>
+              <View style={styles.sliderStyle}>
+                <MultiSlider
+                  values={rating}
+                  onValuesChange={setRating}
+                  snapped
+                  min={0}
+                  max={10}
+                  step={1}
+                  unselectedStyle={{
+                    backgroundColor: colors.veryTranslucentWhite
+                  }}
+                  selectedStyle={{
+                    backgroundColor: colors.secondary,
+                    height: 5
+                  }}
+                  sliderLength={250}
+                ></MultiSlider>
+              </View>
+            </View>
+            <TextInput
+              value={text}
+              scrollEnabled
+              onChangeText={setText}
+              multiline
+              style={{
+                ...styles.reviewTextStyle,
+                height: Dimensions.get("window").height * 0.24
+              }}
+            ></TextInput>
+
+            <TouchableOpacity
+              style={{
+                alignSelf: "center",
+                marginTop: 10,
+                padding: 10,
+                paddingHorizontal: 20,
+                backgroundColor: colors.primary,
+                borderRadius: 5
+              }}
+              onPress={() => {
+                review
+                  ? firestore.updateReview(
+                      review.id,
+                      review.data.content_id,
+                      review.data.content_type,
+                      rating[0],
+                      text
+                    )
+                  : firestore.addReview(
+                      content.id,
+                      content.type,
+                      rating[0],
+                      text
+                    );
+                return navigation.pop();
+              }}
+            >
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  color: colors.white,
+                  fontSize: 18
+                }}
+              >
+                {review ? "Update" : "Add"}
+              </Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   headerStyle: {
-    borderBottomColor: colors.shadow,
-    borderWidth: 1,
     flexDirection: "row",
     justifyContent: "space-between"
   },
@@ -125,7 +161,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   headerText: {
-    color: colors.text,
+    color: colors.white,
     fontWeight: "bold",
     fontSize: 30
   },
@@ -135,7 +171,7 @@ const styles = StyleSheet.create({
     flexDirection: "row"
   },
   ratingStyle: {
-    color: colors.primary,
+    color: colors.veryTranslucentWhite,
     fontSize: 80
   },
   sliderStyle: {
@@ -144,8 +180,9 @@ const styles = StyleSheet.create({
     alignSelf: "center"
   },
   subheaderText: {
-    color: colors.text,
-    fontSize: 28
+    marginTop: 5,
+    color: colors.white,
+    fontSize: 22
   },
   dateText: {
     color: colors.text,
@@ -153,9 +190,12 @@ const styles = StyleSheet.create({
     textAlign: "right"
   },
   reviewTextStyle: {
-    borderWidth: 1,
-    color: colors.text,
-    fontSize: 18
+    color: colors.white,
+    padding: 10,
+    borderRadius: 5,
+    borderColor: colors.veryTranslucentWhite,
+    borderWidth: 3,
+    fontSize: 20
   }
 });
 

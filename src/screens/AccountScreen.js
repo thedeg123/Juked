@@ -3,17 +3,11 @@ import { View, Text, StyleSheet, Button } from "react-native";
 import context from "../context/context";
 
 const AccountScreen = ({ navigation }) => {
-  const { firestore } = useContext(context);
+  const { firestore, disconnect } = useContext(context);
   const [error, setError] = useState(null);
   return (
     <View>
       <Text>AccountScreen</Text>
-      <Button
-        title="Sign out"
-        onPress={() =>
-          firestore.signout().then(err => (err ? setError(error) : null))
-        }
-      ></Button>
       <Text>{error}</Text>
     </View>
   );

@@ -9,10 +9,10 @@ const ContentPic = ({ img, width, is_review }) => {
     <View style={styles.contentStyle}>
       <View
         style={{
-          borderRightWidth: 3,
-          borderBottomWidth: is_review ? 3 : 0,
+          borderRightWidth: 1,
+          borderBottomWidth: is_review ? 1 : 0,
           borderRadius: 5,
-          borderColor: colors.primary
+          borderColor: colors.veryTranslucentWhite
         }}
       >
         <Image

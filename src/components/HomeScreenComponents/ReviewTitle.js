@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     alignSelf: "stretch",
     marginLeft: 5,
     paddingVertical: 2,
-    bottom: 10
+    bottom: 23
   },
   textStyle: {
     fontSize: 22,

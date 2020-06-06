@@ -24,8 +24,11 @@ const LoadingScreen = ({ navigation }) => {
               return navigation.navigate("loginFlow");
             }
             count++;
-            console.log("waiting on:", user.email, "try number", count);
             response = await firestore.getUser(user.email);
+            await setTimeout(
+              () => console.log("waiting on:", user.email, "try number", count),
+              500
+            );
           } while (!response);
           return response.handle.length
             ? navigation.navigate("homeFlow")

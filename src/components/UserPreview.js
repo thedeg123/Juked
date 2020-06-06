@@ -23,7 +23,7 @@ const UserPreview = ({ navigation, user }) => {
           style={styles.imageStyle}
           source={{ uri: user.profile_url || images.profileDefault }}
         />
-        <Text style={styles.textStyle}>@{user.handle}</Text>
+        <Text style={styles.textStyle}>{user.handle}</Text>
         <View style={styles.iconWrapper}>
           <Text style={styles.numberStyle}>
             {user.review_data ? user.review_data.reduce((a, b) => a + b) : 0}

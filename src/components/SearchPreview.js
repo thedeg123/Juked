@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderRadius: 5,
     marginRight: 10,
-    borderWidth: 1,
-    borderColor: colors.shadow
+    borderWidth: 0.5,
+    borderColor: colors.lightShadow
   }
 });
 

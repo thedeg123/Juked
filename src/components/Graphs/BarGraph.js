@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Dimensions, FlatList } from "react-native";
 import colors from "../../constants/colors";
 import BarItem from "./BarItem";
-
 /**
  * @param {Array[11]} data - an array of size 11 where each element corrisponds to the value for said element in the bar graph
  */
@@ -45,7 +44,15 @@ const BarGraph = ({ data }) => {
           scrollEnabled={false}
         />
       </View>
-      <Text style={styles.textStyle}>{num || num == 0 ? num : sumData}</Text>
+      <Text
+        style={{
+          color: colors.secondary,
+          fontWeight: "300",
+          fontSize: sumData < 10000 ? 35 : 25
+        }}
+      >
+        {num || num == 0 ? num : sumData}
+      </Text>
     </View>
   );
 };
@@ -59,10 +66,6 @@ const styles = StyleSheet.create({
     height: 125,
     paddingTop: 5,
     paddingHorizontal: 10
-  },
-  textStyle: {
-    color: colors.secondary,
-    fontSize: 24
   }
 });
 

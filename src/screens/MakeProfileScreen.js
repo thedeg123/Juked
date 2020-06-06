@@ -37,7 +37,7 @@ const MakeProfileScreen = ({
           onChangeText={setImageUrl}
           autoCapitalize="none"
           returnKeyType={"next"}
-          onEndEditing={() => {
+          onSubmitEditing={() => {
             setActive(false);
             return handleRef.current.focus();
           }}
@@ -53,7 +53,7 @@ const MakeProfileScreen = ({
           labelStyle={{ color: colors.white }}
           returnKeyType={"next"}
           onChangeText={text => setHandle(text.substring(1, 11))}
-          onEndEditing={() => {
+          onSubmitEditing={() => {
             setActive(false);
             return bioRef.current.focus();
           }}
@@ -69,7 +69,7 @@ const MakeProfileScreen = ({
           selectionColor={colors.white}
           onFocus={() => setActive(true)}
           blurOnSubmit
-          onEndEditing={() => setActive(false)}
+          onSubmitEditing={() => setActive(false)}
           returnKeyType={"done"}
           labelStyle={{ color: colors.white }}
           onChangeText={setBio}

@@ -35,9 +35,9 @@ const UserPreview = ({
           width: size,
           aspectRatio: 1,
           borderColor: colors.lightShadow,
-          borderWidth: 1.4 * (1 - fontScaler),
+          borderWidth: 0.7 * (1 - fontScaler),
           alignSelf: "center",
-          borderRadius: 7 * (1 - fontScaler)
+          borderRadius: 5
         }}
         source={{ uri: img }}
       ></Image>

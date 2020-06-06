@@ -16,6 +16,7 @@ import { Entypo } from "@expo/vector-icons";
 const ProfileListItem = ({ navigation, content, review, width, user }) => {
   return (
     <TouchableOpacity
+      activeOpacity={0.8}
       onPress={() =>
         navigateContent(
           navigation,
@@ -26,40 +27,51 @@ const ProfileListItem = ({ navigation, content, review, width, user }) => {
           user
         )
       }
-      style={styles.shadowEdge}
+      style={styles.wrapper}
     >
-      <ImageBackground
-        source={{ uri: content.image }}
-        blurRadius={20}
-        style={{ width, ...styles.imageBackgroundStyle }}
-      >
-        <View style={styles.contentContainer}>
-          <ContentPic img={content.image} width={100}></ContentPic>
-          <View style={styles.rightContent}>
-            <Text style={styles.textStyle}>{review.data.rating}</Text>
-            {review.data.is_review ? (
-              <Entypo
-                name="text"
-                style={styles.textStyle}
-                color={colors.primary}
-              ></Entypo>
-            ) : null}
+      <View style={styles.shadow}>
+        <ImageBackground
+          source={{ uri: content.image }}
+          blurRadius={20}
+          style={{ width, ...styles.imageBackgroundStyle }}
+        >
+          <View style={styles.contentContainer}>
+            <ContentPic img={content.image} width={100}></ContentPic>
+            <View style={styles.rightContent}>
+              <Text style={styles.textStyle}>{review.data.rating}</Text>
+              {review.data.is_review ? (
+                <Entypo name="text" style={styles.textStyle}></Entypo>
+              ) : null}
+            </View>
           </View>
-        </View>
-      </ImageBackground>
+          <View style={{ paddingLeft: 5, backgroundColor: colors.darkener }}>
+            <Text
+              numberOfLines={1}
+              style={{
+                color: colors.white,
+                fontWeight: "bold",
+                fontSize: 15
+              }}
+            >
+              {content.name}
+            </Text>
+          </View>
+        </ImageBackground>
+      </View>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  shadowEdge: {
+  wrapper: {
     borderRadius: 5,
-    marginLeft: 10,
+    marginLeft: 10
+  },
+  shadow: {
     shadowColor: colors.shadow,
     shadowOpacity: 1,
     shadowOffset: { width: 3, height: 2 },
-    shadowRadius: 2,
-    flex: 1
+    shadowRadius: 2
   },
   contentContainer: {
     flexDirection: "row",
@@ -68,7 +80,6 @@ const styles = StyleSheet.create({
   },
   rightContent: {
     justifyContent: "center",
-
     flex: 1,
     alignSelf: "center",
     alignContent: "center"
@@ -79,11 +90,11 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     overflow: "hidden",
     alignSelf: "stretch",
-    borderColor: colors.shadow,
-    borderWidth: 1
+    borderWidth: 0.5,
+    borderColor: colors.lightShadow
   },
   textStyle: {
-    color: colors.primary,
+    color: colors.veryTranslucentWhite,
     fontSize: 35,
     fontWeight: "bold",
     textAlign: "center"

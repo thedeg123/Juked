@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, Button, Text, TouchableOpacity, View } from "react-native";
-
+import { StyleSheet, Button, Text, View } from "react-native";
+import SpotifyButton from "./SpotifyButton";
 import colors from "../../constants/colors";
+import TopBar from "./TopBar";
 
-const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose }) => {
+const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose, link }) => {
   const [showDelete, setShowDelete] = useState(false);
   return (
     <View style={styles.content}>
@@ -34,7 +35,7 @@ const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose }) => {
         </View>
       ) : (
         <View>
-          <Button onPress={onClose} title="Done" />
+          <TopBar onClose={onClose} link={link}></TopBar>
           {onEdit ? (
             <Button onPress={onEdit} title="Edit Review" />
           ) : (

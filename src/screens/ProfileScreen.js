@@ -4,13 +4,10 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   RefreshControl,
   ScrollView
 } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
 import colors from "../constants/colors";
-import { auth } from "firebase";
 import Container from "../components/Container";
 import UserListItem from "../components/UserPreview";
 import ListPreview from "../components/ListPreview";
@@ -21,20 +18,23 @@ import LoadingIndicator from "../components/LoadingIndicator";
 import BarGraph from "../components/Graphs/BarGraph";
 import firebase from "firebase";
 import "firebase/firestore";
+import ModalProfileCard from "../components/ModalCards/ModalProfileCard";
+import ModalButton from "../components/ModalCards/ModalButton";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
 
 const UserProfileScreen = ({ navigation }) => {
-  const { firestore, useMusic } = useContext(context);
+  const { firestore, useMusic, disconnect } = useContext(context);
   const firestoreConcurrent = firebase.firestore();
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
   const [content, setContent] = useState(null);
   const [followsYou, setFollowsYou] = useState(null);
+  const [showProfileCard, setShowProfileCard] = useState(false);
   const [userFollowing, setUserFollowing] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-  let remover = null;
+  const [remover, setRemover] = useState(null);
 
   const updateFollow = async () => {
     firestore
@@ -48,9 +48,15 @@ const UserProfileScreen = ({ navigation }) => {
   const fetch = async () => {
     if (!uid) uid = firestore.fetchCurrentUID();
     const reviews = {
-      track: await firestore.getReviewsByAuthorType(uid, ["track"], 5),
-      album: await firestore.getReviewsByAuthorType(uid, ["album"], 5),
-      artist: await firestore.getReviewsByAuthorType(uid, ["artist"], 5)
+      track: await firestore
+        .getReviewsByAuthorType(uid, ["track"], 5)
+        .then(res => res[0]),
+      album: await firestore
+        .getReviewsByAuthorType(uid, ["album"], 5)
+        .then(res => res[0]),
+      artist: await firestore
+        .getReviewsByAuthorType(uid, ["artist"], 5)
+        .then(res => res[0])
     };
     setReviews(reviews);
     let cid_byType = {
@@ -69,29 +75,42 @@ const UserProfileScreen = ({ navigation }) => {
     setContent(temp_content);
     updateFollow();
   };
+
   useEffect(() => {
-    remover = firestoreConcurrent
+    navigation.setParams({ setShowModal: setShowProfileCard });
+    const local_remover = firestoreConcurrent
       .collection("users")
       .doc(uid)
       .onSnapshot(res => setUser(res.data()));
+    setRemover({ val: local_remover });
     fetch();
-    return () => {
-      return remover ? remover() : null;
-    };
+    return () => (local_remover ? local_remover() : null);
   }, []);
 
   const navigateFollow = (title, follow) =>
     navigation.push("List", {
       title,
-      fetchData: () => firestore.batchAuthorRequest(follow),
+      fetchData: async (limit, start_after) => {
+        const res = await firestore.batchAuthorRequest(follow);
+        return [res, null];
+      },
       renderItem: ({ item }) => <UserListItem user={item.data} />,
-      keyExtractor: item => item.id
+      keyExtractor: item => item.id,
+      notPaginated: true
     });
+
   const navigateContent = (title, types) => {
     return navigation.push("List", {
       title,
-      fetchData: async () => {
-        const reviews = await firestore.getReviewsByAuthorType(uid, types);
+      fetchData: async (limit, start_after) => {
+        const [reviews, start_next] = await firestore.getReviewsByAuthorType(
+          uid,
+          types,
+          limit,
+          undefined,
+          start_after
+        );
+        if (!reviews.length) return [[], null];
         const music = await useMusic
           .findContent(
             reviews.map(review => review.data.content_id),
@@ -102,9 +121,12 @@ const UserProfileScreen = ({ navigation }) => {
             res.forEach(m => (ret[m.id] = m));
             return ret;
           });
-        return reviews.map(r => {
-          return { review: r, content: music[r.data.content_id] };
-        });
+        return [
+          reviews.map(r => {
+            return { review: r, content: music[r.data.content_id] };
+          }),
+          start_next
+        ];
       },
       renderItem: ({ item }) => (
         <HomeScreenItem
@@ -152,27 +174,23 @@ const UserProfileScreen = ({ navigation }) => {
             img={user.profile_url || images.profileDefault}
             username={user.handle}
             containerStyle={styles.imageStyle}
-            size={125}
+            size={100}
             color={colors.text}
             fontScaler={0.2}
             allowPress={false}
           ></UserPreview>
           <View style={styles.followContainer}>
-            {userFollowing ? (
+            {firestore.fetchCurrentUID() === uid ? null : (
               <FollowButton
-                following
+                following={userFollowing}
+                followsYou={followsYou}
                 onPress={() =>
-                  firestore.unfollowUser(uid).then(() => updateFollow())
+                  userFollowing
+                    ? firestore.unfollowUser(uid).then(() => updateFollow())
+                    : firestore.followUser(uid).then(() => updateFollow())
                 }
               ></FollowButton>
-            ) : firestore.fetchCurrentUID() != uid ? (
-              <FollowButton
-                following={false}
-                onPress={() =>
-                  firestore.followUser(uid).then(() => updateFollow())
-                }
-              ></FollowButton>
-            ) : null}
+            )}
             <View style={styles.numberStyle}>
               <TouchableOpacity
                 onPress={async () =>
@@ -193,11 +211,6 @@ const UserProfileScreen = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
             </View>
-            {followsYou ? (
-              <View style={styles.followsYouWrapper}>
-                <Text style={styles.followsYou}>Follows You</Text>
-              </View>
-            ) : null}
           </View>
         </View>
         <View style={{ marginHorizontal: 10 }}>
@@ -237,25 +250,37 @@ const UserProfileScreen = ({ navigation }) => {
           marginBottom={10}
         />
       </ScrollView>
+      <ModalProfileCard
+        showModal={showProfileCard}
+        onSignOut={async () => {
+          console.log(remover ? remover.val : null);
+          remover ? await remover.val() : null;
+          disconnect();
+          try {
+            firestore.signout();
+          } catch (e) {
+            return;
+          }
+        }}
+        setShowModal={setShowProfileCard}
+        content={[]}
+        setShowHighlightedTrackCard={null}
+      ></ModalProfileCard>
     </View>
   ) : null;
 };
 
 UserProfileScreen.navigationOptions = ({ navigation }) => {
-  var uid = navigation.getParam("uid");
-  //const user = useFirestore.getUser(uid);
-
+  const setShowModal = navigation.getParam("setShowModal");
+  const uid = navigation.getParam("uid");
   return {
     headerRight: () =>
-      uid === auth().currentUser.email || !uid ? (
-        <TouchableOpacity onPress={() => navigation.navigate("Account")}>
-          <AntDesign
-            style={styles.headerRightStyle}
-            name="setting"
-            color={colors.primary}
-          ></AntDesign>
-        </TouchableOpacity>
-      ) : null
+      uid ? null : (
+        <ModalButton
+          settingType={true}
+          setShowModal={setShowModal}
+        ></ModalButton>
+      )
   };
 };
 
@@ -272,9 +297,7 @@ const styles = StyleSheet.create({
     marginRight: 15
   },
   followContainer: {
-    alignItems: "center",
-    alignSelf: "center",
-    height: 155,
+    justifyContent: "space-evenly",
     flex: 1
   },
   headerContainer: {
@@ -286,13 +309,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     flex: 1
   },
-  imageStyle: {
-    aspectRatio: 1,
-    alignSelf: "center",
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: colors.shadow
-  },
   handleStyle: {
     fontSize: 25,
     alignSelf: "center",
@@ -302,8 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "stretch",
-    justifyContent: "space-evenly",
-    flex: 1
+    justifyContent: "space-evenly"
   },
   followStyle: {
     textAlign: "center",
@@ -315,28 +330,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 16,
     color: colors.shadow
-  },
-  followsYouContianer: {
-    height: 40,
-    justifyContent: "center"
-  },
-  followsYouWrapper: {
-    width: 135,
-    height: 45,
-    borderRadius: 5,
-    paddingHorizontal: 15,
-    justifyContent: "center",
-    backgroundColor: colors.secondary
-  },
-  followsYou: {
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "bold",
-    color: colors.white
-  },
-  followIconStyle: {
-    fontSize: 30,
-    alignSelf: "center"
   },
   reviewTitleStyle: {
     fontSize: 30,

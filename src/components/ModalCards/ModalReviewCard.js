@@ -27,6 +27,7 @@ const ModalReviewCard = ({
             });
           }}
           onClose={() => setShowModal(false)}
+          link={content.url}
         ></ModalReviewContent>
       ) : (
         <ModalReviewContent
@@ -37,6 +38,7 @@ const ModalReviewCard = ({
             });
           }}
           onClose={() => setShowModal(false)}
+          link={content.url}
         ></ModalReviewContent>
       )}
     </ModalWrapper>

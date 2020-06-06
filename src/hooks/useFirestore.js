@@ -62,6 +62,12 @@ class useFirestore {
   async signout() {
     return await this.auth.signOut().catch(err => err.message);
   }
+  async resetEmail(email) {
+    return await this.auth
+      .sendPasswordResetEmail(email)
+      .then(() => null)
+      .catch(err => err.message);
+  }
 
   // -----------------------------------------------------------------------------------------------------------
   // Content relations
@@ -136,19 +142,6 @@ class useFirestore {
   async deleteReview(rid) {
     return await this.reviews_db.doc(rid).delete();
   }
-  async getMostRecentReviews(limit) {
-    return await this.reviews_db
-      .orderBy("last_modified", "desc")
-      .limit(limit)
-      .get()
-      .then(content => {
-        let ret = [];
-        content.forEach(element =>
-          ret.push({ id: element.id, data: element.data() })
-        );
-        return ret;
-      });
-  }
   async batchReviewRequest(cids) {
     return await this.batchRequest(this.reviews_db, null, cids);
   }
@@ -182,26 +175,34 @@ class useFirestore {
       });
   }
 
-  async getMostPopularReviewsByType(content_id, limit = 3) {
-    let ret = [];
-    return await this.reviews_db
+  async getMostPopularReviewsByType(content_id, limit = 3, start_after = null) {
+    let base = this.reviews_db
       .where("content_id", "==", content_id)
       .where("is_review", "==", true)
-      .orderBy("popularity", "desc")
+      .orderBy("popularity", "desc");
+    if (start_after) base = base.startAfter(start_after);
+    return await base
       .limit(limit)
       .get()
-      .then(res => {
-        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
-        return ret;
-      });
+      .then(res => [
+        res.docs.map(r => {
+          return { id: r.id, data: r.data() };
+        }),
+        res.docs.pop()
+      ]);
   }
 
   /**
    * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
    * @argument {Array} types - an array of at least one "artist", "album", "track"
    */
-  async getReviewsByAuthorType(uid, types, limit = 100, review_type) {
-    let ret = [];
+  async getReviewsByAuthorType(
+    uid,
+    types,
+    limit = 100,
+    review_type,
+    start_after = null
+  ) {
     let base = this.reviews_db
       .where("author", "==", uid)
       .orderBy("last_modified", "desc")
@@ -212,21 +213,25 @@ class useFirestore {
     } else if (review_type === false) {
       base = base.where("is_review", "==", false);
     }
+    if (start_after) {
+      base = base.startAfter(start_after);
+    }
     return base
       .limit(limit)
       .get()
-      .then(res => {
-        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
-        return ret;
-      });
+      .then(res => [
+        res.docs.map(r => {
+          return { id: r.id, data: r.data() };
+        }),
+        res.docs.pop()
+      ]);
   }
 
   /**
    * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
    * @argument {Array} types - an array of at least one "artist", "album", "track"
    */
-  async getReviewsByType(types, limit = 100, review_type) {
-    let ret = [];
+  async getReviewsByType(types, limit = 20, review_type, start_after) {
     let base = this.reviews_db
       .orderBy("last_modified", "desc")
       .where("type", "in", types);
@@ -236,13 +241,18 @@ class useFirestore {
     } else if (review_type === false) {
       base = base.where("is_review", "==", false);
     }
-    return await base
+    if (start_after) {
+      base = base.startAfter(start_after);
+    }
+    return base
       .limit(limit)
       .get()
-      .then(res => {
-        res.forEach(r => ret.push({ id: r.id, data: r.data() }));
-        return ret;
-      });
+      .then(res => [
+        res.docs.map(r => {
+          return { id: r.id, data: r.data() };
+        }),
+        res.docs.pop()
+      ]);
   }
 
   // -----------------------------------------------------------------------------------------------------------
@@ -359,8 +369,6 @@ class useFirestore {
    * @argument {String} text - the text of the comment
    */
   async addComment(rid, text) {
-    console.log(rid, text, this.fetchCurrentUID());
-
     return await this.comments_db.add({
       author: this.fetchCurrentUID(),
       review: rid,
