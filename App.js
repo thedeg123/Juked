@@ -25,6 +25,15 @@ import WriteReviewScreen from "./src/screens/WriteReviewScreen";
 import StackHeader from "./src/components/StackHeader";
 import HeaderBackButton from "./src/components/HeaderBackButton.js";
 import { Provider } from "./src/context/context";
+import { decode, encode } from "base-64";
+
+if (!global.btoa) {
+  global.btoa = encode;
+}
+
+if (!global.atob) {
+  global.atob = decode;
+}
 
 if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
