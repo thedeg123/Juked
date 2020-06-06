@@ -27,8 +27,9 @@ export default class useMusic {
     return this.token;
   }
 
-  disconnect() {
-    return this.remover ? this.remover() : null;
+  async disconnect() {
+    console.log("disconnecting token");
+    return this.remover ? await this.remover() : null;
   }
   /**
    * @async

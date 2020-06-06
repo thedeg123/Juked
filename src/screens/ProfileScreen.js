@@ -82,7 +82,7 @@ const UserProfileScreen = ({ navigation }) => {
       .collection("users")
       .doc(uid)
       .onSnapshot(res => setUser(res.data()));
-    setRemover({ val: local_remover });
+    setRemover(() => async () => await local_remover());
     fetch();
     return () => (local_remover ? local_remover() : null);
   }, []);
@@ -253,14 +253,9 @@ const UserProfileScreen = ({ navigation }) => {
       <ModalProfileCard
         showModal={showProfileCard}
         onSignOut={async () => {
-          console.log(remover ? remover.val : null);
-          remover ? await remover.val() : null;
-          disconnect();
-          try {
-            firestore.signout();
-          } catch (e) {
-            return;
-          }
+          remover ? await remover() : null;
+          await disconnect();
+          firestore.signout();
         }}
         setShowModal={setShowProfileCard}
         content={[]}

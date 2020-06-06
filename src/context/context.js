@@ -10,7 +10,12 @@ export const Provider = ({ children }) => {
     useMusic: new useMusic()
   };
   return (
-    <context.Provider value={{ ...dbs, disconnect: dbs.useMusic.disconnect }}>
+    <context.Provider
+      value={{
+        ...dbs,
+        disconnect: () => dbs.useMusic.disconnect()
+      }}
+    >
       {children}
     </context.Provider>
   );
