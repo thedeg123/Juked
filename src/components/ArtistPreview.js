@@ -10,6 +10,7 @@ import { withNavigation } from "react-navigation";
 const ArtistPreview = ({ navigation, content }) => {
   return (
     <TouchableOpacity
+      activeOpacity={0.8}
       style={styles.containerStyle}
       onPress={() => navigation.push("Album", { content_id: content.id })}
     >

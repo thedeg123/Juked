@@ -13,9 +13,10 @@
     "@react-native-firebase/firestore": "^6.3.4",
     "@react-navigation/native": "^5.1.6",
     "axios": "^0.19.1",
+    "base-64": "^0.1.0",
     "buffer": "^5.4.3",
     "expo": "~36.0.0",
-    "firebase": "^7.6.2",
+    "firebase": "^7.14.5",
     "mem": ">=4.0.0",
     "nodejs": "0.0.0",
     "react": "^16.9.0",
@@ -35,8 +36,8 @@
     "spotify-web-api-node": "^4.0.0"
   },
   "devDependencies": {
-    "babel-preset-expo": "~8.0.0",
-    "@babel/core": "^7.0.0"
+    "@babel/core": "^7.0.0",
+    "babel-preset-expo": "~8.0.0"
   },
   "private": true
 }

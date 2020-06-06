@@ -26,6 +26,7 @@ const AuthForm = ({
         value={email}
         onChangeText={text => setEmail(text)}
         autoCapitalize="none"
+        keyboardType="email-address"
         returnKeyType={"next"}
         selectionColor={colors.white}
         labelStyle={{ color: colors.white }}

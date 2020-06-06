@@ -16,10 +16,12 @@ const ReviewSection = ({
   navigation,
   content,
   review,
+  author,
   reviews,
   authors,
   onPress
 }) => {
+  if (reviews === "waiting" || authors === "waiting") return null;
   if (!onPress) {
     onPress = () => {};
   }
@@ -34,7 +36,7 @@ const ReviewSection = ({
         <ReviewPreview
           review={review}
           onPress={onPress}
-          author={authors[review.data.author]}
+          author={author}
           content={content}
         ></ReviewPreview>
       ) : null}
@@ -49,10 +51,14 @@ const ReviewSection = ({
                 onPress();
                 return navigation.push("List", {
                   title: `${content.name} Reviews`,
-                  fetchData: async () => {
-                    const reviews = await firestore.getMostPopularReviewsByType(
+                  fetchData: async (limit, startAfter) => {
+                    const [
+                      reviews,
+                      start_next
+                    ] = await firestore.getMostPopularReviewsByType(
                       content.id,
-                      10
+                      limit,
+                      startAfter
                     );
                     const authors = await firestore
                       .batchAuthorRequest([
@@ -63,9 +69,12 @@ const ReviewSection = ({
                         res.forEach(r => (ret[r.id] = r.data));
                         return ret;
                       });
-                    return reviews.map(r => {
-                      return { review: r, author: authors[r.data.author] };
-                    });
+                    return [
+                      reviews.map(r => {
+                        return { review: r, author: authors[r.data.author] };
+                      }),
+                      start_next
+                    ];
                   },
                   renderItem: ({ item }) => {
                     return (

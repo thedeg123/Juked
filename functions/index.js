@@ -42,7 +42,7 @@ exports.Onfollow = functions.firestore
 
 exports.Onunfollow = functions.firestore
   .document("follow/{fid}")
-  .onCreate(async (snap, context) => {
+  .onDelete(async (snap, context) => {
     var batch = firestore.batch();
     const delFollow = snap.data();
     const refFollowing = firestore.collection("users").doc(delFollow.following);

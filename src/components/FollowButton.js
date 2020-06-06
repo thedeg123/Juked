@@ -9,54 +9,79 @@ import {
 import colors from "../constants/colors";
 import { SimpleLineIcons } from "@expo/vector-icons";
 
-const FolloWButton = ({ following, onPress }) => {
+const FolloWButton = ({ following, onPress, followsYou }) => {
   const [processingFollow, setProcessingFollow] = useState(false);
-  return processingFollow ? (
-    <View style={styles.loadingStyle}>
-      <ActivityIndicator color={colors.white} size="small" />
-    </View>
-  ) : (
-    <TouchableOpacity
-      onPress={async () => {
-        setProcessingFollow(true);
-        await onPress();
-        setProcessingFollow(false);
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+
+        justifyContent: "space-evenly"
       }}
-      style={
-        following ? styles.followContainerStyle : styles.unfollowContainerStyle
-      }
     >
-      <View style={styles.contentStyle}>
-        <SimpleLineIcons
-          name={following ? "user-following" : "user-follow"}
-          style={styles.iconStyle}
-          color={following ? colors.white : colors.primary}
-        ></SimpleLineIcons>
-        <Text
-          style={following ? styles.unfollowTextStyle : styles.followTextStyle}
+      {processingFollow ? (
+        <View style={styles.loadingStyle}>
+          <ActivityIndicator color={colors.white} size="small" />
+        </View>
+      ) : (
+        <TouchableOpacity
+          onPress={async () => {
+            setProcessingFollow(true);
+            await onPress();
+            setProcessingFollow(false);
+          }}
+          style={
+            following
+              ? styles.followContainerStyle
+              : styles.unfollowContainerStyle
+          }
         >
-          {following ? "Unfollow" : "Follow"}
-        </Text>
-      </View>
-    </TouchableOpacity>
+          <View style={styles.contentStyle}>
+            <SimpleLineIcons
+              name={following ? "user-following" : "user-follow"}
+              style={styles.iconStyle}
+              color={following ? colors.white : colors.primary}
+            ></SimpleLineIcons>
+            <Text
+              numberOfLines={1}
+              style={
+                following ? styles.unfollowTextStyle : styles.followTextStyle
+              }
+            >
+              {following ? "Unfollow" : "Follow"}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      )}
+      {followsYou ? (
+        <View
+          style={[styles.followContainerStyle, { justifyContent: "center" }]}
+        >
+          <Text numberOfLines={1} style={styles.unfollowTextStyle}>
+            Follows You
+          </Text>
+        </View>
+      ) : null}
+    </View>
   );
 };
 
 const textStyle = {
   textAlign: "center",
-  fontSize: 18,
+  fontSize: 15,
   fontWeight: "bold"
 };
 const containerStyle = {
   alignSelf: "center",
-  width: 135,
-  height: 45,
+  width: 105,
+  height: 40,
   borderRadius: 5,
-  paddingHorizontal: 15,
+  paddingHorizontal: 7,
   shadowColor: colors.shadow,
   shadowOpacity: 0.6,
-  shadowOffset: { width: 2, height: 2 },
-  shadowRadius: 3
+  shadowOffset: { width: 1, height: 1 },
+  shadowRadius: 2,
+  alignItems: "stretch"
 };
 const styles = StyleSheet.create({
   followContainerStyle: {

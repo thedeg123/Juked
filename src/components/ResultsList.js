@@ -18,6 +18,8 @@ const ResultsList = ({ users, searchType, search }) => {
         <FlatList
           contentContainerStyle={{ paddingBottom: 85 }}
           data={users}
+          keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="always"
           keyExtractor={user => user.handle + user.created}
           renderItem={({ item }) => <UserPreview user={item} />}
         />
@@ -25,6 +27,7 @@ const ResultsList = ({ users, searchType, search }) => {
         <FlatList
           contentContainerStyle={{ paddingBottom: 85 }}
           keyboardDismissMode="on-drag"
+          keyboardShouldPersistTaps="always"
           data={search}
           keyExtractor={searchItem => searchItem.id}
           renderItem={({ item }) => (

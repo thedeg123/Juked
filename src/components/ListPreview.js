@@ -21,7 +21,9 @@ const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
           justifyContent: "space-between"
         }}
       >
-        <Text style={styles.reviewTitleStyle}>{title}</Text>
+        {data.length ? (
+          <Text style={styles.reviewTitleStyle}>{title}</Text>
+        ) : null}
         {data.length ? (
           <TouchableOpacity onPress={onPress}>
             <Text style={styles.seeAllText}>See All</Text>
@@ -32,7 +34,7 @@ const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
         showsHorizontalScrollIndicator={false}
         horizontal
         data={data}
-        style={{ paddingBottom: 4 }}
+        style={{ paddingBottom: 5 }}
         renderItem={({ item }) =>
           content[item.data.content_id] ? (
             <ProfileListItem
