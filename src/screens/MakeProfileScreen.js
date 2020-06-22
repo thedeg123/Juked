@@ -48,11 +48,12 @@ const MakeProfileScreen = ({
           ref={handleRef}
           label="Choose a handle,"
           onFocus={() => setActive(true)}
-          value={"@" + handle}
+          value={handle}
           selectionColor={colors.white}
           labelStyle={{ color: colors.white }}
-          returnKeyType={"next"}
-          onChangeText={text => setHandle(text.substring(1, 11))}
+          maxLength={15}
+          returnKeyType={"done"}
+          onChangeText={setHandle}
           onSubmitEditing={() => {
             setActive(false);
             return bioRef.current.focus();
@@ -77,8 +78,8 @@ const MakeProfileScreen = ({
         <Button
           title="Get Jukin'!"
           onPress={() => {
-            handle.length < 3 || handle.length > 10
-              ? setError("Handles must be between 3 and 10 characters.")
+            handle.length < 3 || handle.length > 15
+              ? setError("Handles must be between 3 and 15 characters.")
               : firestore
                   .getUserByHandle(handle)
                   .then(res =>

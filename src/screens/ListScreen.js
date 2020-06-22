@@ -22,7 +22,7 @@ const ListScreen = ({ navigation }) => {
   const fetch = (limit, start_after) =>
     fetchData(limit, start_after).then(res => {
       setData(data ? [...data, ...res[0]] : res[0]);
-      if (!res[0].length || notPaginated) return setAllowRefresh(false);
+      if (notPaginated || !res[0].length) return setAllowRefresh(false);
       return setStartAfter(res[1]);
     });
 

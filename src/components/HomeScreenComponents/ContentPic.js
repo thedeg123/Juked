@@ -3,10 +3,11 @@ import { StyleSheet, Image, View } from "react-native";
 import colors from "../../constants/colors";
 import images from "../../constants/images";
 
-const ContentPic = ({ img, width, is_review }) => {
+const ContentPic = ({ img, width, is_review, style }) => {
   img = img || images.artistDefault; //becuase we cant set a default val from another file
+  style = style || {}
   return (
-    <View style={styles.contentStyle}>
+    <View style={[styles.contentStyle, style]}>
       <View
         style={{
           borderRightWidth: 1,

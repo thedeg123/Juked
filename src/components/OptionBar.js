@@ -2,10 +2,11 @@ import React from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import colors from "../constants/colors";
 
-const SearchStyle = ({ searchType, onPress }) => {
-  const buttonSwitch = (type, text) => {
+const OptionBar = ({ options, searchType, containerStyle, onPress }) => {
+  const buttonSwitch = (type, title) => {
     return (
       <TouchableOpacity
+        key={type + title}
         disabled={searchType === type}
         style={
           searchType === type
@@ -21,17 +22,14 @@ const SearchStyle = ({ searchType, onPress }) => {
               : styles.deactivatedTextStyle
           }
         >
-          {text}
+          {title}
         </Text>
       </TouchableOpacity>
     );
   };
   return (
-    <View style={styles.listStyle}>
-      {buttonSwitch("track", "Songs")}
-      {buttonSwitch("album", "Albums")}
-      {buttonSwitch("artist", "Artists")}
-      {buttonSwitch("user", "Users")}
+    <View style={[styles.listStyle, containerStyle]}>
+      {options.map(({ type, title }) => buttonSwitch(type, title))}
     </View>
   );
 };
@@ -71,4 +69,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SearchStyle;
+export default OptionBar;

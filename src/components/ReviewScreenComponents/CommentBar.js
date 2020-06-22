@@ -1,20 +1,23 @@
 import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Platform,
+  StyleSheet
+} from "react-native";
 import colors from "../../constants/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const CommentBar = ({ keyboardIsActive, submitComment }) => {
   const [comment, setComment] = useState("");
-  const rawHeight = 30;
-  const [inputHeight, setInputHeight] = useState(rawHeight);
-
+  const numberOfLines = 5;
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
       <TextInput
         style={{
           borderWidth: keyboardIsActive ? 3 : 1,
           flex: 1,
-          height: inputHeight,
           borderRadius: 10,
           color: colors.white,
           fontSize: 18,
@@ -24,20 +27,17 @@ const CommentBar = ({ keyboardIsActive, submitComment }) => {
             ? colors.primary
             : colors.veryTranslucentWhite
         }}
-        onContentSizeChange={e => {
-          if (e.nativeEvent.contentSize.height > rawHeight) {
-            setInputHeight(inputHeight + rawHeight);
-          } else if (e.nativeEvent.contentSize.height < rawHeight) {
-            setInputHeight(inputHeight - rawHeight);
-          }
-        }}
+        numberOfLines={Platform.OS === "ios" ? null : numberOfLines}
+        maxHeight={
+          Platform.OS === "ios" && numberOfLines ? 26 * numberOfLines : null
+        }
         placeholder={"Add a Comment"}
         placeholderTextColor={colors.veryTranslucentWhite}
         value={comment}
         multiline={true}
         onChangeText={setComment}
         onSubmitEditing={() => {
-          comment ? submitComment(comment) : null;
+          comment.length ? submitComment(comment) : null;
           return setComment("");
         }}
         returnKeyType="send"

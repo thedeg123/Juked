@@ -13,7 +13,8 @@ const ModalHomeCard = ({
   setRatingTypes,
   following,
   userShow,
-  setUserShow
+  setUserShow,
+  setChanged
 }) => {
   return (
     <ModalWrapper
@@ -35,6 +36,7 @@ const ModalHomeCard = ({
         setUserShow={setUserShow}
         ratingTypes={ratingTypes}
         setRatingTypes={setRatingTypes}
+        setChanged={setChanged}
       ></ModalHomeContent>
     </ModalWrapper>
   );

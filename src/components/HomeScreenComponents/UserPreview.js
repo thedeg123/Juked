@@ -4,6 +4,7 @@ import colors from "../../constants/colors";
 import images from "../../constants/images";
 import { withNavigation } from "react-navigation";
 
+
 const UserPreview = ({
   navigation,
   img,

@@ -54,6 +54,7 @@ const CommentSection = ({
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
+                  paddingBottom: 5,
                   flex: 1
                 }}
               >

@@ -1,12 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity
-} from "react-native";
+import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";

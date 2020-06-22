@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { StyleSheet, Button, Text, View } from "react-native";
-import SpotifyButton from "./SpotifyButton";
 import colors from "../../constants/colors";
 import TopBar from "./TopBar";
 

@@ -122,7 +122,7 @@ const ReviewSection = ({
             }}
           ></FlatList>
         </View>
-      ) : (
+      ) : review ? null : (
         <Text
           style={{
             fontSize: 16,

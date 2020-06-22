@@ -36,7 +36,7 @@ const ProfileListItem = ({ navigation, content, review, width, user }) => {
           style={{ width, ...styles.imageBackgroundStyle }}
         >
           <View style={styles.contentContainer}>
-            <ContentPic img={content.image} width={100}></ContentPic>
+            <ContentPic img={content.image} is_review width={100}></ContentPic>
             <View style={styles.rightContent}>
               <Text style={styles.textStyle}>{review.data.rating}</Text>
               {review.data.is_review ? (

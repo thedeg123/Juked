@@ -16,5 +16,6 @@ export default {
   white: "#FFF",
   spotifyBackground: "rgb(24,20,20)",
   spotifyText: "rgb(101,211,110)",
+  danger: "rgb(179,36,39)",
   lightShadow: "#CCC"
 };

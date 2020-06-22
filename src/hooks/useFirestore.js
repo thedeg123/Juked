@@ -10,6 +10,7 @@ class useFirestore {
     this.content_db = this.db.collection("content");
     this.auth = firebase.auth();
     this.comments_db = this.db.collection("comments");
+    this.likes_db = this.db.collection("likes");
   }
 
   /**
@@ -52,6 +53,11 @@ class useFirestore {
   fetchCurrentUID() {
     return this.auth.currentUser.email;
   }
+
+  fetchCurrentUser() {
+    return this.auth.currentUser;
+  }
+
   async signup(email, password, verifypassword) {
     if (password !== verifypassword) return "Passwords do not Match!";
     return await this.auth
@@ -67,6 +73,42 @@ class useFirestore {
       .sendPasswordResetEmail(email)
       .then(() => null)
       .catch(err => err.message);
+  }
+
+  async updatePassword(old_password, new_password) {
+    let error = null;
+    const credential = firebase.auth.EmailAuthProvider.credential(
+      this.auth.currentUser.email,
+      old_password
+    );
+    error = await this.auth.currentUser
+      .reauthenticateWithCredential(credential)
+      .then(() => null)
+      .catch(err => err.message);
+    if (!error)
+      error = await this.auth.currentUser
+        .updatePassword(new_password)
+        .then(() => error)
+        .catch(err => err.message);
+    return error;
+  }
+
+  async deleteAccount(old_password) {
+    let error = null;
+    const credential = firebase.auth.EmailAuthProvider.credential(
+      this.auth.currentUser.email,
+      old_password
+    );
+    error = await this.auth.currentUser
+      .reauthenticateWithCredential(credential)
+      .then(() => null)
+      .catch(err => err.message);
+    if (!error)
+      error = await this.auth.currentUser
+        .delete()
+        .then(() => error)
+        .catch(err => err.message);
+    return error;
   }
 
   // -----------------------------------------------------------------------------------------------------------
@@ -90,20 +132,70 @@ class useFirestore {
   // -----------------------------------------------------------------------------------------------------------
   // Like relations
 
-  async likeReview(rid) {
-    return await this.reviews_db.doc(rid).update({
+  /**
+   * @argument {String} rid - the review id to get the comments for
+   * @return {Array<Object>} - Array of comment objects
+   */
+  async getLikes(rid) {
+    return await this.likes_db
+      .where("review", "==", rid)
+      .orderBy("last_modified", "desc")
+      .get()
+      .then(res => {
+        let ret = [];
+        res.forEach(like => ret.push({ id: like.id, data: like.data() }));
+        return ret;
+      });
+  }
+  /**
+   * @argument {Number} limit - the number of items to return per batch
+   * @argument {Object} start_after - pagination object
+   */
+  async getUserLikes(limit = 10, start_after = null) {
+    let base = this.likes_db
+      .where("review_author", "==", this.fetchCurrentUID())
+      .orderBy("last_modified", "desc");
+    if (start_after) base = base.startAfter(start_after);
+    return await base
+      .limit(limit)
+      .get()
+      .then(res => [
+        res.docs.map(like => {
+          return { id: like.id, data: like.data() };
+        }),
+        res.docs.pop()
+      ]);
+  }
+  async userLikesReview(rid) {
+    const lid = rid + this.fetchCurrentUID();
+    return await this.likes_db
+      .doc(lid)
+      .get()
+      .then(res => res.exists);
+  }
+
+  likeReview(rid, review_author, content = {}) {
+    const lid = rid + this.fetchCurrentUID();
+    this.reviews_db.doc(rid).update({
       popularity: firebase.firestore.FieldValue.increment(1),
-      num_likes: firebase.firestore.FieldValue.increment(1),
-      likes: firebase.firestore.FieldValue.arrayUnion(this.fetchCurrentUID())
+      num_likes: firebase.firestore.FieldValue.increment(1)
+    });
+    return this.likes_db.doc(lid).set({
+      author: this.fetchCurrentUID(),
+      last_modified: Date.now(),
+      review: rid,
+      review_author,
+      content
     });
   }
 
-  async unLikeReview(rid) {
-    return await this.reviews_db.doc(rid).update({
+  unLikeReview(rid) {
+    const lid = rid + this.fetchCurrentUID();
+    this.reviews_db.doc(rid).update({
       popularity: firebase.firestore.FieldValue.increment(-1),
-      num_likes: firebase.firestore.FieldValue.increment(-1),
-      likes: firebase.firestore.FieldValue.arrayRemove(this.fetchCurrentUID())
+      num_likes: firebase.firestore.FieldValue.increment(-1)
     });
+    return this.likes_db.doc(lid).delete();
   }
 
   // -----------------------------------------------------------------------------------------------------------
@@ -113,7 +205,9 @@ class useFirestore {
     return await this.reviews_db
       .doc(rid)
       .get()
-      .then(review => review.data());
+      .then(review => {
+        return { id: review.id, data: review.data() };
+      });
   }
   async addReview(cid, type, rating, text) {
     return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
@@ -123,7 +217,6 @@ class useFirestore {
       rating,
       text,
       type,
-      likes: [],
       num_comments: 0,
       num_likes: 0,
       popularity: 0,
@@ -277,9 +370,11 @@ class useFirestore {
   }
   async updateUser(handle, bio, profile_url) {
     let body = {};
-    handle ? (body["handle"] = handle) : null;
-    bio ? (body["bio"] = bio) : null;
-    profile_url ? (body["profile_url"] = profile_url) : null;
+    typeof handle === "string" ? (body["handle"] = handle) : null;
+    typeof bio === "string" ? (body["bio"] = bio) : null;
+    typeof profile_url === "string"
+      ? (body["profile_url"] = profile_url)
+      : null;
     return await this.users_db.doc(this.auth.currentUser.email).update(body);
   }
   async batchAuthorRequest(uids) {
@@ -304,7 +399,8 @@ class useFirestore {
   async followUser(uid) {
     return await this.follow_db.doc(this.auth.currentUser.email + uid).set({
       follower: this.auth.currentUser.email,
-      following: uid
+      following: uid,
+      last_modified: Date.now()
     });
   }
   async unfollowUser(uid) {
@@ -315,6 +411,26 @@ class useFirestore {
       .doc(follower_uid + following_uid)
       .get()
       .then(doc => doc.exists);
+  }
+
+  /**
+   * @argument {Number} limit - the number of items to return per batch
+   * @argument {Object} start_after - pagination object
+   */
+  async getUserFollows(limit = 10, start_after = null) {
+    let base = this.follow_db
+      .where("following", "==", this.fetchCurrentUID())
+      .orderBy("last_modified", "desc");
+    if (start_after) base = base.startAfter(start_after);
+    return await base
+      .limit(limit)
+      .get()
+      .then(res => [
+        res.docs.map(follow => {
+          return { id: follow.id, data: follow.data() };
+        }),
+        res.docs.pop()
+      ]);
   }
   /**
    * @argument {String} uid - the unique id of the user we want to get the followers of
@@ -365,14 +481,36 @@ class useFirestore {
       });
   }
   /**
+   * @argument {Number} limit - the number of items to return per batch
+   * @argument {Object} start_after - pagination object
+   */
+  async getUserComments(limit = 10, start_after = null) {
+    let base = this.comments_db
+      .where("review_author", "==", this.fetchCurrentUID())
+      .orderBy("last_modified", "desc");
+    if (start_after) base = base.startAfter(start_after);
+    return await base
+      .limit(limit)
+      .get()
+      .then(res => [
+        res.docs.map(comment => {
+          return { id: comment.id, data: comment.data() };
+        }),
+        res.docs.pop()
+      ]);
+  }
+  /**
    * @argument {String} rid - the review id to get the comments for
    * @argument {String} text - the text of the comment
+   * @argument {Object} content - the assoceated content object
    */
-  async addComment(rid, text) {
+  async addComment(rid, review_author, text, content = {}) {
     return await this.comments_db.add({
       author: this.fetchCurrentUID(),
       review: rid,
       last_modified: Date.now(),
+      content,
+      review_author,
       text
     });
   }

@@ -24,6 +24,43 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
     });
 });
 
+exports.deleteUser = functions.auth.user().onDelete(async user => {
+  // //deleting all reviews
+  await firestore
+    .collection("reviews")
+    .where("author", "==", user.email)
+    .get()
+    .then(res => {
+      var batch = firestore.batch();
+      res.forEach(doc => batch.delete(doc.ref));
+      return batch.commit();
+    });
+  //deleting all follows
+  await firestore
+    .collection("follow")
+    .where("follower", "==", user.email)
+    .get()
+    .then(res => {
+      var batch = firestore.batch();
+      res.forEach(doc => batch.delete(doc.ref));
+      return batch.commit();
+    });
+  await firestore
+    .collection("follow")
+    .where("following", "==", user.email)
+    .get()
+    .then(res => {
+      var batch = firestore.batch();
+      res.forEach(doc => batch.delete(doc.ref));
+      return batch.commit();
+    });
+  // delete the user
+  return await firestore
+    .collection("users")
+    .doc(user.email)
+    .delete();
+});
+
 exports.Onfollow = functions.firestore
   .document("follow/{fid}")
   .onCreate(async (snap, context) => {
@@ -246,6 +283,7 @@ exports.scheduledFunction = functions.pubsub
 
 // // Create and Deploy Your First Cloud Functions
 // Deploy with: firebase deploy --only functions
+// Deploy one function with: firebase deploy --only functions:myFunction
 // // https://firebase.google.com/docs/functions/write-firebase-functions
 //
 // exports.helloWorld = functions.https.onRequest((request, response) => {

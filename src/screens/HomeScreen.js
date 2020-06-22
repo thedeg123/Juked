@@ -28,7 +28,7 @@ const HomeScreen = ({ navigation }) => {
   const { firestore, useMusic } = useContext(context);
   const [startAfter, setStartAfter] = useState(null);
   const [allowRefresh, setAllowRefresh] = useState(true);
-
+  const [changed, setChanged] = useState(false);
   const flatListRef = useRef();
 
   // if yk sql, this is what were doing here:
@@ -127,7 +127,7 @@ const HomeScreen = ({ navigation }) => {
           />
         }
         onEndReached={async () => {
-          if (!allowRefresh) return;
+          if (!allowRefresh || reviews.length < 10) return;
           setRefreshing(true);
           await fetchHomeScreenData(10, startAfter);
           setRefreshing(false);
@@ -135,22 +135,26 @@ const HomeScreen = ({ navigation }) => {
         onEndReachedThreshold={0.5}
         initialNumToRender={10}
         ListFooterComponent={() =>
-          refreshing ? (
+          refreshing &&
+          reviews.length > 9 && (
             <View style={{ padding: 20 }}>
               <ActivityIndicator size="small"></ActivityIndicator>
             </View>
-          ) : null
+          )
         }
       ></FlatList>
       <ModalHomeCard
         showModal={showModal}
         setShowModal={setShowModal}
         refreshData={() => {
-          setReviews(null);
-          flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-          setAllowRefresh(true);
-          setStartAfter(null);
-          fetchHomeScreenData(10, null);
+          if (changed) {
+            setChanged(false);
+            setReviews(null);
+            flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+            setAllowRefresh(true);
+            setStartAfter(null);
+            fetchHomeScreenData(10, null);
+          }
         }}
         contentTypes={contentTypes}
         ratingTypes={ratingTypes}
@@ -161,6 +165,7 @@ const HomeScreen = ({ navigation }) => {
           navigation.setParams({ userStream: val ? val.data.handle : null });
           setUserShow(val ? val.id : null);
         }}
+        setChanged={setChanged}
       ></ModalHomeCard>
     </View>
   );

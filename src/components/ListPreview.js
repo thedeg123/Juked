@@ -34,6 +34,7 @@ const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
         showsHorizontalScrollIndicator={false}
         horizontal
         data={data}
+        contentContainerStyle={{ paddingRight: 10 }}
         style={{ paddingBottom: 5 }}
         renderItem={({ item }) =>
           content[item.data.content_id] ? (

@@ -1,8 +1,19 @@
 //Provides margin on components
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Dimensions, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  PanResponder,
+  FlatList
+} from "react-native";
 import colors from "../../constants/colors";
 import BarItem from "./BarItem";
+import {
+  TouchableWithoutFeedback,
+  TouchableOpacity
+} from "react-native-gesture-handler";
 /**
  * @param {Array[11]} data - an array of size 11 where each element corrisponds to the value for said element in the bar graph
  */

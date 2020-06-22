@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   Keyboard,
+  Platform,
   Dimensions,
   ImageBackground,
   KeyboardAvoidingView,
@@ -51,94 +52,108 @@ const WriteReviewScreen = ({ navigation }) => {
         }}
       >
         <TouchableWithoutFeedback
-          style={{ flex: 1 }}
+          style={{ borderWidth: 10 }}
           onPress={Keyboard.dismiss}
         >
-          <KeyboardAvoidingView
-            behavior="position"
-            keyboardVerticalOffset={Dimensions.get("window").height * 0.098}
-            contentContainerStyle={{ margin: 10 }}
+          <View
+            style={{ flex: 1, justifyContent: "flex-end", marginBottom: 80 }}
           >
-            <View style={styles.headerStyle}>
-              <View style={styles.headerTextContainerStyle}>
-                <Text style={styles.headerText}>{content.name}</Text>
-                <ArtistNames
-                  artists={content.artists}
-                  allowPress={false}
-                  textStyle={styles.subheaderText}
-                ></ArtistNames>
-              </View>
-            </View>
-            <View style={styles.ratingContainer}>
-              <Text style={styles.ratingStyle}>{rating}</Text>
-              <View style={styles.sliderStyle}>
-                <MultiSlider
-                  values={rating}
-                  onValuesChange={setRating}
-                  snapped
-                  min={0}
-                  max={10}
-                  step={1}
-                  unselectedStyle={{
-                    backgroundColor: colors.veryTranslucentWhite
-                  }}
-                  selectedStyle={{
-                    backgroundColor: colors.secondary,
-                    height: 5
-                  }}
-                  sliderLength={250}
-                ></MultiSlider>
-              </View>
-            </View>
-            <TextInput
-              value={text}
-              scrollEnabled
-              onChangeText={setText}
-              multiline
-              style={{
-                ...styles.reviewTextStyle,
-                height: Dimensions.get("window").height * 0.24
-              }}
-            ></TextInput>
-
-            <TouchableOpacity
-              style={{
-                alignSelf: "center",
-                marginTop: 10,
-                padding: 10,
-                paddingHorizontal: 20,
-                backgroundColor: colors.primary,
-                borderRadius: 5
-              }}
-              onPress={() => {
-                review
-                  ? firestore.updateReview(
-                      review.id,
-                      review.data.content_id,
-                      review.data.content_type,
-                      rating[0],
-                      text
-                    )
-                  : firestore.addReview(
-                      content.id,
-                      content.type,
-                      rating[0],
-                      text
-                    );
-                return navigation.pop();
-              }}
+            <KeyboardAvoidingView
+              behavior="position"
+              keyboardVerticalOffset={Dimensions.get("window").height * 0.098}
+              contentContainerStyle={{ margin: 10 }}
             >
-              <Text
+              <View style={styles.headerStyle}>
+                <View style={styles.headerTextContainerStyle}>
+                  <Text style={styles.headerText}>{content.name}</Text>
+                  <ArtistNames
+                    artists={content.artists}
+                    allowPress={false}
+                    textStyle={styles.subheaderText}
+                  ></ArtistNames>
+                </View>
+              </View>
+              <View style={styles.ratingContainer}>
+                <Text style={styles.ratingStyle}>{rating}</Text>
+                <View style={styles.sliderStyle}>
+                  <MultiSlider
+                    values={rating}
+                    onValuesChange={setRating}
+                    snapped
+                    min={0}
+                    max={10}
+                    step={1}
+                    unselectedStyle={{
+                      backgroundColor: colors.veryTranslucentWhite
+                    }}
+                    selectedStyle={{
+                      backgroundColor: colors.secondary,
+                      height: 5
+                    }}
+                    sliderLength={250}
+                  ></MultiSlider>
+                </View>
+              </View>
+              <TextInput
+                placeholder="Enter a review"
+                placeholderTextColor={colors.veryTranslucentWhite}
+                value={text}
+                numberOfLines={
+                  Platform.OS === "ios"
+                    ? null
+                    : Dimensions.get("window").height * 0.005
+                }
+                maxHeight={
+                  Platform.OS === "ios"
+                    ? Dimensions.get("window").height * 0.2
+                    : null
+                }
+                onChangeText={setText}
+                multiline
                 style={{
-                  fontWeight: "bold",
-                  color: colors.white,
-                  fontSize: 18
+                  ...styles.reviewTextStyle
+                }}
+              ></TextInput>
+
+              <TouchableOpacity
+                style={{
+                  alignSelf: "center",
+                  marginTop: 10,
+                  padding: 10,
+                  paddingHorizontal: 20,
+                  backgroundColor: colors.primary,
+                  borderRadius: 5
+                }}
+                onPress={() => {
+                  review
+                    ? firestore.updateReview(
+                        review.id,
+                        review.data.content_id,
+                        review.data.content_type,
+                        rating[0],
+                        text
+                      )
+                    : firestore.addReview(
+                        content.id,
+                        content.type,
+                        rating[0],
+                        text
+                      );
+                  return navigation.pop();
                 }}
               >
-                {review ? "Update" : "Add"}
-              </Text>
-            </TouchableOpacity>
-          </KeyboardAvoidingView>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: colors.white,
+                    fontSize: 18
+                  }}
+                >
+                  {review ? "Update" : "Add"}
+                </Text>
+              </TouchableOpacity>
+            </KeyboardAvoidingView>
+          </View>
         </TouchableWithoutFeedback>
       </View>
     </ImageBackground>
@@ -198,5 +213,11 @@ const styles = StyleSheet.create({
     fontSize: 20
   }
 });
+
+WriteReviewScreen.navigationOptions = () => {
+  return {
+    headerTitle: "My Review"
+  };
+};
 
 export default WriteReviewScreen;

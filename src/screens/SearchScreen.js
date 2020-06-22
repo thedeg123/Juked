@@ -1,10 +1,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StyleSheet, View, Text, Keyboard } from "react-native";
 import SearchBar from "../components/SearchBar";
-import SearchStyle from "../components/SearchStyle";
+import OptionBar from "../components/OptionBar";
 import ResultsList from "../components/ResultsList";
 import context from "../context/context";
 import colors from "../constants/colors";
+import { searchButtonOptions } from "../constants/buttonOptions";
 
 const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
@@ -47,27 +48,28 @@ const SearchScreen = ({ navigation }) => {
           term={term}
           onTermChange={new_term => {
             setTerm(new_term);
-            waitTime ? clearTimeout(waitTime) : null;
+            waitTime && clearTimeout(waitTime);
             setWaitTime(
               setTimeout(() => searchForTerm(new_term, searchType), 500)
             );
           }}
           onTermSubmit={async new_term => {
             setTerm(new_term);
-            waitTime ? clearTimeout(waitTime) : null;
+            waitTime && clearTimeout(waitTime);
             searchForTerm(new_term, searchType);
           }}
           keyboardIsActive={keyboardIsActive}
         />
         {keyboardIsActive || term.length ? (
-          <SearchStyle
+          <OptionBar
             onPress={new_type => {
               setSearchType(new_type);
-              waitTime ? clearTimeout(waitTime) : null;
+              waitTime && clearTimeout(waitTime);
               searchForTerm(term, new_type);
             }}
+            options={searchButtonOptions}
             searchType={searchType}
-          ></SearchStyle>
+          ></OptionBar>
         ) : null}
       </View>
       {search && search.length === 0 && term.length !== 0 ? (
@@ -92,5 +94,11 @@ const styles = StyleSheet.create({
     marginBottom: 0
   }
 });
+
+SearchScreen.navigationOptions = ({ navigation }) => {
+  return {
+    title: "Explore"
+  };
+};
 
 export default SearchScreen;

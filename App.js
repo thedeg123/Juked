@@ -18,7 +18,7 @@ import SearchScreen from "./src/screens/SearchScreen";
 import SignInScreen from "./src/screens/SignInScreen";
 import SignUpScreen from "./src/screens/SignUpScreen";
 import MakeProfileScreen from "./src/screens/MakeProfileScreen";
-import { Foundation, Octicons } from "@expo/vector-icons";
+import { Foundation, Octicons, Ionicons } from "@expo/vector-icons";
 import colors from "./src/constants/colors";
 import heights from "./src/constants/heights";
 import WriteReviewScreen from "./src/screens/WriteReviewScreen";
@@ -26,6 +26,7 @@ import StackHeader from "./src/components/StackHeader";
 import HeaderBackButton from "./src/components/HeaderBackButton.js";
 import { Provider } from "./src/context/context";
 import { decode, encode } from "base-64";
+import NotificationScreen from "./src/screens/NotificationScreen";
 
 if (!global.btoa) {
   global.btoa = encode;
@@ -63,7 +64,7 @@ const defaultNavigationOptions = {
   header: ({ scene, previous, navigation }) => {
     const { options } = scene.descriptor;
     const title =
-      options.headerTitle || options.title || scene.descriptor.state.routeName;
+      options.title || options.headerTitle || scene.descriptor.state.routeName;
     const progress = Animated.add(
       scene.progress.current,
       scene.progress.next || 0
@@ -79,6 +80,7 @@ const defaultNavigationOptions = {
           <StackHeader
             title={title}
             previous={previous}
+            center={options.headerComponent}
             leftButton={
               previous ? (
                 <HeaderBackButton onPress={() => navigation.goBack()} />
@@ -115,6 +117,18 @@ const searchStack = createStackNavigator(
   { defaultNavigationOptions, headerMode: "screen", initialRouteName: "Search" }
 );
 
+const notificationStack = createStackNavigator(
+  {
+    Notifications: NotificationScreen,
+    ...exploreFlow
+  },
+  {
+    defaultNavigationOptions,
+    headerMode: "screen",
+    initialRouteName: "Notifications"
+  }
+);
+
 const profileStack = createStackNavigator(
   {
     Profile: ProfileScreen,
@@ -128,42 +142,48 @@ const profileStack = createStackNavigator(
   }
 );
 
-const mainStack = createBottomTabNavigator(
-  {
-    homeFlow: {
-      screen: homeStack,
-      navigationOptions: {
-        tabBarLabel: ({ tintColor }) => (
-          <Foundation name="home" style={{ fontSize: 22 }} color={tintColor} />
-        ),
-        tabBarOptions
-      }
-    },
-    searchFlow: {
-      screen: searchStack,
-      navigationOptions: {
-        tabBarLabel: ({ tintColor }) => (
-          <Octicons
-            name="search"
-            style={{ fontSize: 22, top: 2 }}
-            color={tintColor}
-          />
-        ),
-        tabBarOptions
-      }
-    },
-    profileFlow: {
-      screen: profileStack,
-      navigationOptions: {
-        tabBarLabel: ({ tintColor }) => (
-          <Octicons name="person" style={{ fontSize: 22 }} color={tintColor} />
-        ),
-        tabBarOptions
-      }
+const mainStack = createBottomTabNavigator({
+  homeFlow: {
+    screen: homeStack,
+    navigationOptions: {
+      tabBarLabel: ({ tintColor }) => (
+        <Foundation name="home" style={{ fontSize: 23 }} color={tintColor} />
+      ),
+      tabBarOptions
     }
   },
-  { lazy: false }
-);
+  searchFlow: {
+    screen: searchStack,
+    navigationOptions: {
+      tabBarLabel: ({ tintColor }) => (
+        <Octicons name="search" style={{ fontSize: 21 }} color={tintColor} />
+      ),
+      tabBarOptions
+    }
+  },
+  notificationFlow: {
+    screen: notificationStack,
+    navigationOptions: {
+      tabBarLabel: ({ tintColor }) => (
+        <Ionicons
+          name="ios-notifications"
+          style={{ fontSize: 26, top: 4 }}
+          color={tintColor}
+        />
+      ),
+      tabBarOptions
+    }
+  },
+  profileFlow: {
+    screen: profileStack,
+    navigationOptions: {
+      tabBarLabel: ({ tintColor }) => (
+        <Octicons name="person" style={{ fontSize: 22 }} color={tintColor} />
+      ),
+      tabBarOptions
+    }
+  }
+});
 const loginSwitch = createSwitchNavigator(
   {
     SignIn: SignInScreen,

@@ -20,7 +20,8 @@ const ModalReviewContent = ({
   userShow,
   setUserShow,
   ratingTypes,
-  setRatingTypes
+  setRatingTypes,
+  setChanged
 }) => {
   const [activeTrack, setActiveTrack] = useState(contentTypes.has("track"));
   const [activeAlbum, setActiveAlbum] = useState(contentTypes.has("album"));
@@ -41,7 +42,10 @@ const ModalReviewContent = ({
       <Text style={styles.sectionTitle}>Filter</Text>
       <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
         <TouchableOpacity
-          onPress={() => setRatingTypes(ratingTypes === true ? null : true)}
+          onPress={() => {
+            setChanged(true);
+            return setRatingTypes(ratingTypes === true ? null : true);
+          }}
           style={
             ratingTypes === true
               ? styles.deactivatedBorder
@@ -57,7 +61,10 @@ const ModalReviewContent = ({
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => setRatingTypes(ratingTypes === false ? null : false)}
+          onPress={() => {
+            setChanged(true);
+            setRatingTypes(ratingTypes === false ? null : false);
+          }}
           style={
             ratingTypes === false
               ? styles.deactivatedBorder
@@ -74,6 +81,7 @@ const ModalReviewContent = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            setChanged(true);
             updateContent("track");
           }}
           disabled={activeTrack && contentTypes.size === 1}
@@ -87,6 +95,7 @@ const ModalReviewContent = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            setChanged(true);
             updateContent("album");
           }}
           disabled={activeAlbum && contentTypes.size === 1}
@@ -100,6 +109,7 @@ const ModalReviewContent = ({
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            setChanged(true);
             updateContent("artist");
           }}
           disabled={activeArtist && contentTypes.size === 1}
@@ -115,7 +125,10 @@ const ModalReviewContent = ({
       <Text style={styles.sectionTitle}>See Friends</Text>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
-          onPress={() => setUserShow(null)}
+          onPress={() => {
+            setChanged(true);
+            setUserShow(null);
+          }}
           style={{ justifyContent: "center", alignItems: "center" }}
         >
           <FontAwesome5
@@ -148,9 +161,10 @@ const ModalReviewContent = ({
                       ? styles.activatedUserItemStyle
                       : styles.deactivatedUserItemStyle
                   }
-                  onPress={() =>
-                    setUserShow(userShow === item.id ? null : item)
-                  }
+                  onPress={() => {
+                    setChanged(true);
+                    return setUserShow(userShow === item.id ? null : item);
+                  }}
                 >
                   <Image
                     style={styles.imageStyle}

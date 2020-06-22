@@ -35,13 +35,11 @@ const ReviewScreen = ({ navigation }) => {
   const [keyboardIsActive, setKeyboardIsActive] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentUsers, setCommentUsers] = useState(null);
-
+  const [userLikes, setUserLikes] = useState(null);
   let remover = null;
-  let userLikes = review.data
-    ? review.data.likes.includes(firestore.fetchCurrentUID())
-    : null;
 
   const fetchComments = async () => {
+    firestore.userLikesReview(review.id).then(res => setUserLikes(res));
     const comments = await firestore.getComments(review.id);
     const userComments = new Set(comments.map(com => com.data.author));
     const theUsers = {};
@@ -99,20 +97,30 @@ const ReviewScreen = ({ navigation }) => {
               onLike={() => {
                 userLikes
                   ? firestore.unLikeReview(review.id)
-                  : firestore.likeReview(review.id);
-                userLikes = !userLikes;
+                  : firestore.likeReview(
+                      review.id,
+                      review.data.author,
+                      content
+                    );
+                setUserLikes(!userLikes);
               }}
               onPress={() =>
                 navigation.push("List", {
+                  notPaginated: true,
                   title: "Likes",
-                  fetchData: () =>
-                    firestore.batchAuthorRequest(review.data.likes),
+                  fetchData: async () => {
+                    const likes = await firestore.getLikes(review.id);
+                    const users = await firestore.batchAuthorRequest(
+                      likes.map(like => like.data.author)
+                    );
+                    return [users];
+                  },
                   renderItem: ({ item }) => <UserListItem user={item.data} />,
                   keyExtractor: item => item.id
                 })
               }
               liked={userLikes}
-              numLikes={review ? review.data.likes.length : 0}
+              numLikes={review ? review.data.num_likes : 0}
             ></LikeBox>
           )}
           <CommentBar
@@ -120,7 +128,7 @@ const ReviewScreen = ({ navigation }) => {
             submitComment={comment => {
               Keyboard.dismiss();
               firestore
-                .addComment(review.id, comment)
+                .addComment(review.id, review.data.author, comment, content)
                 .then(() => fetchComments());
             }}
           ></CommentBar>

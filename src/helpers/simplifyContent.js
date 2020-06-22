@@ -4,6 +4,19 @@
  */
 import images from "../constants/images";
 
+export const getAbreveatedTimeDif = time => {
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - time);
+  if (diffTime < 1000) return "now";
+  if (diffTime < 1000 * 60) return `${Math.ceil(diffTime / 1000)}s`;
+  if (diffTime < 1000 * 60 * 60) return `${Math.ceil(diffTime / (1000 * 60))}m`;
+  if (diffTime < 1000 * 60 * 60 * 24)
+    return `${Math.ceil(diffTime / (1000 * 60 * 60))}h`;
+  if (diffTime < 1000 * 60 * 60 * 24 * 14)
+    return `${Math.ceil(diffTime / (1000 * 60 * 60 * 24))}d`;
+  else return `${Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7))}w`;
+};
+
 export default simplifyContent = (content, type) => {
   const toStringDate = num_date => {
     const date = new Date(num_date);

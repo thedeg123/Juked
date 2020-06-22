@@ -51,7 +51,7 @@ let boxStyle = {
   alignSelf: "stretch",
   marginTop: 10,
   borderWidth: 0.5,
-  borderColor: colors.lightShadow
+  borderColor: colors.shadow
 };
 const styles = StyleSheet.create({
   withTitle: {
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     shadowColor: colors.shadow,
     shadowOpacity: 1,
     shadowOffset: { width: 3, height: 3 },
-    shadowRadius: 2,
+    shadowRadius: 1,
     flex: 1
   },
   child: {

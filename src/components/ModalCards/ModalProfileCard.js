@@ -2,7 +2,7 @@ import React from "react";
 import ModalWrapper from "./ModalWrapper";
 import ModalProfileContent from "./ModalProfileContent";
 
-const ModalProfileCard = ({ showModal, setShowModal, onSignOut }) => {
+const ModalProfileCard = ({ showModal, setShowModal, onSignOut, onEdit }) => {
   return (
     <ModalWrapper
       isVisible={showModal}
@@ -14,6 +14,7 @@ const ModalProfileCard = ({ showModal, setShowModal, onSignOut }) => {
         onClose={() => {
           setShowModal(false);
         }}
+        onEdit={onEdit}
         onSignOut={onSignOut}
       ></ModalProfileContent>
     </ModalWrapper>

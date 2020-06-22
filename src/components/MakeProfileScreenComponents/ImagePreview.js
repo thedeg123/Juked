@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 import images from "../../constants/images";
+import colors from "../../constants/colors";
 
 const ImagePreview = ({ imageURL }) => {
   return (
@@ -18,8 +19,9 @@ const styles = StyleSheet.create({
     fontSize: 10
   },
   imageBorderStyle: {
-    borderWidth: 1,
+    borderWidth: 0.5,
     alignSelf: "center",
+    borderColor: colors.shadow,
     width: 100,
     aspectRatio: 1,
     borderRadius: 5,

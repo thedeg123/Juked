@@ -92,7 +92,7 @@ const UserProfileScreen = ({ navigation }) => {
       title,
       fetchData: async (limit, start_after) => {
         const res = await firestore.batchAuthorRequest(follow);
-        return [res, null];
+        return [res];
       },
       renderItem: ({ item }) => <UserListItem user={item.data} />,
       keyExtractor: item => item.id,
@@ -256,6 +256,10 @@ const UserProfileScreen = ({ navigation }) => {
           remover ? await remover() : null;
           await disconnect();
           firestore.signout();
+        }}
+        onEdit={() => {
+          setShowProfileCard(false);
+          navigation.navigate("Account", { user });
         }}
         setShowModal={setShowProfileCard}
         content={[]}

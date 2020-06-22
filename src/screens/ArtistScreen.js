@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 50,
     fontWeight: "bold",
     marginHorizontal: 10,
-    color: colors.primary
+    color: colors.translucentWhite
   },
   sectionStyle: {
     marginVertical: 10,
