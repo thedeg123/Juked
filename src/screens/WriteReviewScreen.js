@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback
 } from "react-native";
-import colors from "../constants/colors";
+import colors, { blurRadius } from "../constants/colors";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import context from "../context/context";
 import ArtistNames from "../components/ArtistNames";
@@ -42,7 +42,7 @@ const WriteReviewScreen = ({ navigation }) => {
   return (
     <ImageBackground
       style={{ flex: 1 }}
-      blurRadius={70}
+      blurRadius={blurRadius}
       source={{ uri: content.image }}
     >
       <View
@@ -136,6 +136,7 @@ const WriteReviewScreen = ({ navigation }) => {
                     : firestore.addReview(
                         content.id,
                         content.type,
+                        content,
                         rating[0],
                         text
                       );

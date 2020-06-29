@@ -19,3 +19,5 @@ export default {
   danger: "rgb(179,36,39)",
   lightShadow: "#CCC"
 };
+
+export const blurRadius = 90;

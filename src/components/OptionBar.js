@@ -1,6 +1,7 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text, Animated } from "react-native";
 import colors from "../constants/colors";
+
 
 const OptionBar = ({ options, searchType, containerStyle, onPress }) => {
   const buttonSwitch = (type, title) => {
@@ -36,6 +37,8 @@ const OptionBar = ({ options, searchType, containerStyle, onPress }) => {
 
 const buttonStyle = {
   paddingVertical: 2,
+  marginHorizontal: 2,
+  borderRadius: 5,
   flex: 1,
   backgroundColor: colors.primary
 };
@@ -44,11 +47,8 @@ const textStyle = { textAlign: "center", color: colors.object, fontSize: 20 };
 
 const styles = StyleSheet.create({
   listStyle: {
-    backgroundColor: colors.object,
     alignSelf: "stretch",
     borderColor: colors.primary,
-    borderWidth: 2,
-    borderRadius: 5,
     flexDirection: "row"
   },
   activatedTextStyle: {
@@ -61,11 +61,16 @@ const styles = StyleSheet.create({
   },
   activatedButtonStyle: {
     ...buttonStyle,
-    backgroundColor: colors.primary
+    backgroundColor: colors.primary,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.5,
+    shadowOffset: { width: 1, height: 1 },
+    shadowRadius: 1,
+    flex: 1
   },
   deactivatedButtonStyle: {
     ...buttonStyle,
-    backgroundColor: "rgba(0,0,0,0)"
+    backgroundColor: colors.white
   }
 });
 

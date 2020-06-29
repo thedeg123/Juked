@@ -209,10 +209,16 @@ class useFirestore {
         return { id: review.id, data: review.data() };
       });
   }
-  async addReview(cid, type, rating, text) {
+
+  async getList(lid) {
+    return this.getReview(lid);
+  }
+
+  async addReview(cid, type, content, rating, text) {
     return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
       author: this.auth.currentUser.email,
       content_id: cid,
+      content,
       last_modified: new Date().getTime(),
       rating,
       text,
@@ -220,7 +226,8 @@ class useFirestore {
       num_comments: 0,
       num_likes: 0,
       popularity: 0,
-      is_review: Boolean(text.length)
+      is_review: Boolean(text.length),
+      media_type: "review"
     });
   }
   async updateReview(rid, cid, type, rating, text) {

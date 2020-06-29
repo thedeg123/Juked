@@ -4,6 +4,7 @@ import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { FlatList } from "react-native-gesture-handler";
 import ProfileListItem from "./ProfileScreen/ListPreviewItem";
+
 /**
  * ListPreview Component for ListScreen
  * @param {string} title - title of the list
@@ -11,7 +12,7 @@ import ProfileListItem from "./ProfileScreen/ListPreviewItem";
  * @param {string} id - any identifier needed for this list
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
+const ListPreview = ({ title, data, onPress, marginBottom, user }) => {
   return (
     <View style={{ ...styles.borderStyle, marginBottom: marginBottom || 0 }}>
       <View
@@ -21,14 +22,10 @@ const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
           justifyContent: "space-between"
         }}
       >
-        {data.length ? (
-          <Text style={styles.reviewTitleStyle}>{title}</Text>
-        ) : null}
-        {data.length ? (
-          <TouchableOpacity onPress={onPress}>
-            <Text style={styles.seeAllText}>See All</Text>
-          </TouchableOpacity>
-        ) : null}
+        <Text style={styles.reviewTitleStyle}>{title}</Text>
+        <TouchableOpacity onPress={onPress}>
+          <Text style={styles.seeAllText}>See All</Text>
+        </TouchableOpacity>
       </View>
       <FlatList
         showsHorizontalScrollIndicator={false}
@@ -36,15 +33,13 @@ const ListPreview = ({ title, content, data, onPress, marginBottom, user }) => {
         data={data}
         contentContainerStyle={{ paddingRight: 10 }}
         style={{ paddingBottom: 5 }}
-        renderItem={({ item }) =>
-          content[item.data.content_id] ? (
-            <ProfileListItem
-              content={content[item.data.content_id]}
-              review={item}
-              user={user}
-            ></ProfileListItem>
-          ) : null
-        }
+        renderItem={({ item }) => (
+          <ProfileListItem
+            content={item.data.content}
+            review={item}
+            user={user}
+          ></ProfileListItem>
+        )}
         keyExtractor={item => item.id}
       ></FlatList>
     </View>

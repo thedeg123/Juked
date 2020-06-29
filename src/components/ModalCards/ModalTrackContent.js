@@ -109,7 +109,6 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: colors.cardColor,
     paddingBottom: 50,
-
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "stretch",
@@ -124,7 +123,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     textAlign: "center",
     marginHorizontal: 10,
-    color: colors.primary,
+    color: colors.translucentWhite,
     fontWeight: "bold",
     marginBottom: 10
   }

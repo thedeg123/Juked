@@ -16,7 +16,6 @@ import ModalHomeCard from "../components/ModalCards/ModalHomeCard";
 const HomeScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [reviews, setReviews] = useState(null);
-  const [content, setContent] = useState(null);
   const [authors, setAuthors] = useState(null);
   const [following, setFollowing] = useState(null);
   const [userShow, setUserShow] = useState(null);
@@ -56,28 +55,14 @@ const HomeScreen = ({ navigation }) => {
           ratingTypes,
           start_after
         );
-    if (!local_reviews.length) {
-      return setAllowRefresh(false);
-    }
+    if (!local_reviews.length) return setAllowRefresh(false);
     setStartAfter(start_next);
-    let cid_byType = { track: new Set(), album: new Set(), artist: new Set() };
-    local_reviews.forEach(r => cid_byType[r.data.type].add(r.data.content_id));
-    let temp_content = content ? content : {};
-    for (let [type, cids] of Object.entries(cid_byType)) {
-      cids = Array.from(cids);
-      if (!cids.length) continue;
-      await useMusic
-        .findContent(cids, type)
-        .then(result => result.forEach(el => (temp_content[el.id] = el)));
-    }
-    setContent(temp_content);
     temp_authors = authors ? authors : {};
     await firestore
       .batchAuthorRequest([
         ...new Set(
-          local_reviews
-            .map(review => review.data.author)
-            .filter(uid => temp_authors[uid] === undefined)
+          local_reviews.map(review => review.data.author)
+          //            .filter(uid => temp_authors[uid] === undefined)
         )
       ])
       .then(res => res.forEach(r => (temp_authors[r.id] = r.data)));
@@ -93,7 +78,7 @@ const HomeScreen = ({ navigation }) => {
     fetchHomeScreenData(10, null);
   }, []);
 
-  if (!content || !reviews || !authors || !following)
+  if (!reviews || !authors || !following)
     return <LoadingIndicator></LoadingIndicator>;
   return (
     <View style={{ flex: 1, marginHorizontal: 5 }}>
@@ -106,10 +91,10 @@ const HomeScreen = ({ navigation }) => {
         data={reviews}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => {
-          return content[item.data.content_id] && authors[item.data.author] ? ( //for when we have fetched new reviews but not finished fetching new content //we dont want our content/authors to be undefined, so we skip and wait to finish the fetch
+          return authors[item.data.author] ? ( //we dont want our authors to be undefined, so we skip and wait to finish the fetch
             <HomeScreenItem
               review={item}
-              content={content[item.data.content_id]}
+              content={item.data.content}
               author={authors[item.data.author]}
             ></HomeScreenItem>
           ) : null;

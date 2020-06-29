@@ -7,7 +7,7 @@ import {
   ImageBackground,
   TouchableOpacity
 } from "react-native";
-import colors from "../../constants/colors";
+import colors, {blurRadius} from "../../constants/colors";
 import ContentPic from "../HomeScreenComponents/ContentPic";
 import navigateContent from "../../helpers/navigateContent";
 import { withNavigation } from "react-navigation";
@@ -32,7 +32,7 @@ const ProfileListItem = ({ navigation, content, review, width, user }) => {
       <View style={styles.shadow}>
         <ImageBackground
           source={{ uri: content.image }}
-          blurRadius={20}
+          blurRadius={blurRadius}
           style={{ width, ...styles.imageBackgroundStyle }}
         >
           <View style={styles.contentContainer}>

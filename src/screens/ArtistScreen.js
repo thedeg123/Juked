@@ -110,7 +110,9 @@ const ArtistScreen = ({ navigation }) => {
         style={styles.imageBackgroundStyle}
         resizeMode="repeat"
       >
-        <Text style={styles.title}>{artist.name}</Text>
+        <View style={styles.child}>
+          <Text style={styles.title}>{artist.name}</Text>
+        </View>
       </ImageBackground>
       <Text style={styles.sectionStyle}>Reviews</Text>
       <View style={{ marginHorizontal: 10 }}>
@@ -166,6 +168,11 @@ ArtistScreen.navigationOptions = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   column: { flexShrink: 1, width: "50%" },
+  child: {
+    flex: 1,
+    backgroundColor: colors.darkener,
+    justifyContent: "flex-end"
+  },
   title: {
     fontSize: 50,
     fontWeight: "bold",
@@ -186,12 +193,10 @@ const styles = StyleSheet.create({
   },
   imageBackgroundStyle: {
     flex: 1,
-    justifyContent: "flex-end",
     height: 250,
     resizeMode: "cover",
     overflow: "hidden",
-    alignSelf: "stretch",
-    borderColor: colors.shadow
+    alignSelf: "stretch"
   },
   rating: {
     color: colors.primary,

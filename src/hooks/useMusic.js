@@ -10,6 +10,7 @@ export default class useMusic {
     this.remover = null;
     this.country_code = "US";
     this.base_path = "https://api.spotify.com/v1";
+    this.cached_content = { track: {}, album: {}, artist: {} };
   }
   async connectToken() {
     console.log("connecting token");
@@ -80,9 +81,16 @@ export default class useMusic {
    */
   async findTrack(id) {
     if (!id) console.error("Find track should be passed id");
-    return await this.requestAPI(`/tracks/${id}`, {
-      market: this.country_code
-    }).then(track => simplifyContent(track, "track"));
+    let content;
+    if (this.cached_content.track[id]) {
+      content = this.cached_content["track"][id];
+    } else {
+      content = await this.requestAPI(`/tracks/${id}`, {
+        market: this.country_code
+      }).then(track => simplifyContent(track, "track"));
+      this.cached_content.track[id] = content;
+    }
+    return content;
   }
   /**
    * @async
@@ -109,10 +117,17 @@ export default class useMusic {
    * @return {null}
    */
   async findAlbum(id) {
-    if (!id) console.error("Find albums should be passed ids");
-    return await this.requestAPI(`/albums/${id}`, {
-      market: this.country_code
-    }).then(album => simplifyContent(album, "album"));
+    if (!id) console.error("Find albums should be passed id");
+    let content;
+    if (this.cached_content.album[id]) {
+      content = this.cached_content.album[id];
+    } else {
+      content = await this.requestAPI(`/albums/${id}`, {
+        market: this.country_code
+      }).then(album => simplifyContent(album, "album"));
+      this.cached_content.album[id] = content;
+    }
+    return content;
   }
   async findAlbumsOfAnArtist(id) {
     if (!id) console.error("Find albums of artist should be passed id");
@@ -148,9 +163,16 @@ export default class useMusic {
    */
   async findArtist(id) {
     if (!id) console.error("Find artist should be passed id");
-    return await this.requestAPI(`/artists/${id}`, {
-      market: this.country_code
-    }).then(artist => simplifyContent(artist, "artist"));
+    let content;
+    if (this.cached_content.artist[id]) {
+      content = this.cached_content.artist[id];
+    } else {
+      content = await this.requestAPI(`/artists/${id}`, {
+        market: this.country_code
+      }).then(artist => simplifyContent(artist, "artist"));
+      this.cached_content.artist[content.id] = content;
+    }
+    return content;
   }
   async findContent(ids, type) {
     switch (type) {

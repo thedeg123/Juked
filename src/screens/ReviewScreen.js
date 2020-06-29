@@ -5,12 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
-  ScrollView,
   Keyboard
 } from "react-native";
 import context from "../context/context";
-import UserPreview from "../components/HomeScreenComponents/UserPreview";
-import colors from "../constants/colors";
+import colors, { blurRadius } from "../constants/colors";
 import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import firebase from "firebase";
@@ -160,7 +158,7 @@ const ReviewScreen = ({ navigation }) => {
   return (
     <ImageBackground
       style={{ flex: 1 }}
-      blurRadius={70}
+      blurRadius={blurRadius}
       source={{ uri: content.image }}
     >
       <View

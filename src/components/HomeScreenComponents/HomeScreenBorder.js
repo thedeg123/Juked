@@ -5,7 +5,7 @@ import {
   ImageBackground,
   TouchableOpacity
 } from "react-native";
-import colors from "../../constants/colors";
+import colors, { blurRadius } from "../../constants/colors";
 import { withNavigation } from "react-navigation";
 import navigateContent from "../../helpers/navigateContent";
 
@@ -33,7 +33,7 @@ const HomeScreenBorder = ({
     >
       <ImageBackground
         source={{ uri: content.image }}
-        blurRadius={70}
+        blurRadius={blurRadius}
         style={review.data.is_review ? styles.withTitle : styles.noTitle}
       >
         <View style={styles.child}>{children}</View>

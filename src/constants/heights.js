@@ -1,3 +1,3 @@
 export default {
-  tabBarHeight: 45
+  tabBarHeight: 40
 };

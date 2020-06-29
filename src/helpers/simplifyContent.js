@@ -65,6 +65,7 @@ export default simplifyContent = (content, type) => {
           ? content.images[0]["url"]
           : images.artistDefault,
         name: content.name,
+        genres: content.genres,
         release_date: content.release_date,
         string_release_date: toStringDate(content.release_date),
         id: content.id,
@@ -78,7 +79,8 @@ export default simplifyContent = (content, type) => {
                   image: content.images.length
                     ? content.images[0]["url"]
                     : images.artistDefault,
-                  url: content.external_urls.spotify
+                  url: content.external_urls.spotify,
+                  genres: content.genres
                 },
                 "track_album"
               )
@@ -91,6 +93,7 @@ export default simplifyContent = (content, type) => {
       return {
         name: content.name,
         id: content.id,
+        genres: content.genres,
         url: content.external_urls.spotify,
         image: content.images.length
           ? content.images[0]["url"]

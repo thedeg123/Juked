@@ -22,6 +22,8 @@ import ModalProfileCard from "../components/ModalCards/ModalProfileCard";
 import ModalButton from "../components/ModalCards/ModalButton";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
+import OptionBar from "../components/OptionBar";
+import { profileButtonOptions } from "../constants/buttonOptions";
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, useMusic, disconnect } = useContext(context);
@@ -29,12 +31,12 @@ const UserProfileScreen = ({ navigation }) => {
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState(null);
-  const [content, setContent] = useState(null);
   const [followsYou, setFollowsYou] = useState(null);
   const [showProfileCard, setShowProfileCard] = useState(false);
   const [userFollowing, setUserFollowing] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [remover, setRemover] = useState(null);
+  const [graphType, setGraphType] = useState(profileButtonOptions[0].type);
 
   const updateFollow = async () => {
     firestore
@@ -43,6 +45,21 @@ const UserProfileScreen = ({ navigation }) => {
     return firestore
       .followingRelationExists(firestore.fetchCurrentUID(), uid)
       .then(res => setUserFollowing(res));
+  };
+
+  const graphDataContentSelector = graphType => {
+    switch (graphType) {
+      case "all":
+        return user.review_data;
+      case "track":
+        return user.review_data_songs;
+      case "album":
+        return user.review_data_albums;
+      case "artist":
+        return user.review_data_artists;
+      default:
+        return;
+    }
   };
 
   const fetch = async () => {
@@ -59,20 +76,6 @@ const UserProfileScreen = ({ navigation }) => {
         .then(res => res[0])
     };
     setReviews(reviews);
-    let cid_byType = {
-      track: new Set(reviews["track"].map(r => r.data.content_id)),
-      album: new Set(reviews["album"].map(r => r.data.content_id)),
-      artist: new Set(reviews["artist"].map(r => r.data.content_id))
-    };
-    let temp_content = {};
-    for (let [type, cids] of Object.entries(cid_byType)) {
-      cids = Array.from(cids);
-      if (!cids.length) continue;
-      await useMusic
-        .findContent(cids, type)
-        .then(result => result.forEach(el => (temp_content[el.id] = el)));
-    }
-    setContent(temp_content);
     updateFollow();
   };
 
@@ -111,31 +114,16 @@ const UserProfileScreen = ({ navigation }) => {
           start_after
         );
         if (!reviews.length) return [[], null];
-        const music = await useMusic
-          .findContent(
-            reviews.map(review => review.data.content_id),
-            types[0]
-          )
-          .then(res => {
-            const ret = {};
-            res.forEach(m => (ret[m.id] = m));
-            return ret;
-          });
-        return [
-          reviews.map(r => {
-            return { review: r, content: music[r.data.content_id] };
-          }),
-          start_next
-        ];
+        return [reviews, start_next];
       },
       renderItem: ({ item }) => (
         <HomeScreenItem
-          review={item.review}
-          content={item.content}
+          review={item}
+          content={item.data.content}
           author={user}
         ></HomeScreenItem>
       ),
-      keyExtractor: item => item.review.id + item.review.content_id
+      keyExtractor: item => item.id + item.content_id
     });
   };
 
@@ -143,8 +131,7 @@ const UserProfileScreen = ({ navigation }) => {
     !user ||
     !reviews ||
     typeof followsYou !== "boolean" ||
-    typeof userFollowing !== "boolean" ||
-    !content
+    typeof userFollowing !== "boolean"
   ) {
     return (
       <Container>
@@ -221,34 +208,42 @@ const UserProfileScreen = ({ navigation }) => {
               Add a bio from the Account screen
             </Text>
           ) : null}
-          <Text style={styles.reviewTitleStyle}>Reviews</Text>
         </View>
-        {/* TODO: DELETE OR CASE BEFORE LAUNCH */}
+        <OptionBar
+          options={profileButtonOptions}
+          searchType={graphType}
+          containerStyle={{ marginHorizontal: 5, marginTop: 5 }}
+          onPress={setGraphType}
+        ></OptionBar>
         <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-          <BarGraph data={user.review_data || new Array(11).fill(0)} />
+          {/* TODO: DELETE OR CASE BEFORE LAUNCH */}
+          <BarGraph data={graphDataContentSelector(graphType)} />
         </View>
-        <ListPreview
-          title="Most Recent Artists"
-          content={content}
-          user={user}
-          data={reviews["artist"]}
-          onPress={() => navigateContent("Artists", ["artist"])}
-        />
-        <ListPreview
-          title="Most Recent Albums"
-          user={user}
-          content={content}
-          data={reviews["album"]}
-          onPress={() => navigateContent("Albums", ["album"])}
-        />
-        <ListPreview
-          title="Most Recent Songs"
-          user={user}
-          content={content}
-          data={reviews["track"]}
-          onPress={() => navigateContent("Songs", ["track"])}
-          marginBottom={10}
-        />
+        {reviews["artist"].length && ["all", "artist"].includes(graphType) ? (
+          <ListPreview
+            title="Most Recent Artists"
+            user={user}
+            data={reviews["artist"]}
+            onPress={() => navigateContent("Artists", ["artist"])}
+          />
+        ) : null}
+        {reviews["album"].length && ["all", "album"].includes(graphType) ? (
+          <ListPreview
+            title="Most Recent Albums"
+            user={user}
+            data={reviews["album"]}
+            onPress={() => navigateContent("Albums", ["album"])}
+          />
+        ) : null}
+        {reviews["track"].length && ["all", "track"].includes(graphType) ? (
+          <ListPreview
+            title="Most Recent Songs"
+            user={user}
+            data={reviews["track"]}
+            onPress={() => navigateContent("Songs", ["track"])}
+            marginBottom={10}
+          />
+        ) : null}
       </ScrollView>
       <ModalProfileCard
         showModal={showProfileCard}

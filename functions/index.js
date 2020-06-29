@@ -20,7 +20,10 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
       created: Date.now(),
       num_follower: 0,
       num_following: 0,
-      review_data: new Array(11).fill(0)
+      review_data: new Array(11).fill(0),
+      review_data_songs: new Array(11).fill(0),
+      review_data_albums: new Array(11).fill(0),
+      review_data_artists: new Array(11).fill(0)
     });
 });
 
@@ -131,9 +134,27 @@ exports.updateContent = functions.firestore
     const userContent = await user.get().then(res => res.data());
     //TODO: DELETE OR CASE ON LAUNCH
     const review_data = userContent.review_data || new Array(11).fill(0);
+    const review_data_songs =
+      userContent.review_data_songs || new Array(11).fill(0);
+    const review_data_albums =
+      userContent.review_data_albums || new Array(11).fill(0);
+    const review_data_artists =
+      userContent.review_data_artists || new Array(11).fill(0);
     review_data[Number(newReview.rating)] += 1;
+    review_data_songs[Number(newReview.rating)] += Number(
+      newReview.type === "track"
+    );
+    review_data_albums[Number(newReview.rating)] += Number(
+      newReview.type === "album"
+    );
+    review_data_artists[Number(newReview.rating)] += Number(
+      newReview.type === "artist"
+    );
     return user.update({
-      review_data
+      review_data,
+      review_data_songs,
+      review_data_albums,
+      review_data_artists
     });
   });
 
@@ -165,10 +186,38 @@ exports.updateContentOnEdit = functions.firestore
     const userContent = await user.get().then(res => res.data());
     //TODO: DELETE OR CASE ON LAUNCH
     const review_data = userContent.review_data || new Array(11).fill(0);
+    const review_data_songs =
+      userContent.review_data_songs || new Array(11).fill(0);
+    const review_data_albums =
+      userContent.review_data_albums || new Array(11).fill(0);
+    const review_data_artists =
+      userContent.review_data_artists || new Array(11).fill(0);
     review_data[Number(newReview.rating)] += 1;
     review_data[Number(oldReview.rating)] -= 1;
+    review_data_songs[Number(newReview.rating)] += Number(
+      newReview.type === "track"
+    );
+    review_data_songs[Number(oldReview.rating)] -= Number(
+      newReview.type === "track"
+    );
+    review_data_albums[Number(newReview.rating)] += Number(
+      newReview.type === "album"
+    );
+    review_data_albums[Number(oldReview.rating)] -= Number(
+      newReview.type === "album"
+    );
+    review_data_artists[Number(newReview.rating)] += Number(
+      newReview.type === "artist"
+    );
+    review_data_artists[Number(oldReview.rating)] -= Number(
+      newReview.type === "artist"
+    );
+
     return user.update({
-      review_data
+      review_data,
+      review_data_songs,
+      review_data_albums,
+      review_data_artists
     });
   });
 
@@ -195,12 +244,39 @@ exports.updateContentOnDelete = functions.firestore
     const userContent = await user.get().then(res => res.data());
     //TODO: DELETE OR CASE ON LAUNCH
     const review_data = userContent.review_data || new Array(11).fill(0);
+    const review_data_songs =
+      userContent.review_data_songs || new Array(11).fill(0);
+    const review_data_albums =
+      userContent.review_data_albums || new Array(11).fill(0);
+    const review_data_artists =
+      userContent.review_data_artists || new Array(11).fill(0);
     review_data[Number(delReview.rating)] -= 1;
+    review_data_songs[Number(delReview.rating)] -= Number(
+      delReview.type === "track"
+    );
+    review_data_albums[Number(delReview.rating)] -= Number(
+      delReview.type === "album"
+    );
+    review_data_artists[Number(delReview.rating)] -= Number(
+      delReview.type === "artist"
+    );
     user.update({
-      review_data
+      review_data,
+      review_data_songs,
+      review_data_albums,
+      review_data_artists
     });
-    return await firestore
+    await firestore
       .collection("comments")
+      .where("review", "==", snap.id)
+      .get()
+      .then(res => {
+        var batch = firestore.batch();
+        res.forEach(doc => batch.delete(doc.ref));
+        return batch.commit();
+      });
+    return await firestore
+      .collection("likes")
       .where("review", "==", snap.id)
       .get()
       .then(res => {
@@ -215,7 +291,7 @@ exports.updateReviewOnAddComment = functions.firestore
   .onCreate(async (snap, context) => {
     const newComment = snap.data();
     const ref = await firestore.collection("reviews").doc(newComment.review);
-    ref.update({
+    return ref.update({
       num_comments: admin.firestore.FieldValue.increment(1),
       popularity: admin.firestore.FieldValue.increment(1)
     });
@@ -230,10 +306,11 @@ exports.updateReviewOnDeleteComment = functions.firestore
     const ref = await firestore.collection("reviews").doc(delComment.review);
     const refExists = await ref.get().then(res => res.exists);
     if (refExists)
-      ref.update({
+      return ref.update({
         num_comments: admin.firestore.FieldValue.increment(-1),
         popularity: admin.firestore.FieldValue.increment(-1)
       });
+    return;
   });
 
 /**

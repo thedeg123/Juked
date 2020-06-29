@@ -3,6 +3,7 @@ import {
   StyleSheet,
   View,
   FlatList,
+  Text,
   RefreshControl,
   ActivityIndicator
 } from "react-native";
