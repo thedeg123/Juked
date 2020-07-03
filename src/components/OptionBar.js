@@ -1,9 +1,23 @@
 import React from "react";
-import { View, StyleSheet, TouchableOpacity, Text, Animated } from "react-native";
+import {
+  View,
+  StyleSheet,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+  TouchableOpacity,
+  Text
+} from "react-native";
 import colors from "../constants/colors";
-
+import { customBarAnimation } from "../constants/heights";
 
 const OptionBar = ({ options, searchType, containerStyle, onPress }) => {
+  if (Platform.OS === "android") {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
+
   const buttonSwitch = (type, title) => {
     return (
       <TouchableOpacity
@@ -14,7 +28,10 @@ const OptionBar = ({ options, searchType, containerStyle, onPress }) => {
             ? styles.activatedButtonStyle
             : styles.deactivatedButtonStyle
         }
-        onPress={() => onPress(type)}
+        onPress={() => {
+          LayoutAnimation.configureNext(customBarAnimation);
+          onPress(type);
+        }}
       >
         <Text
           style={

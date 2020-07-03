@@ -50,6 +50,7 @@ export default simplifyContent = (content, type) => {
         }),
         name: content.name,
         id: content.id,
+        album_id: content.album_id,
         track_number: content.track_number,
         image: content.image,
         url: content.url,
@@ -76,6 +77,7 @@ export default simplifyContent = (content, type) => {
               simplifyContent(
                 {
                   ...track,
+                  album_id: content.id,
                   image: content.images.length
                     ? content.images[0]["url"]
                     : images.artistDefault,

@@ -44,27 +44,26 @@ const ProfileListItem = ({ navigation, content, review, width, user }) => {
               ) : null}
             </View>
           </View>
-          <View style={{ paddingLeft: 5, backgroundColor: colors.darkener }}>
-            <Text
-              numberOfLines={1}
-              style={{
-                color: colors.white,
-                fontWeight: "bold",
-                fontSize: 15
-              }}
-            >
-              {content.name}
-            </Text>
-          </View>
         </ImageBackground>
       </View>
+      <Text
+        numberOfLines={1}
+        style={{
+          textAlign:"center",
+          color: colors.shadow,
+          fontWeight: "bold",
+          fontSize: 18,
+          width: 150
+        }}
+      >
+        {content.name}
+      </Text>
     </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
-    borderRadius: 5,
     marginLeft: 10
   },
   shadow: {

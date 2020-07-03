@@ -5,12 +5,10 @@ class useFirestore {
   constructor() {
     this.db = firebase.firestore();
     this.reviews_db = this.db.collection("reviews");
-    this.follow_db = this.db.collection("follow");
     this.users_db = this.db.collection("users");
     this.content_db = this.db.collection("content");
+    this.interactions_db = this.db.collection("interactions");
     this.auth = firebase.auth();
-    this.comments_db = this.db.collection("comments");
-    this.likes_db = this.db.collection("likes");
   }
 
   /**
@@ -130,6 +128,33 @@ class useFirestore {
   }
 
   // -----------------------------------------------------------------------------------------------------------
+  // Interaction relations
+
+  /**
+   * @argument {Number} limit - the number of items to return per batch
+   * @argument {Object} start_after - pagination object
+   */
+  /**
+   * @argument {Number} limit - the number of items to return per batch
+   * @argument {Object} start_after - pagination object
+   */
+  async getUserInteractions(limit = 10, start_after = null) {
+    let base = this.interactions_db
+      .where("review_author", "==", this.fetchCurrentUID())
+      .orderBy("last_modified", "desc");
+    if (start_after) base = base.startAfter(start_after);
+    return await base
+      .limit(limit)
+      .get()
+      .then(res => [
+        res.docs.map(interaction => {
+          return { id: interaction.id, data: interaction.data() };
+        }),
+        res.docs.pop()
+      ]);
+  }
+
+  // -----------------------------------------------------------------------------------------------------------
   // Like relations
 
   /**
@@ -137,7 +162,8 @@ class useFirestore {
    * @return {Array<Object>} - Array of comment objects
    */
   async getLikes(rid) {
-    return await this.likes_db
+    return await this.interactions_db
+      .where("type", "==", "like")
       .where("review", "==", rid)
       .orderBy("last_modified", "desc")
       .get()
@@ -152,7 +178,8 @@ class useFirestore {
    * @argument {Object} start_after - pagination object
    */
   async getUserLikes(limit = 10, start_after = null) {
-    let base = this.likes_db
+    let base = this.interactions_db
+      .where("type", "==", "like")
       .where("review_author", "==", this.fetchCurrentUID())
       .orderBy("last_modified", "desc");
     if (start_after) base = base.startAfter(start_after);
@@ -168,7 +195,7 @@ class useFirestore {
   }
   async userLikesReview(rid) {
     const lid = rid + this.fetchCurrentUID();
-    return await this.likes_db
+    return await this.interactions_db
       .doc(lid)
       .get()
       .then(res => res.exists);
@@ -180,10 +207,11 @@ class useFirestore {
       popularity: firebase.firestore.FieldValue.increment(1),
       num_likes: firebase.firestore.FieldValue.increment(1)
     });
-    return this.likes_db.doc(lid).set({
+    return this.interactions_db.doc(lid).set({
       author: this.fetchCurrentUID(),
       last_modified: Date.now(),
       review: rid,
+      type: "like",
       review_author,
       content
     });
@@ -195,7 +223,7 @@ class useFirestore {
       popularity: firebase.firestore.FieldValue.increment(-1),
       num_likes: firebase.firestore.FieldValue.increment(-1)
     });
-    return this.likes_db.doc(lid).delete();
+    return this.interactions_db.doc(lid).delete();
   }
 
   // -----------------------------------------------------------------------------------------------------------
@@ -208,10 +236,6 @@ class useFirestore {
       .then(review => {
         return { id: review.id, data: review.data() };
       });
-  }
-
-  async getList(lid) {
-    return this.getReview(lid);
   }
 
   async addReview(cid, type, content, rating, text) {
@@ -230,6 +254,7 @@ class useFirestore {
       media_type: "review"
     });
   }
+
   async updateReview(rid, cid, type, rating, text) {
     let body = {};
     typeof text == "string" ? (body["text"] = text) : null;
@@ -277,6 +302,7 @@ class useFirestore {
 
   async getMostPopularReviewsByType(content_id, limit = 3, start_after = null) {
     let base = this.reviews_db
+      .where("media_type", "==", "review")
       .where("content_id", "==", content_id)
       .where("is_review", "==", true)
       .orderBy("popularity", "desc");
@@ -304,6 +330,7 @@ class useFirestore {
     start_after = null
   ) {
     let base = this.reviews_db
+      .where("media_type", "==", "review")
       .where("author", "==", uid)
       .orderBy("last_modified", "desc")
       .where("type", "in", types);
@@ -333,6 +360,7 @@ class useFirestore {
    */
   async getReviewsByType(types, limit = 20, review_type, start_after) {
     let base = this.reviews_db
+      .where("media_type", "==", "review")
       .orderBy("last_modified", "desc")
       .where("type", "in", types);
 
@@ -403,18 +431,25 @@ class useFirestore {
   // -----------------------------------------------------------------------------------------------------------
   // Follow relations
 
+  // follower = author
+  // following = review_author
   async followUser(uid) {
-    return await this.follow_db.doc(this.auth.currentUser.email + uid).set({
-      follower: this.auth.currentUser.email,
-      following: uid,
-      last_modified: Date.now()
-    });
+    return await this.interactions_db
+      .doc(this.auth.currentUser.email + uid)
+      .set({
+        author: this.auth.currentUser.email,
+        review_author: uid,
+        last_modified: Date.now(),
+        type: "follow"
+      });
   }
   async unfollowUser(uid) {
-    return await this.follow_db.doc(this.auth.currentUser.email + uid).delete();
+    return await this.interactions_db
+      .doc(this.auth.currentUser.email + uid)
+      .delete();
   }
   async followingRelationExists(follower_uid, following_uid) {
-    return await this.follow_db
+    return await this.interactions_db
       .doc(follower_uid + following_uid)
       .get()
       .then(doc => doc.exists);
@@ -426,7 +461,7 @@ class useFirestore {
    */
   async getUserFollows(limit = 10, start_after = null) {
     let base = this.follow_db
-      .where("following", "==", this.fetchCurrentUID())
+      .where("review_author", "==", this.fetchCurrentUID())
       .orderBy("last_modified", "desc");
     if (start_after) base = base.startAfter(start_after);
     return await base
@@ -444,12 +479,13 @@ class useFirestore {
    * @return {Set} - the set of followers UIDs.
    */
   async getFollowers(uid) {
-    return await this.follow_db
-      .where("following", "==", uid)
+    return await this.interactions_db
+      .where("type", "==", "follow")
+      .where("review_author", "==", uid)
       .get()
       .then(res => {
         let ret = [];
-        res.forEach(d => ret.push(d.data().follower));
+        res.forEach(d => ret.push(d.data().author));
         return ret;
       });
   }
@@ -458,12 +494,13 @@ class useFirestore {
    * @return {Set} - the set of following UIDs.
    */
   async getFollowing(uid) {
-    return await this.follow_db
-      .where("follower", "==", uid)
+    return await this.interactions_db
+      .where("type", "==", "follow")
+      .where("author", "==", uid)
       .get()
       .then(res => {
         let ret = [];
-        res.forEach(d => ret.push(d.data().following));
+        res.forEach(d => ret.push(d.data().review_author));
         return ret;
       });
   }
@@ -475,7 +512,8 @@ class useFirestore {
    * @return {Array<Object>} - Array of comment objects
    */
   async getComments(rid) {
-    return await this.comments_db
+    return await this.interactions_db
+      .where("type", "==", "comment")
       .where("review", "==", rid)
       .orderBy("last_modified", "desc")
       .get()
@@ -492,7 +530,8 @@ class useFirestore {
    * @argument {Object} start_after - pagination object
    */
   async getUserComments(limit = 10, start_after = null) {
-    let base = this.comments_db
+    let base = this.interactions_db
+      .where("type", "==", "like")
       .where("review_author", "==", this.fetchCurrentUID())
       .orderBy("last_modified", "desc");
     if (start_after) base = base.startAfter(start_after);
@@ -512,9 +551,10 @@ class useFirestore {
    * @argument {Object} content - the assoceated content object
    */
   async addComment(rid, review_author, text, content = {}) {
-    return await this.comments_db.add({
+    return await this.interactions_db.add({
       author: this.fetchCurrentUID(),
       review: rid,
+      type: "comment",
       last_modified: Date.now(),
       content,
       review_author,
@@ -525,7 +565,7 @@ class useFirestore {
    * @argument {String} did - the unique id of the comment to delete
    */
   async deleteComment(did) {
-    return await this.comments_db.doc(did).delete();
+    return await this.interactions_db.doc(did).delete();
   }
 }
 

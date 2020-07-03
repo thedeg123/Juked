@@ -4,12 +4,21 @@ import {
   View,
   TouchableOpacity,
   Text,
+  LayoutAnimation,
+  UIManager,
+  Platform,
   StyleSheet
 } from "react-native";
 import { AntDesign, Octicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import { customSearchAnimation } from "../constants/heights";
 
 const SearchBar = ({ term, onTermChange, onTermSubmit, keyboardIsActive }) => {
+  if (Platform.OS === 'android') {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
   const [cancel, setCancel] = useState(false);
   const inputRef = useRef(null);
   return (
@@ -30,7 +39,7 @@ const SearchBar = ({ term, onTermChange, onTermSubmit, keyboardIsActive }) => {
           returnKeyType={"search"}
           value={term}
           onChangeText={onTermChange}
-          onFocus={() => setCancel(true)}
+          onFocus={() => {LayoutAnimation.configureNext(customSearchAnimation); setCancel(true)}}
           onSubmitEditing={() => {
             onTermSubmit(term);
             return setCancel(false);
@@ -51,6 +60,7 @@ const SearchBar = ({ term, onTermChange, onTermSubmit, keyboardIsActive }) => {
       {cancel ? (
         <TouchableOpacity
           onPress={() => {
+            LayoutAnimation.configureNext(customSearchAnimation)
             inputRef.current.blur();
             onTermSubmit("");
             return setCancel(false);

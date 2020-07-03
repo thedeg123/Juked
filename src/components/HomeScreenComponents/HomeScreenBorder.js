@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
   ImageBackground,
+  LayoutAnimation,
+  UIManager,
+  Platform,
   TouchableOpacity
 } from "react-native";
 import colors, { blurRadius } from "../../constants/colors";
 import { withNavigation } from "react-navigation";
 import navigateContent from "../../helpers/navigateContent";
+import { customCardAnimation } from "../../constants/heights";
 
 const HomeScreenBorder = ({
   navigation,
@@ -16,20 +20,33 @@ const HomeScreenBorder = ({
   review,
   author
 }) => {
+  const [show, setShow] = useState(false);
+
+  if (Platform.OS === "android") {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
+
+  useEffect(() => {
+    LayoutAnimation.configureNext(customCardAnimation);
+    setShow(true);
+  }, []);
+
   return (
     <TouchableOpacity
-      style={styles.shadowEdge}
+      style={show ? styles.showBox : styles.hideBox}
       activeOpacity={0.8}
-      onPress={() =>
+      onPress={() => {
         navigateContent(
           navigation,
-          content.id,
+          review.content_id,
           content.album_id,
           review,
           content,
           author
-        )
-      }
+        );
+      }}
     >
       <ImageBackground
         source={{ uri: content.image }}
@@ -42,7 +59,7 @@ const HomeScreenBorder = ({
   );
 };
 
-let boxStyle = {
+const boxStyle = {
   borderRadius: 5,
   margin: 5,
   marginBottom: 0,
@@ -53,18 +70,21 @@ let boxStyle = {
   borderWidth: 0.5,
   borderColor: colors.shadow
 };
+
+const shadowEdge = {
+  shadowColor: colors.shadow,
+  shadowOpacity: 1,
+  shadowOffset: { width: 3, height: 3 },
+  shadowRadius: 1
+};
+
 const styles = StyleSheet.create({
   withTitle: {
     ...boxStyle,
     height: 135 //100+17+17
   },
-  shadowEdge: {
-    shadowColor: colors.shadow,
-    shadowOpacity: 1,
-    shadowOffset: { width: 3, height: 3 },
-    shadowRadius: 1,
-    flex: 1
-  },
+  showBox: shadowEdge,
+  hideBox: { ...shadowEdge, width: 0 },
   child: {
     flex: 1,
     backgroundColor: colors.darkener

@@ -23,7 +23,7 @@ const FollowItem = ({ navigation, item, user }) => {
         <UserPreview
           containerStyle={{ alignSelf: "center", marginRight: 5 }}
           img={user.profile_url}
-          uid={item.data.follower}
+          uid={item.data.author}
         ></UserPreview>
         <Text numberOfLines={2} style={[styles.textStyle, { flex: 1 }]}>
           {user.handle} followed you!

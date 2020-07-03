@@ -40,8 +40,9 @@ exports.deleteUser = functions.auth.user().onDelete(async user => {
     });
   //deleting all follows
   await firestore
-    .collection("follow")
-    .where("follower", "==", user.email)
+    .collection("interactons")
+    .where("type", "==", "follow")
+    .where("author", "==", user.email)
     .get()
     .then(res => {
       var batch = firestore.batch();
@@ -49,8 +50,9 @@ exports.deleteUser = functions.auth.user().onDelete(async user => {
       return batch.commit();
     });
   await firestore
-    .collection("follow")
-    .where("following", "==", user.email)
+    .collection("interactons")
+    .where("type", "==", "follow")
+    .where("review_author", "==", user.email)
     .get()
     .then(res => {
       var batch = firestore.batch();
@@ -65,12 +67,13 @@ exports.deleteUser = functions.auth.user().onDelete(async user => {
 });
 
 exports.Onfollow = functions.firestore
-  .document("follow/{fid}")
+  .document("interactions/{iid}")
   .onCreate(async (snap, context) => {
-    var batch = firestore.batch();
     const newFollow = snap.data();
-    const refFollowing = firestore.collection("users").doc(newFollow.following);
-    const refFollower = firestore.collection("users").doc(newFollow.follower);
+    if (newFollow.type !== "follow") return;
+    var batch = firestore.batch();
+    const refFollowing = firestore.collection("users").doc(newFollow.review_author);
+    const refFollower = firestore.collection("users").doc(newFollow.author);
     batch.update(refFollowing, {
       num_follower: admin.firestore.FieldValue.increment(1)
     });
@@ -81,12 +84,13 @@ exports.Onfollow = functions.firestore
   });
 
 exports.Onunfollow = functions.firestore
-  .document("follow/{fid}")
+  .document("interactions/{fid}")
   .onDelete(async (snap, context) => {
-    var batch = firestore.batch();
     const delFollow = snap.data();
-    const refFollowing = firestore.collection("users").doc(delFollow.following);
-    const refFollower = firestore.collection("users").doc(delFollow.follower);
+    if (delFollow.type !== "follow") return;
+    var batch = firestore.batch();
+    const refFollowing = firestore.collection("users").doc(delFollow.review_author);
+    const refFollower = firestore.collection("users").doc(delFollow.author);
     batch.update(refFollowing, {
       num_follower: admin.firestore.FieldValue.increment(-1)
     });
@@ -266,17 +270,8 @@ exports.updateContentOnDelete = functions.firestore
       review_data_albums,
       review_data_artists
     });
-    await firestore
-      .collection("comments")
-      .where("review", "==", snap.id)
-      .get()
-      .then(res => {
-        var batch = firestore.batch();
-        res.forEach(doc => batch.delete(doc.ref));
-        return batch.commit();
-      });
     return await firestore
-      .collection("likes")
+      .collection("interactions")
       .where("review", "==", snap.id)
       .get()
       .then(res => {

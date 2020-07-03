@@ -5,12 +5,6 @@ export const searchButtonOptions = [
   { type: "user", title: "Users" }
 ];
 
-export const notificationButtonOptions = [
-  { type: "likes", title: "Likes" },
-  { type: "comments", title: "Comments" },
-  { type: "follows", title: "Follows" }
-];
-
 export const profileButtonOptions = [
   { type: "all", title: "All" },
   { type: "track", title: "Songs" },

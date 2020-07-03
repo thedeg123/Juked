@@ -1,5 +1,5 @@
 const navigateContent = (navigation, cid, album_cid, review, content, user) => {
-  if (!review) {
+  if (!review || !review.data.is_review) {
     switch (content.type) {
       case "album":
         return navigation.push("Album", {

@@ -8,36 +8,21 @@ import {
   ActivityIndicator
 } from "react-native";
 import colors from "../constants/colors";
-import OptionBar from "../components/OptionBar";
 import LikeItem from "../components/NotificationScreenComponents/LikeItem";
 import CommentItem from "../components/NotificationScreenComponents/CommentItem";
 import FollowItem from "../components/NotificationScreenComponents/FollowItem";
-import { notificationButtonOptions } from "../constants/buttonOptions";
 import context from "../context/context";
+
 
 const NotificationScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const [currentUser, setCurrentUser] = useState(null);
-  const initialTab = notificationButtonOptions[0].type;
-  const [filterType, setFilterType] = useState(initialTab);
   const [users, setUsers] = useState({});
-  const [content, setContent] = useState({
-    likes: [],
-    comments: [],
-    follows: []
-  });
+  const [content, setContent] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingNext, setLoadingNext] = useState(false);
-  const [paginationItems, setPaginationItems] = useState({
-    likes: null,
-    comments: null,
-    follows: null
-  });
-  const [allowLoad, setAllowLoad] = useState({
-    likes: true,
-    comments: true,
-    follows: true
-  });
+  const [paginationItem, setPaginationItem] = useState(null);
+  const [allowLoad, setAllowLoad] = useState(true);
 
   const fetchUser = async ids => {
     if (!ids.length) return;
@@ -47,65 +32,32 @@ const NotificationScreen = ({ navigation }) => {
     return ret_users.forEach(user => (users[user.id] = user.data));
   };
 
-  const fetchDataCheck = async (
-    filterType,
-    startAfter,
-    resetRefresh = false
-  ) => {
-    let likes, comments, follows, paginator;
-    if (resetRefresh) allowLoad[filterType] = true;
-    switch (filterType) {
-      case "likes":
-        [likes, paginator] = await firestore.getUserLikes(10, startAfter);
-        setPaginationItems({ ...paginationItems, likes: paginator });
-        await fetchUser(likes.map(like => like.data.author));
-        if (!likes.length) {
-          setLoadingNext(false);
-          setAllowLoad({ ...allowLoad, likes: false });
-        }
-        resetRefresh
-          ? setContent({ ...content, likes })
-          : setContent({ ...content, likes: [...content["likes"], ...likes] });
-        return setRefreshing(false);
-      case "comments":
-        [comments, paginator] = await firestore.getUserComments(10, startAfter);
-        setPaginationItems({ ...paginationItems, comments: paginator });
-        await fetchUser(comments.map(comment => comment.data.author));
-        if (!comments.length) {
-          setLoadingNext(false);
-          setAllowLoad({ ...allowLoad, comments: false });
-        }
-        resetRefresh
-          ? setContent({ ...content, comments })
-          : setContent({
-              ...content,
-              comments: [...content["comments"], ...comments]
-            });
-        return setRefreshing(false);
-      case "follows":
-        [follows, paginator] = await firestore.getUserFollows(10, startAfter);
-        setPaginationItems({ ...paginationItems, follows: paginator });
-        await fetchUser(follows.map(follow => follow.data.follower));
-        if (!follows.length) {
-          setLoadingNext(false);
-          return setAllowLoad({ ...allowLoad, follows: false });
-        }
-        resetRefresh
-          ? setContent({ ...content, follows })
-          : setContent({
-              ...content,
-              follows: [...content["follows"], ...follows]
-            });
-        return setRefreshing(false);
-      default:
-        return setRefreshing(false);
+  const fetchDataCheck = async (startAfter, resetRefresh=false) => {
+    if (!resetRefresh && !allowLoad || loadingNext) return setRefreshing(false);
+    if (resetRefresh) setAllowLoad(true)
+
+    const [interactions, paginator] = await firestore.getUserInteractions( 10, startAfter );
+    setPaginationItem(paginator);
+    console.log(interactions)
+    await fetchUser(
+      interactions.map(interaction =>
+        interaction.data.author
+      )
+    );
+    if (!interactions.length) {
+      setLoadingNext(false);
+      setAllowLoad(false);
     }
+    resetRefresh
+      ? setContent(interactions)
+      : setContent([ ...content, ...interactions ]);
+    return setRefreshing(false);
   };
 
   const renderItem = ({ item }) => {
     const fetchReview = async () => firestore.getReview(item.data.review);
-    switch (filterType) {
-      case "likes":
+    switch (item.data.type) {
+      case "like":
         return (
           <LikeItem
             item={item}
@@ -114,7 +66,7 @@ const NotificationScreen = ({ navigation }) => {
             currentUser={currentUser}
           ></LikeItem>
         );
-      case "comments":
+      case "comment":
         return (
           <CommentItem
             item={item}
@@ -123,10 +75,11 @@ const NotificationScreen = ({ navigation }) => {
             currentUser={currentUser}
           ></CommentItem>
         );
-      case "follows":
+      case "follow":
         return (
-          <FollowItem item={item} user={users[item.data.follower]}></FollowItem>
+          <FollowItem item={item} user={users[item.data.author]}></FollowItem>
         );
+      default: return null
     }
   };
 
@@ -135,35 +88,21 @@ const NotificationScreen = ({ navigation }) => {
       firestore
         .getUser(firestore.fetchCurrentUID())
         .then(user => setCurrentUser(user));
-    if (!content[filterType].length)
-      fetchDataCheck(filterType, paginationItems[filterType]);
-  }, [filterType]);
+    if (!content.length)
+      fetchDataCheck( paginationItem);
+  }, []);
 
   return (
-    <View style={{ flex: 1, marginTop: 10 }}>
-      <View
-        style={{
-          paddingHorizontal: 5,
-          paddingBottom: 10,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.lightShadow
-        }}
-      >
-        <OptionBar
-          onPress={setFilterType}
-          options={notificationButtonOptions}
-          searchType={filterType}
-        ></OptionBar>
-      </View>
+    <View style={{ flex: 1 }}>
       <FlatList
         contentContainerStyle={{ paddingBottom: 85 }}
-        data={content[filterType]}
+        data={content}
         renderItem={renderItem}
         keyExtractor={item => item.id}
         onEndReached={async () => {
-          if (allowLoad[filterType] && content[filterType].length > 9) {
+          if (allowLoad && content.length > 9) {
             setLoadingNext(true);
-            await fetchDataCheck(filterType, paginationItems[filterType]);
+            await fetchDataCheck(paginationItem);
           }
         }}
         onEndReachedThreshold={0}
@@ -173,7 +112,7 @@ const NotificationScreen = ({ navigation }) => {
             refreshing={refreshing}
             onRefresh={async () => {
               setRefreshing(true);
-              await fetchDataCheck(filterType, null, true);
+              await fetchDataCheck( null, true);
             }}
           />
         }
