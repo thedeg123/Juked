@@ -40,7 +40,8 @@ export default simplifyContent = (content, type) => {
         release_date: content.album.release_date,
         string_release_date: toStringDate(content.album.release_date),
         id: content.id,
-        type: "track"
+        type: "track",
+        genres: content.genres ? content.genres : null
       };
     }
     case "track_album": {
@@ -54,7 +55,8 @@ export default simplifyContent = (content, type) => {
         track_number: content.track_number,
         image: content.image,
         url: content.url,
-        type: "track"
+        type: "track",
+        genres: content.genres
       };
     }
     case "album": {
@@ -66,7 +68,7 @@ export default simplifyContent = (content, type) => {
           ? content.images[0]["url"]
           : images.artistDefault,
         name: content.name,
-        genres: content.genres,
+        genres: content.genres ? content.genres : null,
         release_date: content.release_date,
         string_release_date: toStringDate(content.release_date),
         id: content.id,
@@ -82,7 +84,7 @@ export default simplifyContent = (content, type) => {
                     ? content.images[0]["url"]
                     : images.artistDefault,
                   url: content.external_urls.spotify,
-                  genres: content.genres
+                  genres: content.genres ? content.genres : null
                 },
                 "track_album"
               )
@@ -95,7 +97,7 @@ export default simplifyContent = (content, type) => {
       return {
         name: content.name,
         id: content.id,
-        genres: content.genres,
+        genres: content.genres ? content.genres : null,
         url: content.external_urls.spotify,
         image: content.images.length
           ? content.images[0]["url"]

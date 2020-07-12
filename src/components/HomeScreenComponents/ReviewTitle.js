@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   textStyle: {
     fontSize: 22,
     fontWeight: "bold",
-    color: colors.white
+    color: colors.translucentWhite
   }
 });
 export default ReviewTitle;

@@ -18,9 +18,13 @@ const HomeScreenBorder = ({
   children,
   content,
   review,
-  author
+  author,
+  onLongPress,
+  containerStyle,
+  height
 }) => {
   const [show, setShow] = useState(false);
+  if (review && review.data.type === "list") content = review.data.items[0];
 
   if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -29,70 +33,67 @@ const HomeScreenBorder = ({
   }
 
   useEffect(() => {
-    LayoutAnimation.configureNext(customCardAnimation);
+    if (!onLongPress) LayoutAnimation.configureNext(customCardAnimation);
     setShow(true);
   }, []);
 
   return (
-    <TouchableOpacity
-      style={show ? styles.showBox : styles.hideBox}
-      activeOpacity={0.8}
-      onPress={() => {
-        navigateContent(
-          navigation,
-          review.content_id,
-          content.album_id,
-          review,
-          content,
-          author
-        );
-      }}
-    >
-      <ImageBackground
-        source={{ uri: content.image }}
-        blurRadius={blurRadius}
-        style={review.data.is_review ? styles.withTitle : styles.noTitle}
+    show && (
+      <TouchableOpacity
+        style={[styles.showBox, containerStyle]}
+        activeOpacity={0.8}
+        onLongPress={onLongPress}
+        onPress={() => {
+          !onLongPress &&
+            navigateContent(
+              navigation,
+              review ? review.content_id : null,
+              content.album_id,
+              review,
+              content,
+              author
+            );
+        }}
       >
-        <View style={styles.child}>{children}</View>
-      </ImageBackground>
-    </TouchableOpacity>
+        <ImageBackground
+          source={{ uri: content.image }}
+          blurRadius={blurRadius}
+          style={[styles.boxStyle, { height: height }]}
+        >
+          <View style={styles.child}>{children}</View>
+        </ImageBackground>
+      </TouchableOpacity>
+    )
   );
 };
 
-const boxStyle = {
-  borderRadius: 5,
-  margin: 5,
-  marginBottom: 0,
-  resizeMode: "cover",
-  overflow: "hidden",
-  alignSelf: "stretch",
-  marginTop: 10,
-  borderWidth: 0.5,
-  borderColor: colors.shadow
-};
-
-const shadowEdge = {
-  shadowColor: colors.shadow,
-  shadowOpacity: 1,
-  shadowOffset: { width: 3, height: 3 },
-  shadowRadius: 1
-};
-
 const styles = StyleSheet.create({
-  withTitle: {
-    ...boxStyle,
-    height: 135 //100+17+17
+  boxStyle: {
+    borderRadius: 5,
+    margin: 5,
+    marginBottom: 0,
+    resizeMode: "cover",
+    overflow: "hidden",
+    alignSelf: "stretch",
+    marginTop: 10,
+    borderWidth: 0.5,
+    borderColor: colors.shadow
   },
-  showBox: shadowEdge,
-  hideBox: { ...shadowEdge, width: 0 },
+  showBox: {
+    shadowColor: colors.shadow,
+    shadowOpacity: 1,
+    shadowOffset: { width: 3, height: 3 },
+    shadowRadius: 1,
+    flex: 1
+  },
   child: {
     flex: 1,
     backgroundColor: colors.darkener
-  },
-  noTitle: {
-    ...boxStyle,
-    height: 100 //70+15+15
   }
 });
+
+HomeScreenBorder.defaultProps = {
+  height: 100
+};
 
 export default withNavigation(HomeScreenBorder);

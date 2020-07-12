@@ -5,10 +5,12 @@ import {
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
+  Keyboard,
   LayoutAnimation,
   UIManager,
+  FlatList,
   Platform,
-  Keyboard
+  KeyboardAvoidingView
 } from "react-native";
 import context from "../context/context";
 import colors, { blurRadius } from "../constants/colors";
@@ -19,18 +21,19 @@ import "firebase/firestore";
 import LikeBox from "../components/ReviewScreenComponents/LikeBox";
 import ReviewHeader from "../components/ReviewScreenComponents/ReviewHeader";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
-import UserListItem from "../components/UserPreview";
+import UserPreview from "../components/HomeScreenComponents/UserPreview";
+import UserListItem from "../components/UserList/UserListItem";
 import CommentBar from "../components/ReviewScreenComponents/CommentBar";
 import CommentsSection from "../components/ReviewScreenComponents/CommentsSection";
 import { customCommentBarAnimation } from "../constants/heights";
 
-const ReviewScreen = ({ navigation }) => {
+const UserListScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const firestoreConcurrent = firebase.firestore();
-  const [review, setReview] = useState(navigation.getParam("review"));
+  const [list, setList] = useState(navigation.getParam("list"));
   const user = navigation.getParam("user");
-  const content = navigation.getParam("content");
-  if (!review || !content || !user)
+
+  if (!list || !user)
     console.error("ReviewScreen should be passed review, content, user");
 
   const [showModal, setShowModal] = useState(false);
@@ -38,6 +41,7 @@ const ReviewScreen = ({ navigation }) => {
   const [comments, setComments] = useState([]);
   const [commentUsers, setCommentUsers] = useState(null);
   const [userLikes, setUserLikes] = useState(null);
+  const content = list.data && list.data.items[0];
   let remover = null;
 
   if (Platform.OS === "android") {
@@ -47,8 +51,8 @@ const ReviewScreen = ({ navigation }) => {
   }
 
   const fetchComments = async () => {
-    firestore.userLikesReview(review.id).then(res => setUserLikes(res));
-    const comments = await firestore.getComments(review.id);
+    firestore.userLikesReview(list.id).then(res => setUserLikes(res));
+    const comments = await firestore.getComments(list.id);
     const userComments = new Set(comments.map(com => com.data.author));
     const theUsers = {};
     await firestore
@@ -59,17 +63,17 @@ const ReviewScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    navigation.setParams({ setShowModal });
+    navigation.setParams({ setShowModal, title: list.data.title });
     fetchComments();
     const listener = navigation.addListener("didFocus", async () => {
       try {
         remover = await firestoreConcurrent
           .collection("reviews")
-          .doc(review.id)
-          .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
+          .doc(list.id)
+          .onSnapshot(doc => setList({ id: doc.id, data: doc.data() }));
       } catch {
         remover ? remover() : null;
-        console.error("error from ReviewScreen");
+        console.error("error from UserListScreen");
       }
     });
     const keyboardOpenListenter = Keyboard.addListener(
@@ -93,30 +97,60 @@ const ReviewScreen = ({ navigation }) => {
       listener.remove();
     };
   }, []);
-  if (!review.data) {
+  if (!list || !list.data) {
     return <View></View>;
   }
   const headerComponent = (
     <View style={{ flex: 1 }}>
-      <ReviewHeader
-        date={review.data ? new Date(review.data.last_modified) : null}
-        content={content}
-        user={user}
-        rating={review.data.rating}
-        type={review.data.type}
-      ></ReviewHeader>
-      <View style={{ marginHorizontal: 10, marginTop: 10 }}>
-        <View style={{ flexDirection: "row" }}>
+      {/* ListHeader goes here */}
+      <View style={{ marginTop: 10 }}>
+        <View style={styles.textWrapperStyle}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between"
+            }}
+          >
+            <Text style={styles.textTitleStyle}>{list.data.title}</Text>
+            <UserPreview
+              containerStyle={{ alignSelf: "flex-start" }}
+              img={user.profile_url}
+              username={user.handle}
+            ></UserPreview>
+          </View>
+          {list.data.description ? (
+            <Text style={styles.textDescriptionStyle}>
+              {list.data.description}
+            </Text>
+          ) : null}
+        </View>
+
+        <FlatList
+          data={list.data.items}
+          renderItem={({ item, index }) => (
+            <UserListItem
+              content={item}
+              index={index}
+              containerStyle={{
+                shadowOffset: { width: 0, height: 0 }
+              }}
+              indexStyle={{
+                fontWeight: "bold",
+                color: colors.translucentWhite
+              }}
+              onPress={() => {}}
+            ></UserListItem>
+          )}
+          keyExtractor={item => item.id}
+        ></FlatList>
+        <View style={styles.interactionBox}>
           {keyboardIsActive ? null : (
             <LikeBox
               onLike={() => {
                 userLikes
-                  ? firestore.unLikeReview(review.id)
-                  : firestore.likeReview(
-                      review.id,
-                      review.data.author,
-                      content
-                    );
+                  ? firestore.unLikeReview(list.id)
+                  : firestore.likeReview(list.id, list.data.author, content);
                 setUserLikes(!userLikes);
               }}
               onPress={() =>
@@ -124,18 +158,18 @@ const ReviewScreen = ({ navigation }) => {
                   notPaginated: true,
                   title: "Likes",
                   fetchData: async () => {
-                    const likes = await firestore.getLikes(review.id);
+                    const likes = await firestore.getLikes(list.id);
                     const users = await firestore.batchAuthorRequest(
                       likes.map(like => like.data.author)
                     );
                     return [users];
                   },
-                  renderItem: ({ item }) => <UserListItem user={item.data} />,
+                  renderItem: ({ item }) => <UserPreview user={item.data} />,
                   keyExtractor: item => item.id
                 })
               }
               liked={userLikes}
-              numLikes={review ? review.data.num_likes : 0}
+              numLikes={list ? list.data.num_likes : 0}
             ></LikeBox>
           )}
           <CommentBar
@@ -143,32 +177,14 @@ const ReviewScreen = ({ navigation }) => {
             submitComment={comment => {
               Keyboard.dismiss();
               firestore
-                .addComment(review.id, review.data.author, comment, content)
+                .addComment(list.id, list.data.author, comment, content)
                 .then(() => fetchComments());
             }}
           ></CommentBar>
         </View>
-        <View style={{ marginVertical: 15 }}>
-          <Text style={styles.reviewTextStyle}>{review.data.text}</Text>
-        </View>
       </View>
-      <View
-        style={{
-          alignSelf: "stretch",
-          borderTopWidth: 1,
-          borderTopColor: colors.veryTranslucentWhite
-        }}
-      >
-        <Text
-          style={{
-            marginLeft: 10,
-            marginVertical: 10,
-            fontSize: 16,
-            color: colors.translucentWhite
-          }}
-        >
-          {comments.length} Comments
-        </Text>
+      <View style={styles.commentContainerStyle}>
+        <Text style={styles.commentTextStyle}>{comments.length} Comments</Text>
       </View>
     </View>
   );
@@ -178,9 +194,11 @@ const ReviewScreen = ({ navigation }) => {
       blurRadius={blurRadius}
       source={{ uri: content.image }}
     >
-      <View
+      <KeyboardAvoidingView
+        behavior="padding"
         style={{
           backgroundColor: colors.darkener,
+          paddingBottom: 85,
           flex: 1
         }}
       >
@@ -193,14 +211,15 @@ const ReviewScreen = ({ navigation }) => {
             firestore.deleteComment(did).then(fetchComments())
           }
         ></CommentsSection>
-      </View>
+      </KeyboardAvoidingView>
       <ModalReviewCard
         showModal={showModal}
         setShowModal={setShowModal}
-        review={review}
+        review={list}
         content={content}
+        content_type={"List"}
         onDelete={() => {
-          firestore.deleteReview(review.id);
+          firestore.deleteReview(list.id);
           setShowModal(false);
           return navigation.pop();
         }}
@@ -213,13 +232,47 @@ const styles = StyleSheet.create({
   reviewTextStyle: {
     color: colors.white,
     fontSize: 20
+  },
+  interactionBox: {
+    marginHorizontal: 10,
+    flexDirection: "row",
+    marginVertical: 10
+  },
+  commentTextStyle: {
+    marginLeft: 10,
+    marginVertical: 10,
+    fontSize: 16,
+    color: colors.translucentWhite
+  },
+  textTitleStyle: {
+    flex: 1,
+    fontSize: 40,
+    bottom: 10,
+    color: colors.translucentWhite
+  },
+  textDescriptionStyle: {
+    fontSize: 20,
+    textAlign: "center",
+    color: colors.translucentWhite
+  },
+  textWrapperStyle: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.veryTranslucentWhite
+  },
+  commentContainerStyle: {
+    alignSelf: "stretch",
+    borderTopWidth: 1,
+    borderTopColor: colors.veryTranslucentWhite
   }
 });
 
-ReviewScreen.navigationOptions = ({ navigation }) => {
+UserListScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
+  const title = navigation.getParam("title");
 
   return {
+    title,
     headerRight: () =>
       navigation.getParam("user").email === auth().currentUser.email ? (
         <TouchableOpacity onPress={() => setShowModal(true)}>
@@ -228,4 +281,4 @@ ReviewScreen.navigationOptions = ({ navigation }) => {
       ) : null
   };
 };
-export default ReviewScreen;
+export default UserListScreen;

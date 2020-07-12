@@ -5,16 +5,25 @@ import {
   FlatList,
   Text,
   RefreshControl,
-  ActivityIndicator
+  LayoutAnimation,
+  UIManager,
+  Platform
 } from "react-native";
 import colors from "../constants/colors";
 import LikeItem from "../components/NotificationScreenComponents/LikeItem";
 import CommentItem from "../components/NotificationScreenComponents/CommentItem";
 import FollowItem from "../components/NotificationScreenComponents/FollowItem";
 import context from "../context/context";
-
+import { customNotificationAnimation } from "../constants/heights";
+import LoadingIndicator from "../components/Loading/LoadingIndicator";
+import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
 
 const NotificationScreen = ({ navigation }) => {
+  if (Platform.OS === "android") {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
   const { firestore } = useContext(context);
   const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState({});
@@ -32,25 +41,24 @@ const NotificationScreen = ({ navigation }) => {
     return ret_users.forEach(user => (users[user.id] = user.data));
   };
 
-  const fetchDataCheck = async (startAfter, resetRefresh=false) => {
-    if (!resetRefresh && !allowLoad || loadingNext) return setRefreshing(false);
-    if (resetRefresh) setAllowLoad(true)
+  const fetchDataCheck = async (startAfter, resetRefresh = false) => {
+    if ((!resetRefresh && !allowLoad) || loadingNext)
+      return setRefreshing(false);
+    if (resetRefresh) setAllowLoad(true);
 
-    const [interactions, paginator] = await firestore.getUserInteractions( 10, startAfter );
-    setPaginationItem(paginator);
-    console.log(interactions)
-    await fetchUser(
-      interactions.map(interaction =>
-        interaction.data.author
-      )
+    const [interactions, paginator] = await firestore.getUserInteractions(
+      10,
+      startAfter
     );
+    setPaginationItem(paginator);
+    await fetchUser(interactions.map(interaction => interaction.data.author));
     if (!interactions.length) {
       setLoadingNext(false);
       setAllowLoad(false);
     }
     resetRefresh
       ? setContent(interactions)
-      : setContent([ ...content, ...interactions ]);
+      : setContent([...content, ...interactions]);
     return setRefreshing(false);
   };
 
@@ -79,21 +87,25 @@ const NotificationScreen = ({ navigation }) => {
         return (
           <FollowItem item={item} user={users[item.data.author]}></FollowItem>
         );
-      default: return null
+      default:
+        return null;
     }
   };
 
   useEffect(() => {
+    LayoutAnimation.configureNext(customNotificationAnimation);
     if (!currentUser)
       firestore
         .getUser(firestore.fetchCurrentUID())
         .then(user => setCurrentUser(user));
-    if (!content.length)
-      fetchDataCheck( paginationItem);
+    if (!content.length) fetchDataCheck(paginationItem);
   }, []);
 
   return (
     <View style={{ flex: 1 }}>
+      {content && content.length > 0 && (
+        <RefreshControlLoadingIndicator></RefreshControlLoadingIndicator>
+      )}
       <FlatList
         contentContainerStyle={{ paddingBottom: 85 }}
         data={content}
@@ -110,16 +122,17 @@ const NotificationScreen = ({ navigation }) => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
+            tintColor="transparent"
             onRefresh={async () => {
               setRefreshing(true);
-              await fetchDataCheck( null, true);
+              await fetchDataCheck(null, true);
             }}
           />
         }
         ListFooterComponent={() =>
           loadingNext && (
             <View style={{ padding: 20 }}>
-              <ActivityIndicator size="small"></ActivityIndicator>
+              <LoadingIndicator size={20}></LoadingIndicator>
             </View>
           )
         }

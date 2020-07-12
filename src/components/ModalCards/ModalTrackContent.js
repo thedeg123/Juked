@@ -6,8 +6,9 @@ import colors from "../../constants/colors";
 import BarGraph from "../Graphs/BarGraph";
 import TextRatings from "../TextRatings";
 import ReviewSection from "../ReviewSection";
-import LoadingIndicator from "../LoadingIndicator";
+import LoadingIndicator from "../Loading/LoadingIndicator";
 import TopBar from "./TopBar";
+import ReviewButton from "../ReviewButton";
 
 const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
   const { firestore } = useContext(context);
@@ -71,19 +72,12 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
       <Text style={styles.contentTitle}>{content.name}</Text>
       <View style={styles.content}>
         <TopBar onClose={onClose} link={content.url}></TopBar>
-        <View style={{ alignSelf: "flex-end", marginRight: 5 }}>
-          <Button
-            onPress={() => {
-              onClose();
-              navigation.push("WriteReview", {
-                content,
-                review
-              });
-            }}
-            title={review ? "Edit Review" : "Add Review"}
-          />
-        </View>
         <View style={{ alignSelf: "stretch" }}>
+          <ReviewButton
+            review={review}
+            onPress={onClose}
+            content={contentData}
+          />
           <BarGraph
             data={contentData ? contentData.rating_nums : null}
           ></BarGraph>

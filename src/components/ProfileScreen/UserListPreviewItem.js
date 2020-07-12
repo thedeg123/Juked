@@ -13,59 +13,55 @@ import navigateContent from "../../helpers/navigateContent";
 import { withNavigation } from "react-navigation";
 import { Entypo } from "@expo/vector-icons";
 
-const ListPreviewItem = ({ navigation, content, review, user, textStyle }) => {
+const UserListPreviewItem = ({ navigation, list, user }) => {
+  const getMiniPic = (img, style) => (
+    <ContentPic imageStyle={style} img={img} width={50}></ContentPic>
+  );
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() =>
-        navigateContent(
-          navigation,
-          content.id,
-          content.album_id,
-          review,
-          content,
-          user
-        )
-      }
+      onPress={() => navigateContent(navigation, null, null, list, null, user)}
       style={styles.wrapper}
     >
-      <View style={review ? styles.shadow : null}>
-        {review ? (
-          <ImageBackground
-            source={{ uri: content.image }}
-            blurRadius={blurRadius}
-            style={styles.imageBackgroundStyle}
-          >
-            <View style={styles.contentContainer}>
-              <ContentPic img={content.image} width={100}></ContentPic>
-              <View style={styles.rightContent}>
-                <Text style={styles.textStyle}>{review.data.rating}</Text>
-                {review.data.is_review && (
-                  <Entypo name="text" style={styles.textStyle}></Entypo>
-                )}
-              </View>
-            </View>
-          </ImageBackground>
+      <View style={list ? styles.shadow : null}>
+        {list.data.items.length < 4 ? (
+          <ContentPic img={list.data.items[0].image} width={100}></ContentPic>
         ) : (
           <View>
-            <ContentPic img={content.image} width={100}></ContentPic>
+            <View style={{ flexDirection: "row" }}>
+              {getMiniPic(list.data.items[0].image, {
+                borderRadius: 0,
+                borderTopLeftRadius: 5
+              })}
+              {getMiniPic(list.data.items[1].image, {
+                borderRadius: 0,
+                borderTopRightRadius: 5
+              })}
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              {getMiniPic(list.data.items[3].image, {
+                borderRadius: 0,
+                borderBottomLeftRadius: 5
+              })}
+              {getMiniPic(list.data.items[4].image, {
+                borderRadius: 0,
+                borderBottomRightRadius: 5
+              })}
+            </View>
           </View>
         )}
       </View>
       <Text
         numberOfLines={1}
-        style={[
-          {
-            textAlign: "center",
-            color: colors.shadow,
-            fontWeight: "bold",
-            fontSize: 18,
-            width: review ? 150 : 100
-          },
-          textStyle
-        ]}
+        style={{
+          textAlign: "center",
+          color: colors.shadow,
+          fontWeight: "bold",
+          fontSize: 18,
+          width: 100
+        }}
       >
-        {content.name}
+        {list.data.title}
       </Text>
     </TouchableOpacity>
   );
@@ -73,7 +69,7 @@ const ListPreviewItem = ({ navigation, content, review, user, textStyle }) => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginLeft: 10
+    paddingLeft: 10
   },
   shadow: {
     shadowColor: colors.shadow,
@@ -110,4 +106,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigation(ListPreviewItem);
+export default withNavigation(UserListPreviewItem);

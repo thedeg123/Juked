@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
@@ -6,27 +6,54 @@ import images from "../constants/images";
 import { withNavigation } from "react-navigation";
 import navigateContent from "../helpers/navigateContent";
 import ArtistNames from "./ArtistNames";
+import { AntDesign } from "@expo/vector-icons";
+
 /**
  * SearchPreview Component for ListScreen
  * @param {string} title - title of this song/album/artist
  * @param {string} type - "Song"/"Album"/"Artist"
  * @param {string} music_id - original id from spotify
  */
-const SearchPreview = ({ navigation, object, type }) => {
+const SearchPreview = ({
+  navigation,
+  object,
+  addItem,
+  onItemAdd,
+  onItemRemove,
+  itemKeys
+}) => {
+  const itemAdded = addItem && itemKeys && itemKeys.has(object.id);
   const date = object.string_release_date;
+
+  const renderRightIcon = () => {
+    if (addItem) {
+      return itemAdded ? (
+        <AntDesign name="checkcircle" style={styles.addItemIconStyle} />
+      ) : (
+        <AntDesign name="pluscircle" style={styles.addItemIconStyle} />
+      );
+    } else {
+      return <EvilIcons name="chevron-right" style={styles.iconStyle} />;
+    }
+  };
+
   return (
     <TouchableOpacity
       style={styles.containerStyle}
-      onPress={() =>
-        navigateContent(
-          navigation,
-          object.cid,
-          object.album_id,
-          null,
-          object,
-          null
-        )
-      }
+      onPress={() => {
+        if (addItem) {
+          itemAdded ? onItemRemove(object) : onItemAdd(object);
+        } else {
+          navigateContent(
+            navigation,
+            object.cid,
+            object.album_id,
+            null,
+            object,
+            null
+          );
+        }
+      }}
     >
       <Image
         style={styles.imageStyle}
@@ -49,9 +76,7 @@ const SearchPreview = ({ navigation, object, type }) => {
           </Text>
         ) : null}
       </View>
-      <View style={styles.iconWrapper}>
-        <EvilIcons name="chevron-right" style={styles.iconStyle} />
-      </View>
+      <View style={styles.iconWrapper}>{renderRightIcon()}</View>
     </TouchableOpacity>
   );
 };
@@ -70,6 +95,12 @@ const styles = StyleSheet.create({
   iconStyle: {
     fontSize: 30,
     color: colors.secondary
+  },
+  addItemIconStyle: {
+    fontSize: 20,
+    color: colors.primary,
+    paddingRight: 10,
+    marginLeft: 5
   },
   iconWrapper: {
     alignItems: "flex-end",

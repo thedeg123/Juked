@@ -1,11 +1,12 @@
 import React from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import colors from "../constants/colors";
+import LoadingIndicator from "./Loading/LoadingIndicator";
 
 const AuthLoading = () => {
   return (
     <View style={styles.containerStyle}>
-      <ActivityIndicator size="small" />
+      <LoadingIndicator color={colors.primary} size={20}></LoadingIndicator>
     </View>
   );
 };

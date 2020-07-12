@@ -4,15 +4,26 @@ import SearchPreview from "./SearchPreview";
 import UserPreview from "./UserPreview";
 import colors from "../constants/colors";
 
-const ResultsList = ({ users, searchType, search }) => {
+const ResultsList = ({
+  users,
+  searchType,
+  search,
+  containerStyle,
+  showAddItems,
+  onItemAdd,
+  onItemRemove,
+  itemKeys
+}) => {
   return (
     <View
-      style={{
-        flex: 1,
-        marginTop: 10,
-        borderTopWidth: 0.5,
-        borderColor: colors.lightShadow
-      }}
+      style={[
+        {
+          marginTop: 10,
+          borderTopWidth: 0.5,
+          borderColor: colors.lightShadow
+        },
+        containerStyle
+      ]}
     >
       {searchType === "user" ? (
         <FlatList
@@ -23,17 +34,27 @@ const ResultsList = ({ users, searchType, search }) => {
           keyExtractor={user => user.handle + user.created}
           renderItem={({ item }) => <UserPreview user={item} />}
         />
-      ) : !search && !users ? null : (
-        <FlatList
-          contentContainerStyle={{ paddingBottom: 85 }}
-          keyboardDismissMode="on-drag"
-          keyboardShouldPersistTaps="always"
-          data={search}
-          keyExtractor={searchItem => searchItem.id}
-          renderItem={({ item }) => (
-            <SearchPreview type={searchType} object={item} cid={item.id} />
-          )}
-        />
+      ) : (
+        search && (
+          <FlatList
+            contentContainerStyle={{ paddingBottom: 85 }}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="always"
+            data={search}
+            keyExtractor={searchItem => searchItem.id}
+            renderItem={({ item }) => (
+              <SearchPreview
+                type={searchType}
+                object={item}
+                cid={item.id}
+                addItem={showAddItems}
+                onItemAdd={onItemAdd}
+                onItemRemove={onItemRemove}
+                itemKeys={itemKeys}
+              />
+            )}
+          />
+        )
       )}
     </View>
   );

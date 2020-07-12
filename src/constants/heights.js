@@ -18,6 +18,19 @@ export const customSearchAnimation = {
   }
 };
 
+export const customCommentBarAnimation = {
+  create: {
+    property: "opacity",
+    type: "linear"
+  },
+
+  duration: 400,
+  update: {
+    springDamping: 0.7,
+    type: "spring"
+  }
+};
+
 export const customBarAnimation = {
   create: {
     property: "opacity",
@@ -43,6 +56,22 @@ export const customCardAnimation = {
     type: "easeIn"
   },
   duration: 300,
+  update: {
+    springDamping: 0.8,
+    type: "spring"
+  }
+};
+
+export const customNotificationAnimation = {
+  create: {
+    property: "opacity",
+    type: "easeIn"
+  },
+  delete: {
+    property: "opacity",
+    type: "easeIn"
+  },
+  duration: 200,
   update: {
     springDamping: 0.8,
     type: "spring"

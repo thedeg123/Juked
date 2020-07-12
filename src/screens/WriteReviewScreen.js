@@ -51,10 +51,7 @@ const WriteReviewScreen = ({ navigation }) => {
           flex: 1
         }}
       >
-        <TouchableWithoutFeedback
-          style={{ borderWidth: 10 }}
-          onPress={Keyboard.dismiss}
-        >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View
             style={{ flex: 1, justifyContent: "flex-end", marginBottom: 80 }}
           >

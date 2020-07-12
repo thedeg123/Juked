@@ -20,4 +20,4 @@ export default {
   lightShadow: "#CCC"
 };
 
-export const blurRadius = 90;
+export const blurRadius = 50;

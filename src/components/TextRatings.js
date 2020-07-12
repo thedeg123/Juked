@@ -32,7 +32,8 @@ const styles = StyleSheet.create({
   rating: {
     justifyContent: "center",
     alignSelf: "center",
-    color: colors.secondary
+    color: colors.primary,
+    fontSize: 24
   },
   subtitle: {
     fontSize: 20,

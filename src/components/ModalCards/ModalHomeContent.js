@@ -37,7 +37,7 @@ const ModalReviewContent = ({
   return (
     <View style={styles.content}>
       <View style={{ alignItems: "flex-start" }}>
-        <Button onPress={() => onClose()} title="Done" />
+        <Button onPress={onClose} title="Done" />
       </View>
       <Text style={styles.sectionTitle}>Filter</Text>
       <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>

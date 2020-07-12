@@ -1,17 +1,14 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import {
-  StyleSheet,
-  FlatList,
-  View,
-  RefreshControl,
-  ActivityIndicator
-} from "react-native";
+import { StyleSheet, FlatList, View, RefreshControl } from "react-native";
 import context from "../context/context";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
-import LoadingIndicator from "../components/LoadingIndicator";
+import LoadingPage from "../components/Loading/LoadingPage";
 
 import ModalButton from "../components/ModalCards/ModalButton";
 import ModalHomeCard from "../components/ModalCards/ModalHomeCard";
+import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
+import LoadingIndicator from "../components/Loading/LoadingIndicator";
+import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
 
 const HomeScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
@@ -20,7 +17,7 @@ const HomeScreen = ({ navigation }) => {
   const [following, setFollowing] = useState(null);
   const [userShow, setUserShow] = useState(null);
   const [contentTypes, setContentTypes] = useState(
-    new Set(["track", "album", "artist"])
+    new Set(["track", "album", "artist", "list"])
   );
   const [ratingTypes, setRatingTypes] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -60,10 +57,7 @@ const HomeScreen = ({ navigation }) => {
     temp_authors = authors ? authors : {};
     await firestore
       .batchAuthorRequest([
-        ...new Set(
-          local_reviews.map(review => review.data.author)
-          //            .filter(uid => temp_authors[uid] === undefined)
-        )
+        ...new Set(local_reviews.map(review => review.data.author))
       ])
       .then(res => res.forEach(r => (temp_authors[r.id] = r.data)));
     setAuthors(temp_authors);
@@ -78,10 +72,10 @@ const HomeScreen = ({ navigation }) => {
     fetchHomeScreenData(10, null);
   }, []);
 
-  if (!reviews || !authors || !following)
-    return <LoadingIndicator></LoadingIndicator>;
+  if (!reviews || !authors || !following) return <LoadingPage></LoadingPage>;
   return (
     <View style={{ flex: 1, marginHorizontal: 5 }}>
+      <RefreshControlLoadingIndicator></RefreshControlLoadingIndicator>
       <FlatList
         ref={flatListRef}
         contentContainerStyle={{ paddingBottom: 85 }}
@@ -91,17 +85,26 @@ const HomeScreen = ({ navigation }) => {
         data={reviews}
         showsVerticalScrollIndicator={false}
         renderItem={({ item }) => {
-          return authors[item.data.author] ? ( //we dont want our authors to be undefined, so we skip and wait to finish the fetch
-            <HomeScreenItem
-              review={item}
-              content={item.data.content}
-              author={authors[item.data.author]}
-            ></HomeScreenItem>
-          ) : null;
+          return (
+            authors[item.data.author] && //we dont want our authors to be undefined, so we skip and wait to finish the fetch
+            (item.data.type === "list" ? (
+              <HomeScreenListItem
+                list={item}
+                author={authors[item.data.author]}
+              ></HomeScreenListItem>
+            ) : (
+              <HomeScreenItem
+                review={item}
+                content={item.data.content}
+                author={authors[item.data.author]}
+              ></HomeScreenItem>
+            ))
+          );
         }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
+            tintColor="transparent"
             onRefresh={async () => {
               setRefreshing(true);
               setAllowRefresh(true);
@@ -123,7 +126,7 @@ const HomeScreen = ({ navigation }) => {
           refreshing &&
           reviews.length > 9 && (
             <View style={{ padding: 20 }}>
-              <ActivityIndicator size="small"></ActivityIndicator>
+              <LoadingIndicator></LoadingIndicator>
             </View>
           )
         }

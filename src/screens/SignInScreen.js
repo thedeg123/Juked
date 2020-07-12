@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import {
   StyleSheet,
-  Text,
+  Alert,
   View,
   Button,
   KeyboardAvoidingView,
@@ -18,7 +18,6 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 const SignInScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
-  const [error, setError] = useState(null);
   const [email, setEmail] = useState(null);
   const [showForgotPasswordView, setShowForgotPasswordView] = useState(false);
   return (
@@ -31,14 +30,15 @@ const SignInScreen = ({ navigation }) => {
         }
       ></Logo>
       <KeyboardAvoidingView behavior="position">
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
         {!showForgotPasswordView ? (
           <View>
             <AuthForm
               submitButtonAction={(email, password) =>
                 firestore
                   .signin(email, password)
-                  .then(error => (error ? setError(error) : null))
+                  .then(error =>
+                    error ? Alert.alert("Couldn't sign in", error) : null
+                  )
               }
               submitButtonTitle="Sign in"
             ></AuthForm>
@@ -68,7 +68,9 @@ const SignInScreen = ({ navigation }) => {
                 firestore
                   .resetEmail(email)
                   .then(res =>
-                    res ? setError(res) : setError("Password reset email sent!")
+                    res
+                      ? Alert.alert("Couldn't send email", res)
+                      : Alert.alert("Success", "Password reset email sent!")
                   );
               }}
             ></Input>
@@ -88,10 +90,7 @@ const SignInScreen = ({ navigation }) => {
             ? "Nevermind, I remembered"
             : "Forgot Password?"
         }
-        onPress={() => {
-          setError(null);
-          setShowForgotPasswordView(!showForgotPasswordView);
-        }}
+        onPress={() => setShowForgotPasswordView(!showForgotPasswordView)}
       ></Button>
     </View>
   );

@@ -1,11 +1,6 @@
 import React, { useState } from "react";
-import {
-  TouchableOpacity,
-  ActivityIndicator,
-  Text,
-  View,
-  StyleSheet
-} from "react-native";
+import { TouchableOpacity, Text, View, StyleSheet } from "react-native";
+import LoadingIndicator from "../components/Loading/LoadingIndicator";
 import colors from "../constants/colors";
 import { SimpleLineIcons } from "@expo/vector-icons";
 
@@ -21,7 +16,7 @@ const FolloWButton = ({ following, onPress, followsYou }) => {
     >
       {processingFollow ? (
         <View style={styles.loadingStyle}>
-          <ActivityIndicator color={colors.white} size="small" />
+          <LoadingIndicator color={colors.white}></LoadingIndicator>
         </View>
       ) : (
         <TouchableOpacity

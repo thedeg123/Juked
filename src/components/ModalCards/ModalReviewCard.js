@@ -9,7 +9,8 @@ const ModalReviewCard = ({
   setShowModal,
   review,
   content,
-  onDelete
+  onDelete,
+  content_type
 }) => {
   return (
     <ModalWrapper
@@ -21,13 +22,18 @@ const ModalReviewCard = ({
           onDelete={onDelete}
           onEdit={() => {
             setShowModal(false);
-            return navigation.navigate("WriteReview", {
-              review,
-              content
-            });
+            return review.data.type === "list"
+              ? navigation.navigate("WriteList", {
+                  list: review
+                })
+              : navigation.navigate("WriteReview", {
+                  review,
+                  content
+                });
           }}
           onClose={() => setShowModal(false)}
           link={content.url}
+          content_type={content_type}
         ></ModalReviewContent>
       ) : (
         <ModalReviewContent
@@ -39,10 +45,15 @@ const ModalReviewCard = ({
           }}
           onClose={() => setShowModal(false)}
           link={content.url}
+          content_type={content_type}
         ></ModalReviewContent>
       )}
     </ModalWrapper>
   );
 };
+
+ModalReviewCard.defaultProps = {
+  content_type: "Review"
+}
 
 export default withNavigation(ModalReviewCard);

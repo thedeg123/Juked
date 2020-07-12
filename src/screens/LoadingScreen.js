@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from "react";
 import { StyleSheet } from "react-native";
 import { auth } from "firebase";
-import LoadingIndicator from "../components/LoadingIndicator";
+import LoadingPage from "../components/Loading/LoadingPage";
 import colors from "../constants/colors";
 import Container from "../components/Container";
 import context from "../context/context";
@@ -41,17 +41,7 @@ const LoadingScreen = ({ navigation }) => {
     return () => listener.remove(); //prevents memory leaks if the loadingScreen is ever closed
   }, []);
 
-  return (
-    <Container>
-      <LoadingIndicator></LoadingIndicator>
-    </Container>
-  );
+  return <LoadingPage></LoadingPage>;
 };
-
-const styles = StyleSheet.create({
-  style: {
-    backgroundColor: colors.background
-  }
-});
 
 export default LoadingScreen;

@@ -57,7 +57,7 @@ class useFirestore {
   }
 
   async signup(email, password, verifypassword) {
-    if (password !== verifypassword) return "Passwords do not Match!";
+    if (password !== verifypassword) return "Passwords do not match";
     return await this.auth
       .createUserWithEmailAndPassword(email, password)
       .then(() => null)
@@ -225,7 +225,47 @@ class useFirestore {
     });
     return this.interactions_db.doc(lid).delete();
   }
+  // -----------------------------------------------------------------------------------------------------------
+  // List relations
+  async addList(title, description, items, itemKeys) {
+    const body = {
+      author: this.auth.currentUser.email,
+      last_modified: new Date().getTime(),
+      num_comments: 0,
+      num_likes: 0,
+      popularity: 0,
+      type: "list",
+      title,
+      description: description || "",
+      itemKeys: [...itemKeys],
+      items
+    };
+    return this.reviews_db.add(body);
+  }
 
+  async getList(lid) {
+    return await this.reviews_db
+      .doc(lid)
+      .get()
+      .then(list => {
+        list.exists ? (list["itemKeys"] = new Set(list["itemKeys"])) : null;
+        return { id: list.id, data: list.data() };
+      });
+  }
+
+  async updateList(lid, title, description, items, itemKeys) {
+    let body = {};
+    typeof title == "string" ? (body["title"] = title) : null;
+    typeof description == "string" ? (body["description"] = description) : null;
+    items ? (body["items"] = items) : null;
+    itemKeys ? (body["itemKeys"] = [...itemKeys]) : null;
+    body["last_modified"] = new Date().valueOf();
+    return this.reviews_db.doc(lid).update(body);
+  }
+
+  async deleteList(rid) {
+    return await this.reviews_db.doc(lid).delete();
+  }
   // -----------------------------------------------------------------------------------------------------------
   // Review relations
 
@@ -250,8 +290,7 @@ class useFirestore {
       num_comments: 0,
       num_likes: 0,
       popularity: 0,
-      is_review: Boolean(text.length),
-      media_type: "review"
+      is_review: Boolean(text.length)
     });
   }
 
@@ -302,7 +341,6 @@ class useFirestore {
 
   async getMostPopularReviewsByType(content_id, limit = 3, start_after = null) {
     let base = this.reviews_db
-      .where("media_type", "==", "review")
       .where("content_id", "==", content_id)
       .where("is_review", "==", true)
       .orderBy("popularity", "desc");
@@ -330,7 +368,6 @@ class useFirestore {
     start_after = null
   ) {
     let base = this.reviews_db
-      .where("media_type", "==", "review")
       .where("author", "==", uid)
       .orderBy("last_modified", "desc")
       .where("type", "in", types);
@@ -360,7 +397,6 @@ class useFirestore {
    */
   async getReviewsByType(types, limit = 20, review_type, start_after) {
     let base = this.reviews_db
-      .where("media_type", "==", "review")
       .orderBy("last_modified", "desc")
       .where("type", "in", types);
 

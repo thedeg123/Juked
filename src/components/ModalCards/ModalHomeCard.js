@@ -1,8 +1,7 @@
 import React from "react";
 import ModalWrapper from "./ModalWrapper";
-import { Modal, Text, FlatList, Button, View, StyleSheet } from "react-native";
+
 import ModalHomeContent from "./ModalHomeContent";
-import colors from "../../constants/colors";
 
 const ModalHomeCard = ({
   showModal,

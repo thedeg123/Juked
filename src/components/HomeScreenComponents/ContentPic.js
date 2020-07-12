@@ -3,9 +3,8 @@ import { StyleSheet, Image, View } from "react-native";
 import colors from "../../constants/colors";
 import images from "../../constants/images";
 
-const ContentPic = ({ img, width, is_review, style }) => {
+const ContentPic = ({ img, width, is_review, style, imageStyle }) => {
   img = img || images.artistDefault; //becuase we cant set a default val from another file
-  style = style || {}
   return (
     <View style={[styles.contentStyle, style]}>
       <View
@@ -17,7 +16,7 @@ const ContentPic = ({ img, width, is_review, style }) => {
         }}
       >
         <Image
-          style={{ width, ...styles.imageStyle }}
+          style={[{ width, ...styles.imageStyle }, imageStyle]}
           source={{ uri: img }}
         ></Image>
       </View>
@@ -26,13 +25,15 @@ const ContentPic = ({ img, width, is_review, style }) => {
 };
 
 const styles = StyleSheet.create({
-  contentStyle: {
-    alignSelf: "flex-start"
-  },
   imageStyle: {
     aspectRatio: 1,
     borderRadius: 5
   }
 });
+
+ContentPic.defaultProps = {
+  style: {},
+  imageStyle: {}
+};
 
 export default ContentPic;

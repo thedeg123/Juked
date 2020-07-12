@@ -11,9 +11,10 @@ export default class useMusic {
     this.country_code = "US";
     this.base_path = "https://api.spotify.com/v1";
     this.cached_content = { track: {}, album: {}, artist: {} };
+    this.errorPrompt =
+      "There was a problem loading the page. Please try again.";
   }
   async connectToken() {
-    console.log("connecting token");
     //setting update of token
     this.remover = await this.db
       .collection("token")
@@ -52,7 +53,7 @@ export default class useMusic {
       });
       return response.data;
     } catch (error) {
-      return console.error("FROM REQUEST API:", error);
+      return alert(this.errorPrompt);
     }
   }
   /**

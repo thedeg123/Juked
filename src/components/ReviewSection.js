@@ -41,7 +41,7 @@ const ReviewSection = ({
         ></ReviewPreview>
       ) : null}
       {reviews && reviews.length ? (
-        <View>
+        <View style={{ marginTop: 10 }}>
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
@@ -95,7 +95,7 @@ const ReviewSection = ({
             </TouchableOpacity>
           </View>
           <FlatList
-            contentContainerStyle={{ height: 80 }}
+            contentContainerStyle={{ height: 100 }}
             horizontal
             keyExtractor={item => String(item.id)}
             data={reviews}
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
   headerTextStyle: {
     fontSize: 20,
     marginLeft: 10,
+    fontWeight: "bold",
     marginVertical: 5,
     color: colors.text
   },

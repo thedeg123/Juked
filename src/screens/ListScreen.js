@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  ActivityIndicator,
-  RefreshControl
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
+import LoadingIndicator from "../components/Loading/LoadingIndicator";
 import ScrollViewPadding from "../components/ScrollViewPadding";
+import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
 
 const ListScreen = ({ navigation }) => {
   const fetchData = navigation.getParam("fetchData");
@@ -33,8 +28,12 @@ const ListScreen = ({ navigation }) => {
   if (!data) return <View style={{ flex: 1, alignItems: "center" }}></View>;
   return (
     <View style={styles.containerStyle}>
+      {data.length > 0 && (
+        <RefreshControlLoadingIndicator></RefreshControlLoadingIndicator>
+      )}
       <FlatList
         data={data}
+        tintColor="transparent"
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         onEndReached={async () => {
@@ -48,7 +47,7 @@ const ListScreen = ({ navigation }) => {
         ListFooterComponent={() =>
           refreshing ? (
             <View style={{ padding: 20 }}>
-              <ActivityIndicator size="small"></ActivityIndicator>
+              <LoadingIndicator size={20}></LoadingIndicator>
             </View>
           ) : null
         }

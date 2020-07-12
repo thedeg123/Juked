@@ -27,6 +27,8 @@ import HeaderBackButton from "./src/components/HeaderBackButton.js";
 import { Provider } from "./src/context/context";
 import { decode, encode } from "base-64";
 import NotificationScreen from "./src/screens/NotificationScreen";
+import WriteListScreen from "./src/screens/WriteListScreen";
+import UserListScreen from "./src/screens/UserListScreen";
 
 if (!global.btoa) {
   global.btoa = encode;
@@ -44,7 +46,9 @@ const exploreFlow = {
   Artist: ArtistScreen,
   Profile: ProfileScreen,
   List: ListScreen,
-  WriteReview: WriteReviewScreen
+  WriteReview: WriteReviewScreen,
+  WriteList: WriteListScreen,
+  UserList: UserListScreen
 };
 const tabBarOptions = {
   activeTintColor: colors.primary, // active icon color
@@ -52,6 +56,7 @@ const tabBarOptions = {
   style: {
     backgroundColor: colors.translucentWhite,
     position: "absolute",
+    paddingBottom: 5,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     borderColor: colors.lightShadow,

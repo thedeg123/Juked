@@ -14,7 +14,6 @@ import ListPreview from "../components/ListPreview";
 import context from "../context/context";
 import images from "../constants/images";
 import FollowButton from "../components/FollowButton";
-import LoadingIndicator from "../components/LoadingIndicator";
 import BarGraph from "../components/Graphs/BarGraph";
 import firebase from "firebase";
 import "firebase/firestore";
@@ -24,9 +23,12 @@ import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
 import OptionBar from "../components/OptionBar";
 import { profileButtonOptions } from "../constants/buttonOptions";
+import LoadingPage from "../components/Loading/LoadingPage";
+import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
+import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
 
 const UserProfileScreen = ({ navigation }) => {
-  const { firestore, useMusic, disconnect } = useContext(context);
+  const { firestore, disconnect } = useContext(context);
   const firestoreConcurrent = firebase.firestore();
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
@@ -73,6 +75,9 @@ const UserProfileScreen = ({ navigation }) => {
         .then(res => res[0]),
       artist: await firestore
         .getReviewsByAuthorType(uid, ["artist"], 5)
+        .then(res => res[0]),
+      list: await firestore
+        .getReviewsByAuthorType(uid, ["list"], 5)
         .then(res => res[0])
     };
     setReviews(reviews);
@@ -116,13 +121,16 @@ const UserProfileScreen = ({ navigation }) => {
         if (!reviews.length) return [[], null];
         return [reviews, start_next];
       },
-      renderItem: ({ item }) => (
-        <HomeScreenItem
-          review={item}
-          content={item.data.content}
-          author={user}
-        ></HomeScreenItem>
-      ),
+      renderItem: ({ item }) =>
+        types[0] === "list" ? (
+          <HomeScreenListItem list={item} author={user}></HomeScreenListItem>
+        ) : (
+          <HomeScreenItem
+            review={item}
+            content={item.data.content}
+            author={user}
+          ></HomeScreenItem>
+        ),
       keyExtractor: item => item.id + item.content_id
     });
   };
@@ -133,11 +141,7 @@ const UserProfileScreen = ({ navigation }) => {
     typeof followsYou !== "boolean" ||
     typeof userFollowing !== "boolean"
   ) {
-    return (
-      <Container>
-        <LoadingIndicator></LoadingIndicator>
-      </Container>
-    );
+    return <LoadingPage></LoadingPage>;
   }
   return user ? (
     <View style={{ flex: 1 }}>
@@ -148,6 +152,7 @@ const UserProfileScreen = ({ navigation }) => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
+            style={{ backgroundColor: "transparent" }}
             onRefresh={async () => {
               setRefreshing(true);
               fetch();
@@ -216,9 +221,19 @@ const UserProfileScreen = ({ navigation }) => {
           onPress={setGraphType}
         ></OptionBar>
         <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-          {/* TODO: DELETE OR CASE BEFORE LAUNCH */}
           <BarGraph data={graphDataContentSelector(graphType)} />
         </View>
+        {"all" === graphType &&
+        (reviews["list"].length || uid === firestore.fetchCurrentUID()) ? (
+          <ListPreview
+            title="Most Recent Lists"
+            user={user}
+            data={reviews["list"]}
+            onPress={() => navigateContent("Lists", ["list"])}
+            showAddListButton={uid === firestore.fetchCurrentUID()}
+            showListItems
+          />
+        ) : null}
         {reviews["artist"].length && ["all", "artist"].includes(graphType) ? (
           <ListPreview
             title="Most Recent Artists"

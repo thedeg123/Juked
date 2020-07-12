@@ -4,7 +4,7 @@ import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
 import Container from "../components/Container";
-import LoadingIndicator from "../components/LoadingIndicator";
+import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
@@ -13,6 +13,7 @@ import ModalTrackCard from "../components/ModalCards/ModalTrackCard";
 import TextRatings from "../components/TextRatings";
 import ArtistNames from "../components/ArtistNames";
 import ReviewSection from "../components/ReviewSection";
+import ReviewButton from "../components/ReviewButton";
 
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
@@ -84,11 +85,7 @@ const AlbumScreen = ({ navigation }) => {
   }, []);
   // wait until get data from all APIs
   if (!album || review === "waiting" || !albumData)
-    return (
-      <Container style={styles.container}>
-        <LoadingIndicator></LoadingIndicator>
-      </Container>
-    );
+    return <LoadingPage></LoadingPage>;
   const headerComponent = (
     <View style={{ flex: 1 }}>
       <View style={styles.headerContainer}>
@@ -123,6 +120,7 @@ const AlbumScreen = ({ navigation }) => {
             <Text style={styles.text}>{album.string_release_date}</Text>
           </View>
         </View>
+        <ReviewButton review={review} content={album} />
         <View style={{ marginHorizontal: 10 }}>
           <BarGraph data={albumData.rating_nums}></BarGraph>
           <TextRatings

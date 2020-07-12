@@ -4,7 +4,6 @@ import colors from "../../constants/colors";
 import images from "../../constants/images";
 import { withNavigation } from "react-navigation";
 
-
 const UserPreview = ({
   navigation,
   img,
@@ -18,7 +17,7 @@ const UserPreview = ({
 }) => {
   containerStyle = containerStyle || {};
   fontScaler = fontScaler || 0.3;
-  size = size || 40;
+  size = size || 35;
   allowPress = typeof allowPress === "boolean" ? allowPress : true;
   const fontSize = size * fontScaler;
   color = color || colors.white;
@@ -43,11 +42,13 @@ const UserPreview = ({
         source={{ uri: img }}
       ></Image>
       <View style={{ alignSelf: "stretch" }}>
-        <Text
-          style={{ marginVertical: 1, color, fontSize, textAlign: "center" }}
-        >
-          {username}
-        </Text>
+        {username ? (
+          <Text
+            style={{ marginVertical: 1, color, fontSize, textAlign: "center" }}
+          >
+            {username}
+          </Text>
+        ) : null}
       </View>
     </TouchableOpacity>
   );

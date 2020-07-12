@@ -1,9 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { EvilIcons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import { FlatList } from "react-native-gesture-handler";
-import ProfileListItem from "./ProfileScreen/ListPreviewItem";
+import ListPreviewItem from "./ProfileScreen/ListPreviewItem";
+import ProfileUserListItem from "./ProfileScreen/UserListPreviewItem.js";
+import { withNavigation } from "react-navigation";
 
 /**
  * ListPreview Component for ListScreen
@@ -12,7 +14,16 @@ import ProfileListItem from "./ProfileScreen/ListPreviewItem";
  * @param {string} id - any identifier needed for this list
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ListPreview = ({ title, data, onPress, marginBottom, user }) => {
+const ListPreview = ({
+  navigation,
+  title,
+  data,
+  onPress,
+  marginBottom,
+  user,
+  showAddListButton,
+  showListItems
+}) => {
   return (
     <View style={{ ...styles.borderStyle, marginBottom: marginBottom || 0 }}>
       <View
@@ -27,21 +38,48 @@ const ListPreview = ({ title, data, onPress, marginBottom, user }) => {
           <Text style={styles.seeAllText}>See All</Text>
         </TouchableOpacity>
       </View>
-      <FlatList
-        showsHorizontalScrollIndicator={false}
-        horizontal
-        data={data}
-        contentContainerStyle={{ paddingRight: 10 }}
-        style={{ paddingBottom: 5 }}
-        renderItem={({ item }) => (
-          <ProfileListItem
-            content={item.data.content}
-            review={item}
-            user={user}
-          ></ProfileListItem>
+      <View style={{ flexDirection: "row" }}>
+        {showAddListButton && (
+          <View
+            style={{
+              paddingRight: 10,
+              borderRightWidth: 0.5,
+              height: 100,
+              borderRightColor: colors.lightShadow
+            }}
+          >
+            <TouchableOpacity
+              style={styles.addListButton}
+              onPress={() => navigation.navigate("WriteList")}
+            >
+              <Entypo name="add-to-list" size={36} color={colors.white} />
+              <Text style={styles.addListText}>Add a List</Text>
+            </TouchableOpacity>
+          </View>
         )}
-        keyExtractor={item => item.id}
-      ></FlatList>
+        <FlatList
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          data={data}
+          contentContainerStyle={{ paddingRight: 10 }}
+          style={{ paddingBottom: 5 }}
+          renderItem={({ item }) =>
+            showListItems ? (
+              <ProfileUserListItem
+                list={item}
+                user={user}
+              ></ProfileUserListItem>
+            ) : (
+              <ListPreviewItem
+                content={item.data.content}
+                review={item}
+                user={user}
+              ></ListPreviewItem>
+            )
+          }
+          keyExtractor={item => item.id}
+        ></FlatList>
+      </View>
     </View>
   );
 };
@@ -50,12 +88,26 @@ const styles = StyleSheet.create({
   borderStyle: {
     marginTop: 10
   },
+  addListText: {
+    color: colors.white,
+    fontWeight: "bold",
+    fontSize: 16
+  },
   seeAllText: {
     fontSize: 15,
     fontWeight: "300",
     marginTop: 5,
     marginLeft: 10,
     color: colors.text
+  },
+  addListButton: {
+    height: 100,
+    width: 100,
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    borderRadius: 5,
+    marginLeft: 10,
+    backgroundColor: colors.secondary
   },
   reviewTitleStyle: {
     marginLeft: 10,
@@ -66,4 +118,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ListPreview;
+export default withNavigation(ListPreview);

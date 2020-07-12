@@ -1,11 +1,9 @@
 import React, { useState, useContext, useEffect } from "react";
 import { StyleSheet, View, Text, Keyboard } from "react-native";
-import SearchBar from "../components/SearchBar";
-import OptionBar from "../components/OptionBar";
 import ResultsList from "../components/ResultsList";
 import context from "../context/context";
 import colors from "../constants/colors";
-import { searchButtonOptions } from "../constants/buttonOptions";
+import SearchItem from "../components/SearchItem";
 
 const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
@@ -14,7 +12,6 @@ const SearchScreen = ({ navigation }) => {
   const [search, setSearch] = useState(null);
   const [keyboardIsActive, setKeyboardIsActive] = useState(false);
   const { firestore, useMusic } = useContext(context);
-  const [waitTime, setWaitTime] = useState(null);
 
   useEffect(() => {
     const keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () =>
@@ -42,35 +39,16 @@ const SearchScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginBottom: 85 }}>
       <View style={styles.topContainerStyle}>
-        <SearchBar
-          term={term}
-          onTermChange={new_term => {
-            setTerm(new_term);
-            waitTime && clearTimeout(waitTime);
-            setWaitTime(
-              setTimeout(() => searchForTerm(new_term, searchType), 500)
-            );
-          }}
-          onTermSubmit={async new_term => {
-            setTerm(new_term);
-            waitTime && clearTimeout(waitTime);
-            searchForTerm(new_term, searchType);
-          }}
+        <SearchItem
           keyboardIsActive={keyboardIsActive}
-        />
-        {keyboardIsActive || term.length ? (
-          <OptionBar
-            onPress={new_type => {
-              setSearchType(new_type);
-              waitTime && clearTimeout(waitTime);
-              searchForTerm(term, new_type);
-            }}
-            options={searchButtonOptions}
-            searchType={searchType}
-          ></OptionBar>
-        ) : null}
+          term={term}
+          setTerm={setTerm}
+          searchForTerm={searchForTerm}
+          searchType={searchType}
+          setSearchType={setSearchType}
+        ></SearchItem>
       </View>
       {search && search.length === 0 && term.length !== 0 ? (
         <View

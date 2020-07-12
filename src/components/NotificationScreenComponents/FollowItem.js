@@ -41,17 +41,16 @@ const styles = StyleSheet.create({
     color: colors.text,
     alignSelf: "center",
     marginRight: 5,
-    fontSize: 16,
-    bottom: 5
+    fontSize: 16
   },
   containerStyle: {
+    backgroundColor: colors.background,
     flexDirection: "row",
     alignItems: "center",
     marginTop: 5,
-    paddingBottom: 5,
+    paddingBottom: 15,
     borderBottomWidth: 0.5,
-    borderBottomColor: colors.lightShadow,
-    justifyContent: "space-between"
+    borderBottomColor: colors.lightShadow
   }
 });
 

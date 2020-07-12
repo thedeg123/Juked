@@ -4,13 +4,17 @@ import { StyleSheet, Button, View } from "react-native";
 import colors from "../../constants/colors";
 import SpotifyButton from "./SpotifyButton";
 
-const TopBar = ({ onClose, link }) => {
+const TopBar = ({ onClose, link, showSpotify }) => {
   return (
     <View style={styles.buttonWrapper}>
       <Button onPress={onClose} title="Done" />
-      <SpotifyButton link={link}></SpotifyButton>
+      {showSpotify && <SpotifyButton link={link}></SpotifyButton>}
     </View>
   );
+};
+
+TopBar.defaultProps = {
+  showSpotify: true
 };
 
 const styles = StyleSheet.create({

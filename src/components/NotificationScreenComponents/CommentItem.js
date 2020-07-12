@@ -44,7 +44,7 @@ const CommentItem = ({ navigation, fetchReview, item, user, currentUser }) => {
         <View
           style={{
             alignSelf: "center",
-            backgroundColor: colors.primary,
+            backgroundColor: colors.secondary,
             paddingHorizontal: 15,
             marginHorizontal: 5,
             borderRadius: 5,
@@ -75,6 +75,7 @@ const styles = StyleSheet.create({
     bottom: 5
   },
   containerStyle: {
+    backgroundColor: colors.background,
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 5,

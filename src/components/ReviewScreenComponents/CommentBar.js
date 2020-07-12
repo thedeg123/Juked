@@ -18,6 +18,7 @@ const CommentBar = ({ keyboardIsActive, submitComment }) => {
         style={{
           borderWidth: keyboardIsActive ? 3 : 1,
           flex: 1,
+          margin: keyboardIsActive ? 1 : 3,
           borderRadius: 10,
           color: colors.white,
           fontSize: 18,

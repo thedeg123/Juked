@@ -3,7 +3,6 @@ import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 
 const Rating = ({ number, size }) => {
-  number = number || " ";
   return (
     <View style={styles.containerStyle}>
       <Text

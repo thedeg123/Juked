@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import Container from "../components/Container";
 import colors from "../constants/colors";
-import LoadingIndicator from "../components/LoadingIndicator";
+import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
@@ -16,6 +16,7 @@ import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import TextRatings from "../components/TextRatings";
 import ReviewSection from "../components/ReviewSection";
 import RecordRow from "../components/RecordRow";
+import ReviewButton from "../components/ReviewButton";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
@@ -93,11 +94,7 @@ const ArtistScreen = ({ navigation }) => {
   }, []);
 
   if (!artist || review === "waiting" || !contentData)
-    return (
-      <Container>
-        <LoadingIndicator></LoadingIndicator>
-      </Container>
-    );
+    return <LoadingPage></LoadingPage>;
 
   return (
     <ScrollView
@@ -114,6 +111,7 @@ const ArtistScreen = ({ navigation }) => {
           <Text style={styles.title}>{artist.name}</Text>
         </View>
       </ImageBackground>
+      <ReviewButton review={review} content={artist} />
       <Text style={styles.sectionStyle}>Reviews</Text>
       <View style={{ marginHorizontal: 10 }}>
         <BarGraph data={contentData.rating_nums}></BarGraph>

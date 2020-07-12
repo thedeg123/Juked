@@ -9,38 +9,41 @@ import HomeScreenBorder from "./HomeScreenBorder";
 
 const HomeScreenItem = ({ review, content, author }) => {
   return (
-    <>
-      <HomeScreenBorder content={content} review={review} author={author}>
-        <View style={styles.contentStyle}>
-          <ContentPic
-            img={content.image}
-            width={100}
-            is_review={review.data.is_review}
-          ></ContentPic>
-          <ContentTitle
-            header={content.name}
-            subheader={content.artists}
-            date={new Date(review.data.last_modified)}
-            review={review.data.is_review}
-            type={review.data.type}
-          ></ContentTitle>
-          <View style={styles.textStyle}>
-            <UserPreview
-              username={author.handle}
-              img={author.profile_url}
-              uid={review.data.author}
-            ></UserPreview>
-            <Rating
-              number={review.data.rating}
-              size={review.data.is_review ? 50 : 40}
-            ></Rating>
-          </View>
+    <HomeScreenBorder
+      content={content}
+      review={review}
+      height={review.data.is_review ? 135 : 100}
+      author={author}
+    >
+      <View style={styles.contentStyle}>
+        <ContentPic
+          img={content.image}
+          width={100}
+          is_review={review.data.is_review}
+        ></ContentPic>
+        <ContentTitle
+          header={content.name}
+          subheader={content.artists}
+          date={new Date(review.data.last_modified)}
+          review={review.data.is_review}
+          type={review.data.type}
+        ></ContentTitle>
+        <View style={styles.textStyle}>
+          <UserPreview
+            username={author.handle}
+            img={author.profile_url}
+            uid={review.data.author}
+          ></UserPreview>
+          <Rating
+            number={review.data.rating}
+            size={review.data.is_review ? 55 : 45}
+          ></Rating>
         </View>
-        {review.data.is_review ? (
-          <ReviewTitle title={review.data.text}></ReviewTitle>
-        ) : null}
-      </HomeScreenBorder>
-    </>
+      </View>
+      {review.data.is_review ? (
+        <ReviewTitle title={review.data.text}></ReviewTitle>
+      ) : null}
+    </HomeScreenBorder>
   );
 };
 

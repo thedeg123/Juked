@@ -35,27 +35,31 @@ const ReviewPreview = ({
     >
       <View
         style={{
-          marginRight: 5
+          flexDirection: "row",
+          alignSelf: "stretch",
+          justifyContent: "space-between"
         }}
       >
-        <UserPreview
-          img={author.profile_url}
-          username={author.handle}
-          uid={author.id}
-          size={25}
-          color={colors.text}
-          fontScaler={0.5}
-        ></UserPreview>
-
         <Text
           style={{
-            fontSize: 20,
-            color: colors.primary,
-            textAlign: "center"
+            fontSize: 24,
+            color: colors.primary
           }}
         >
-          {review.data.rating}
+          {review.data.rating}/10
         </Text>
+        <View style={{ flexDirection: "row" }}>
+          <Text style={{ top: 7, marginRight: 5, color: colors.text }}>
+            {author.handle}
+          </Text>
+          <UserPreview
+            img={author.profile_url}
+            uid={author.id}
+            size={30}
+            color={colors.text}
+            fontScaler={0.5}
+          ></UserPreview>
+        </View>
       </View>
       <Text numberOfLines={3} style={styles.textStyle}>
         {review.data.text}
@@ -67,9 +71,8 @@ const ReviewPreview = ({
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
+
+    borderColor: colors.lightShadow
   },
   iconStyle: {
     fontSize: 20,
@@ -77,8 +80,7 @@ const styles = StyleSheet.create({
     color: colors.secondary
   },
   textStyle: {
-    fontSize: 14,
-    flex: 1,
+    fontSize: 16,
     color: colors.text
   },
   scoreStyle: {

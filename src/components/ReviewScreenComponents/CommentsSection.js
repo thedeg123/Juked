@@ -9,6 +9,7 @@ import {
 import UserPreview from "../HomeScreenComponents/UserPreview";
 import colors from "../../constants/colors";
 import { Feather } from "@expo/vector-icons";
+import { getAbreveatedTimeDif } from "../../helpers/simplifyContent";
 
 const CommentSection = ({
   headerComponent,
@@ -22,13 +23,13 @@ const CommentSection = ({
     return (
       <Text
         style={{
-          justifyContent: "flex-end",
-          color: colors.white,
-          fontSize: 10,
+          color: colors.translucentWhite,
+          fontSize: 16,
+          fontWeight: "bold",
           marginLeft: 5
         }}
       >
-        {date.getDay()}/{date.getMonth()}/{date.getFullYear()}
+        {getAbreveatedTimeDif(time)}
       </Text>
     );
   };

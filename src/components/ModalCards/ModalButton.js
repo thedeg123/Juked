@@ -20,6 +20,7 @@ const ModalButton = ({ setShowModal, settingType }) => {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 5,
     paddingHorizontal: 10
   }
 });

@@ -48,12 +48,12 @@ const BarGraph = ({ data }) => {
   return (
     <View style={styles.containerStyle}>
       <View>
-     <FlatList
+        <FlatList
           data={prepared_data}
           renderItem={({ item }) => (
-             <BarItem
+            <BarItem
               value={item.value}
-              height={show ? item.height: 0}
+              height={show ? item.height : 0}
               width={barWidth}
               total_height={COMPONENT_HEIGHT}
               label={item.label}
@@ -67,7 +67,7 @@ const BarGraph = ({ data }) => {
       </View>
       <Text
         style={{
-          color: colors.secondary,
+          color: colors.primary,
           fontWeight: "300",
           fontSize: sumData < 10000 ? 35 : 25
         }}
