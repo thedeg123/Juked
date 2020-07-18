@@ -8,7 +8,6 @@ import {
   ScrollView
 } from "react-native";
 import colors from "../constants/colors";
-import Container from "../components/Container";
 import UserListItem from "../components/UserPreview";
 import ListPreview from "../components/ListPreview";
 import context from "../context/context";
@@ -25,7 +24,8 @@ import OptionBar from "../components/OptionBar";
 import { profileButtonOptions } from "../constants/buttonOptions";
 import LoadingPage from "../components/Loading/LoadingPage";
 import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
-import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
+import ListenListButton from "../components/ProfileScreen/ListenListButton";
+
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, disconnect } = useContext(context);
@@ -39,6 +39,7 @@ const UserProfileScreen = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [remover, setRemover] = useState(null);
   const [graphType, setGraphType] = useState(profileButtonOptions[0].type);
+  const [personalListenList, setPersonalListenList] = useState(null);
 
   const updateFollow = async () => {
     firestore
@@ -80,6 +81,9 @@ const UserProfileScreen = ({ navigation }) => {
         .getReviewsByAuthorType(uid, ["list"], 5)
         .then(res => res[0])
     };
+    setPersonalListenList(
+      await firestore.getListenlist(uid, true)
+    );
     setReviews(reviews);
     updateFollow();
   };
@@ -138,6 +142,7 @@ const UserProfileScreen = ({ navigation }) => {
   if (
     !user ||
     !reviews ||
+    !personalListenList ||
     typeof followsYou !== "boolean" ||
     typeof userFollowing !== "boolean"
   ) {
@@ -205,7 +210,7 @@ const UserProfileScreen = ({ navigation }) => {
             </View>
           </View>
         </View>
-        <View style={{ marginHorizontal: 10 }}>
+        <View style={{ marginHorizontal: 10, marginBottom: 10 }}>
           {user.bio ? (
             <Text style={styles.bioStyle}>{user.bio}</Text>
           ) : uid === firestore.fetchCurrentUID() ? (
@@ -220,8 +225,22 @@ const UserProfileScreen = ({ navigation }) => {
           containerStyle={{ marginHorizontal: 5, marginTop: 5 }}
           onPress={setGraphType}
         ></OptionBar>
+
         <View style={{ marginTop: 10, marginHorizontal: 10 }}>
           <BarGraph data={graphDataContentSelector(graphType)} />
+        </View>
+        <View style={{ marginTop: 10, flexDirection:"row", justifyContent:'space-evenly' }}>
+          <ListenListButton
+            listenList={personalListenList}
+            type_of_interest={graphType}
+            user={user}
+            personal
+          />
+          <ListenListButton
+            listenList={personalListenList}
+            type_of_interest={graphType}
+            user={user}
+          />
         </View>
         {"all" === graphType &&
         (reviews["list"].length || uid === firestore.fetchCurrentUID()) ? (

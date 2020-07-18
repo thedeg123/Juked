@@ -9,22 +9,41 @@ const firestore = admin.firestore();
 
 exports.createDefaultUser = functions.auth.user().onCreate(user => {
   const email = user.email;
-  return firestore
-    .collection("users")
-    .doc(email)
-    .set({
-      email,
-      handle: "",
-      bio: "",
-      profile_url: "",
-      created: Date.now(),
-      num_follower: 0,
-      num_following: 0,
-      review_data: new Array(11).fill(0),
-      review_data_songs: new Array(11).fill(0),
-      review_data_albums: new Array(11).fill(0),
-      review_data_artists: new Array(11).fill(0)
-    });
+  const listenlistPersonalId = email + "_personal";
+  const listenlistIncomingId = email + "_incoming";
+  const batch = firestore.batch();
+
+  const userRef = firestore.collection("users").doc(email);
+  const llPersonalRef = firestore
+    .collection("listenlist")
+    .doc(listenlistPersonalId);
+  const llIncomingRef = firestore
+    .collection("listenlist")
+    .doc(listenlistIncomingId);
+
+  batch.set(userRef, {
+    email,
+    handle: "",
+    bio: "",
+    profile_url: "",
+    created: Date.now(),
+    num_follower: 0,
+    num_following: 0,
+    review_data: new Array(11).fill(0),
+    review_data_songs: new Array(11).fill(0),
+    review_data_albums: new Array(11).fill(0),
+    review_data_artists: new Array(11).fill(0)
+  });
+  batch.set(llPersonalRef, {
+    items: [],
+    personal: true
+  });
+  batch.set(llIncomingRef, {
+    items: [],
+    personal: false
+  });
+
+  return batch.commit();
 });
 
 exports.deleteUser = functions.auth.user().onDelete(async user => {

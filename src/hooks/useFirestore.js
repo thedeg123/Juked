@@ -9,6 +9,8 @@ class useFirestore {
     this.content_db = this.db.collection("content");
     this.interactions_db = this.db.collection("interactions");
     this.auth = firebase.auth();
+    this.listen_list_db = this.db.collection("listenlist");
+    this.cachedListenList = null;
   }
 
   /**
@@ -225,6 +227,88 @@ class useFirestore {
     });
     return this.interactions_db.doc(lid).delete();
   }
+
+  // -----------------------------------------------------------------------------------------------------------
+  // ListenList relations
+
+  async _establisCachedListenList() {
+    return (this.cachedListenList = await this.listen_list_db
+      .doc(this.fetchCurrentUID() + "_personal")
+      .get()
+      .then(res => res.data()));
+  }
+
+  getCachedListenList() {
+    return this.cachedListenList;
+  }
+
+  contentInlistenList(cid) {
+    const list = this.getCachedListenList();
+    return !!list.items.find(item => item.content.id === cid);
+  }
+
+  async _updatePersonalListenList(content, remove) {
+    console.log(content.id, remove);
+    const uid = this.fetchCurrentUID() + "_personal";
+    const item = {
+      content,
+      last_modified: new Date().getTime()
+    };
+    if (remove) {
+      this.cachedListenList.items = this.cachedListenList.items.filter(
+        item => item.content.id != content.id
+      );
+    } else {
+      this.cachedListenList.items = this.cachedListenList.items.filter(
+        item => item.content.id != content.id
+      );
+      this.cachedListenList.items = [...this.cachedListenList.items, item];
+    }
+    return this.listen_list_db.doc(uid).update({
+      items: this.cachedListenList.items
+    });
+  }
+
+  async getListenlist(user = firestore.fetchCurrentUID(), personal = false) {
+    if (user === this.fetchCurrentUID()) return this.getCachedListenList();
+    const type = personal ? "personal" : "incoming";
+    const lid = user + "_" + type;
+    const default_ret = {
+      personal,
+      items: []
+    };
+    return await this.listen_list_db
+      .doc(lid)
+      .get()
+      .then(res => (res.exists ? res.data() : default_ret))
+  }
+
+  async updateListenList(user, user_to, content, remove) {
+    if (user === user_to && user_to === this.fetchCurrentUID())
+      return await this._updatePersonalListenList(content, remove);
+    const uid = user_to + "_incoming";
+    const item = {
+      content,
+      author: user,
+      last_modified: new Date().getTime()
+    };
+    return remove
+      ? this.listen_list_db.doc(uid).update({
+          items: items.filter(item => item.content.id != content.id)
+        })
+      : this.listen_list_db.doc(uid).update({
+          items: firebase.firestore.FieldValue.arrayUnion([item])
+        });
+  }
+
+  async addToListenList(user, user_to, content) {
+    return await this.updateListenList(user, user_to, content, false);
+  }
+
+  async removeFromListenList(user, content) {
+    return await this.updateListenList(user, user, content, true);
+  }
+
   // -----------------------------------------------------------------------------------------------------------
   // List relations
   async addList(title, description, items, itemKeys) {

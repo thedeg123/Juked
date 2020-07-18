@@ -156,6 +156,7 @@ const WriteListScreen = ({ navigation }) => {
             <UserListItem
               content={item}
               index={index}
+              forWriteList
               onLongPress={drag}
               showGrip
               containerStyle={

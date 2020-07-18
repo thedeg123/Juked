@@ -29,6 +29,7 @@ import { decode, encode } from "base-64";
 import NotificationScreen from "./src/screens/NotificationScreen";
 import WriteListScreen from "./src/screens/WriteListScreen";
 import UserListScreen from "./src/screens/UserListScreen";
+import ListenListScreen from "./src/screens/ListenListScreen";
 
 if (!global.btoa) {
   global.btoa = encode;
@@ -48,7 +49,8 @@ const exploreFlow = {
   List: ListScreen,
   WriteReview: WriteReviewScreen,
   WriteList: WriteListScreen,
-  UserList: UserListScreen
+  UserList: UserListScreen,
+  ListenList: ListenListScreen
 };
 const tabBarOptions = {
   activeTintColor: colors.primary, // active icon color

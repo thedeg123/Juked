@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import UserPreview from "./HomeScreenComponents/UserPreview";
 import colors from "../constants/colors";
 import { withNavigation } from "react-navigation";
-import { MaterialIcons, Entypo } from "@expo/vector-icons";
+import { MaterialIcons, Entypo, AntDesign } from "@expo/vector-icons";
 
 /**
  * ReviewButton Component for Artist/album/track componennts
@@ -12,7 +12,14 @@ import { MaterialIcons, Entypo } from "@expo/vector-icons";
  * @param {string} rid - unique review identifier assigned by database
  * @param {Object} navigation - navigation objected passed from screen
  */
-const ReviewButton = ({ navigation, review, content, onPress }) => {
+const ReviewButton = ({
+  navigation,
+  review,
+  content,
+  onListenList,
+  onPress,
+  onListenPress
+}) => {
   return (
     <View
       style={{
@@ -21,17 +28,17 @@ const ReviewButton = ({ navigation, review, content, onPress }) => {
         marginVertical: 10
       }}
     >
-      <TouchableOpacity
-        style={styles.container}
-        onPress={async () => {
-          onPress ? onPress() : null;
-          return navigation.navigate("WriteReview", {
-            review,
-            content
-          });
-        }}
-      >
-        <Entypo name="add-to-list" size={32} color={colors.white} />
+      <TouchableOpacity style={styles.container} onPress={onListenPress}>
+        {onListenList ? (
+          <AntDesign
+            name="checkcircle"
+            size={24}
+            style={{ marginVertical: 5 }}
+            color={colors.white}
+          />
+        ) : (
+          <Entypo name="add-to-list" size={32} color={colors.white} />
+        )}
         <Text
           style={{
             fontSize: 16,
@@ -40,7 +47,7 @@ const ReviewButton = ({ navigation, review, content, onPress }) => {
             fontWeight: "bold"
           }}
         >
-          Listenlist
+          ListenList
         </Text>
       </TouchableOpacity>
       <TouchableOpacity

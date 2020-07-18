@@ -21,16 +21,20 @@ const UserListItem = ({
   index,
   onPress,
   onLongPress,
+  forWriteList,
   containerStyle,
   indexStyle,
   showGrip
 }) => {
   return (
     <View style={styles.containerStyle}>
-      <Text style={[styles.listNumberStyle, indexStyle]}>{index + 1}</Text>
+      <Text style={[styles.listNumberStyle, indexStyle]}>
+        {typeof index === "number" ? index + 1 : index}
+      </Text>
       <HomeScreenBorder
         onPress={onPress}
         onLongPress={onLongPress}
+        forWriteList={forWriteList}
         content={content}
         height={70}
         containerStyle={containerStyle}
@@ -62,10 +66,10 @@ const UserListItem = ({
 
 const styles = StyleSheet.create({
   listNumberStyle: {
-    alignSelf: "center",
-    fontSize: 20,
-    color: colors.shadow,
-    marginRight: 5
+    fontSize: 16,
+    textAlign: "center",
+    width: 30,
+    color: colors.shadow
   },
   containerStyle: {
     marginHorizontal: 5,

@@ -23,7 +23,7 @@ const ReviewPreview = ({
   style = style || {};
   return (
     <TouchableOpacity
-      style={[styles.container, style]}
+      style={{...styles.container, ...style}}
       onPress={async () => {
         onPress();
         return navigation.push("Review", {
@@ -71,7 +71,8 @@ const ReviewPreview = ({
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 10,
-
+    paddingBottom: 5,
+    borderBottomWidth: 0.5,
     borderColor: colors.lightShadow
   },
   iconStyle: {

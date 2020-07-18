@@ -17,6 +17,9 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
   const [author, setAuthor] = useState("waiting");
   const [reviews, setReviews] = useState("waiting");
   const [authors, setAuthors] = useState("waiting");
+  const [onUserListenList, setOnUserListenList] = useState(
+    firestore.contentInlistenList(content.id)
+  );
   let temp_rev = null;
 
   const getReview = async () => {
@@ -77,6 +80,16 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
             review={review}
             onPress={onClose}
             content={contentData}
+            onListenList={onUserListenList}
+            onListenPress={() => {
+              firestore.updateListenList(
+                firestore.fetchCurrentUID(),
+                firestore.fetchCurrentUID(),
+                content,
+                onUserListenList
+              );
+              setOnUserListenList(!onUserListenList);
+            }}
           />
           <BarGraph
             data={contentData ? contentData.rating_nums : null}

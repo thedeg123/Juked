@@ -38,6 +38,9 @@ const AlbumScreen = ({ navigation }) => {
   const [showReviewCard, setShowReviewCard] = useState(false);
   const [showTrackCard, setShowTrackCard] = useState(false);
   const [trackData, setTrackData] = useState(null);
+  const [onUserListenList, setOnUserListenList] = useState(
+    firestore.contentInlistenList(content_id)
+  );
 
   let temp_rev = null;
 
@@ -71,7 +74,7 @@ const AlbumScreen = ({ navigation }) => {
     //getting album rating
     firestore.getContentData(content_id).then(res => setAlbumData(res));
     useMusic.findAlbum(content_id).then(async album => setAlbum(album));
-    await getReview();
+    getReview();
     return getReviews();
   };
 
@@ -120,7 +123,20 @@ const AlbumScreen = ({ navigation }) => {
             <Text style={styles.text}>{album.string_release_date}</Text>
           </View>
         </View>
-        <ReviewButton review={review} content={album} />
+        <ReviewButton
+          onListenList={onUserListenList}
+          onListenPress={() => {
+            firestore.updateListenList(
+              firestore.fetchCurrentUID(),
+              firestore.fetchCurrentUID(),
+              album,
+              onUserListenList
+            );
+            setOnUserListenList(!onUserListenList);
+          }}
+          review={review}
+          content={album}
+        />
         <View style={{ marginHorizontal: 10 }}>
           <BarGraph data={albumData.rating_nums}></BarGraph>
           <TextRatings

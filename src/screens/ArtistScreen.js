@@ -38,6 +38,9 @@ const ArtistScreen = ({ navigation }) => {
   const email = firestore.fetchCurrentUID();
   const [contentData, setContentData] = useState(null);
   let temp_rev = null;
+  const [onUserListenList, setOnUserListenList] = useState(
+    firestore.contentInlistenList(content_id)
+  );
   const [showModal, setShowModal] = useState(false);
 
   const getReview = async () => {
@@ -79,7 +82,7 @@ const ArtistScreen = ({ navigation }) => {
       .findAlbumsOfAnArtist(content_id)
       .then(res => res.forEach(a => newAlbums[a.album_type].push(a)));
     setAlbums(newAlbums);
-    await getReview();
+    getReview();
     return getReviews();
   };
 
@@ -111,7 +114,20 @@ const ArtistScreen = ({ navigation }) => {
           <Text style={styles.title}>{artist.name}</Text>
         </View>
       </ImageBackground>
-      <ReviewButton review={review} content={artist} />
+      <ReviewButton
+        onListenList={onUserListenList}
+        onListenPress={() => {
+          firestore.updateListenList(
+            firestore.fetchCurrentUID(),
+            firestore.fetchCurrentUID(),
+            artist,
+            onUserListenList
+          );
+          setOnUserListenList(!onUserListenList);
+        }}
+        review={review}
+        content={artist}
+      />
       <Text style={styles.sectionStyle}>Reviews</Text>
       <View style={{ marginHorizontal: 10 }}>
         <BarGraph data={contentData.rating_nums}></BarGraph>

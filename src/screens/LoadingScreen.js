@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from "react";
-import { StyleSheet } from "react-native";
+import { Alert } from "react-native";
 import { auth } from "firebase";
 import LoadingPage from "../components/Loading/LoadingPage";
 import colors from "../constants/colors";
@@ -8,6 +8,11 @@ import context from "../context/context";
 
 const LoadingScreen = ({ navigation }) => {
   let { firestore } = useContext(context);
+  const awaitFunc = async (email, count) =>
+    await setTimeout(
+      () => console.log("waiting on:", email, "try number", count),
+      500
+    );
   useEffect(() => {
     const routeState = () => {
       return auth().onAuthStateChanged(async user => {
@@ -18,18 +23,14 @@ const LoadingScreen = ({ navigation }) => {
           //the user to the database. Because of this if we cant find the user, we try,try,try again! But only 10 times.
           do {
             if (count === 10) {
-              console.log(
-                "Request failed after 10 tries, this user is likely not in the database."
-              );
+              Alert.alert("Failed to signin", "Sorry, an unknown error occurred.")
               return navigation.navigate("loginFlow");
             }
             count++;
             response = await firestore.getUser(user.email);
-            await setTimeout(
-              () => console.log("waiting on:", user.email, "try number", count),
-              500
-            );
+            await awaitFunc(user.email, count)
           } while (!response);
+          firestore._establisCachedListenList();
           return response.handle.length
             ? navigation.navigate("homeFlow")
             : navigation.navigate("MakeProfile");
@@ -37,8 +38,7 @@ const LoadingScreen = ({ navigation }) => {
         return navigation.navigate("loginFlow");
       });
     };
-    const listener = navigation.addListener("didFocus", () => routeState()); //any time we return to this screen we do another fetch
-    return () => listener.remove(); //prevents memory leaks if the loadingScreen is ever closed
+    routeState()
   }, []);
 
   return <LoadingPage></LoadingPage>;

@@ -1,5 +1,11 @@
 import React, { useState, useContext, useRef } from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  KeyboardAvoidingView,
+  Image
+} from "react-native";
 import { Input } from "react-native-elements";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
 import context from "../context/context";
@@ -37,8 +43,8 @@ const MakeProfileScreen = ({
           onChangeText={setImageUrl}
           autoCapitalize="none"
           returnKeyType={"next"}
+          onBlur={() => setActive(false)}
           onSubmitEditing={() => {
-            setActive(false);
             return handleRef.current.focus();
           }}
           keyboardType="web-search"
@@ -54,8 +60,8 @@ const MakeProfileScreen = ({
           maxLength={15}
           returnKeyType={"done"}
           onChangeText={setHandle}
+          onBlur={() => setActive(false)}
           onSubmitEditing={() => {
-            setActive(false);
             return bioRef.current.focus();
           }}
           autoCapitalize="none"

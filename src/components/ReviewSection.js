@@ -83,7 +83,7 @@ const ReviewSection = ({
                         onPress={onPress}
                         author={item.author}
                         content={content}
-                        style={{ marginTop: 15 }}
+                        style={{ paddingTop: 15, backgroundColor:colors.background}}
                       ></ReviewPreview>
                     );
                   },
@@ -116,6 +116,7 @@ const ReviewSection = ({
                     onPress={onPress}
                     author={authors[item.data.author]}
                     content={content}
+
                   ></ReviewPreview>
                 </View>
               );

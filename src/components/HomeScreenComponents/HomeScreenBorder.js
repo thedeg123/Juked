@@ -20,6 +20,7 @@ const HomeScreenBorder = ({
   review,
   author,
   onLongPress,
+  forWriteList,
   containerStyle,
   height
 }) => {
@@ -33,7 +34,7 @@ const HomeScreenBorder = ({
   }
 
   useEffect(() => {
-    if (!onLongPress) LayoutAnimation.configureNext(customCardAnimation);
+    if (!forWriteList) LayoutAnimation.configureNext(customCardAnimation);
     setShow(true);
   }, []);
 
@@ -44,7 +45,7 @@ const HomeScreenBorder = ({
         activeOpacity={0.8}
         onLongPress={onLongPress}
         onPress={() => {
-          !onLongPress &&
+          !forWriteList &&
             navigateContent(
               navigation,
               review ? review.content_id : null,
