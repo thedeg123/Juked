@@ -6,15 +6,13 @@ import ContentPic from "../HomeScreenComponents/ContentPic";
 import { withNavigation } from "react-navigation";
 import { getAbreveatedTimeDif } from "../../helpers/simplifyContent";
 
-const LikeItem = ({ navigation, fetchReview, item, user, currentUser }) => {
+const ListenlistItem = ({ navigation, item, user, currentUser }) => {
   return (
     <TouchableOpacity
-      onPress={async () =>
-        navigation.navigate("Review", {
-          review: await fetchReview(),
-          user: currentUser,
-          content: item.data.content
-        })
+      onPress={async () => navigation.navigate("ListenList", {
+            user: currentUser,
+            type: "incoming"
+          })
       }
       style={styles.containerStyle}
       activeOpacity={0.8}
@@ -26,9 +24,10 @@ const LikeItem = ({ navigation, fetchReview, item, user, currentUser }) => {
           uid={item.data.author}
         ></UserPreview>
         <Text numberOfLines={2} style={[styles.textStyle, { flex: 1 }]}>
-        <Text style={{fontWeight: "bold"}}>{user.handle} </Text> 
-          liked your review of
+          <Text style={{fontWeight: "bold"}}>{user.handle} </Text> 
+        added
           <Text style={{fontWeight: "bold"}}> {item.data.content.name} </Text>
+        to your listenlist
         </Text>
         <Text style={[styles.textStyle, { fontWeight: "bold" }]}>
           {getAbreveatedTimeDif(item.data.last_modified)}
@@ -48,7 +47,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     alignSelf: "center",
     marginRight: 5,
-    fontSize: 16,
+    fontSize: 17,
     bottom: 5
   },
   containerStyle: {
@@ -63,4 +62,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigation(LikeItem);
+export default withNavigation(ListenlistItem);

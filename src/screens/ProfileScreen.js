@@ -26,7 +26,6 @@ import LoadingPage from "../components/Loading/LoadingPage";
 import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
 import ListenListButton from "../components/ProfileScreen/ListenListButton";
 
-
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, disconnect } = useContext(context);
   const firestoreConcurrent = firebase.firestore();
@@ -40,6 +39,7 @@ const UserProfileScreen = ({ navigation }) => {
   const [remover, setRemover] = useState(null);
   const [graphType, setGraphType] = useState(profileButtonOptions[0].type);
   const [personalListenList, setPersonalListenList] = useState(null);
+  const [incomingListenList, setIncomingListenList] = useState(null);
 
   const updateFollow = async () => {
     firestore
@@ -69,13 +69,13 @@ const UserProfileScreen = ({ navigation }) => {
     if (!uid) uid = firestore.fetchCurrentUID();
     const reviews = {
       track: await firestore
-        .getReviewsByAuthorType(uid, ["track"], 5)
+        .getReviewsByAuthorType(uid, ["track_review", "track_rating"], 5)
         .then(res => res[0]),
       album: await firestore
-        .getReviewsByAuthorType(uid, ["album"], 5)
+        .getReviewsByAuthorType(uid, ["album_review", "album_rating"], 5)
         .then(res => res[0]),
       artist: await firestore
-        .getReviewsByAuthorType(uid, ["artist"], 5)
+        .getReviewsByAuthorType(uid, ["artist_review", "artist_rating"], 5)
         .then(res => res[0]),
       list: await firestore
         .getReviewsByAuthorType(uid, ["list"], 5)
@@ -83,6 +83,9 @@ const UserProfileScreen = ({ navigation }) => {
     };
     setPersonalListenList(
       await firestore.getListenlist(uid, true)
+    );
+    setIncomingListenList(
+      await firestore.getListenlist(uid, false)
     );
     setReviews(reviews);
     updateFollow();
@@ -119,7 +122,6 @@ const UserProfileScreen = ({ navigation }) => {
           uid,
           types,
           limit,
-          undefined,
           start_after
         );
         if (!reviews.length) return [[], null];
@@ -138,7 +140,6 @@ const UserProfileScreen = ({ navigation }) => {
       keyExtractor: item => item.id + item.content_id
     });
   };
-
   if (
     !user ||
     !reviews ||
@@ -157,10 +158,9 @@ const UserProfileScreen = ({ navigation }) => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            style={{ backgroundColor: "transparent" }}
             onRefresh={async () => {
               setRefreshing(true);
-              fetch();
+              await fetch();
               return setRefreshing(false);
             }}
           />
@@ -237,7 +237,7 @@ const UserProfileScreen = ({ navigation }) => {
             personal
           />
           <ListenListButton
-            listenList={personalListenList}
+            listenList={incomingListenList}
             type_of_interest={graphType}
             user={user}
           />
@@ -258,7 +258,7 @@ const UserProfileScreen = ({ navigation }) => {
             title="Most Recent Artists"
             user={user}
             data={reviews["artist"]}
-            onPress={() => navigateContent("Artists", ["artist"])}
+            onPress={() => navigateContent("Artists", ["artist_review", "artist_rating"])}
           />
         ) : null}
         {reviews["album"].length && ["all", "album"].includes(graphType) ? (
@@ -266,7 +266,7 @@ const UserProfileScreen = ({ navigation }) => {
             title="Most Recent Albums"
             user={user}
             data={reviews["album"]}
-            onPress={() => navigateContent("Albums", ["album"])}
+            onPress={() => navigateContent("Albums", ["album_review", "album_rating"])}
           />
         ) : null}
         {reviews["track"].length && ["all", "track"].includes(graphType) ? (
@@ -274,7 +274,7 @@ const UserProfileScreen = ({ navigation }) => {
             title="Most Recent Songs"
             user={user}
             data={reviews["track"]}
-            onPress={() => navigateContent("Songs", ["track"])}
+            onPress={() => navigateContent("Songs", ["track_review", "track_rating"])}
             marginBottom={10}
           />
         ) : null}

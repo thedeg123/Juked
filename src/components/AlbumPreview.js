@@ -22,7 +22,9 @@ const AlbumPreview = ({
   if (showHighlightedTrackCard && !disabled) showTrackCard();
   return (
     <View style={{ flexDirection: "row", marginHorizontal: 10 }}>
+      <View style={{width: 30, justifyContent:"center", alignItems:"center"}}>
       <Text style={styles.track_numberStyle}>{content.track_number}</Text>
+      </View>
       <TouchableOpacity
         disabled={disabled}
         onPress={showTrackCard}
@@ -35,6 +37,9 @@ const AlbumPreview = ({
       >
         <Text style={styles.textStyle} numberOfLines={1}>
           {content.name}
+        </Text>
+        <Text style={styles.timeStyle} numberOfLines={1}>
+          {content.duration}
         </Text>
       </TouchableOpacity>
     </View>
@@ -52,6 +57,11 @@ const styles = StyleSheet.create({
     flex: 1,
     borderTopWidth: 0.5,
     borderTopColor: colors.lightShadow
+  },
+  timeStyle:{
+    marginLeft: 5,
+    color: colors.text,
+    fontWeight: "300",
   },
   track_numberStyle: {
     alignSelf: "center",

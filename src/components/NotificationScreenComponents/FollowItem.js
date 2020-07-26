@@ -21,13 +21,12 @@ const FollowItem = ({ navigation, item, user }) => {
         style={{ marginHorizontal: 10, flexDirection: "row", top: 7, flex: 1 }}
       >
         <UserPreview
-          containerStyle={{ alignSelf: "center", marginRight: 5 }}
+          containerStyle={{ alignSelf: "center", marginRight: 10 }}
           img={user.profile_url}
           uid={item.data.author}
         ></UserPreview>
         <Text numberOfLines={2} style={[styles.textStyle, { flex: 1 }]}>
-          {user.handle} followed you!
-        </Text>
+          <Text style={{fontWeight: "bold"}}>{user.handle}</Text> followed you!</Text>
         <Text style={[styles.textStyle, { fontWeight: "bold" }]}>
           {getAbreveatedTimeDif(item.data.last_modified)}
         </Text>

@@ -11,6 +11,7 @@ class useFirestore {
     this.auth = firebase.auth();
     this.listen_list_db = this.db.collection("listenlist");
     this.cachedListenList = null;
+    this.cachedOutgoingListenlist = null;
   }
 
   /**
@@ -136,10 +137,6 @@ class useFirestore {
    * @argument {Number} limit - the number of items to return per batch
    * @argument {Object} start_after - pagination object
    */
-  /**
-   * @argument {Number} limit - the number of items to return per batch
-   * @argument {Object} start_after - pagination object
-   */
   async getUserInteractions(limit = 10, start_after = null) {
     let base = this.interactions_db
       .where("review_author", "==", this.fetchCurrentUID())
@@ -231,9 +228,21 @@ class useFirestore {
   // -----------------------------------------------------------------------------------------------------------
   // ListenList relations
 
+  async establishCachedContent() {
+    await this._establisCachedListenList();
+    return await this._establishCachedOutgoingListenList();
+  }
+
   async _establisCachedListenList() {
     return (this.cachedListenList = await this.listen_list_db
       .doc(this.fetchCurrentUID() + "_personal")
+      .get()
+      .then(res => res.data()));
+  }
+
+  async _establishCachedOutgoingListenList() {
+    return (this.cachedOutgoingListenlist = await this.listen_list_db
+      .doc(this.fetchCurrentUID() + "_personal" + "_outgoing")
       .get()
       .then(res => res.data()));
   }
@@ -247,8 +256,85 @@ class useFirestore {
     return !!list.items.find(item => item.content.id === cid);
   }
 
+  /**
+   * @description returns if the current user has added this piece of content to a follower's listenlist
+   * @param {String} cid - the unique id of the content in question
+   * @param {String} uid - the follower's unique Id
+   * @return {Boolean} - if the user has reccomended this content to a follower
+   */
+  contentReccomendedToFollower(cid, uid) {
+    return !!this.cachedOutgoingListenlist.items.find(
+      item => item.review_author === uid && item.content.id === cid
+    );
+  }
+
+  /**
+   * @description reccomends the given content to the follower by adding it to their incoming listenlist and updating
+   * their outgoing listenlist on the backend we and the personal listenlist on the successful write
+   * @param {Object} content - the content object we're reccomending
+   * @param {String} uid - the follower's unique Id
+   */
+  async reccomendContentToFollower(content, uid) {
+    const lid = content.id + uid;
+    const outgoing_item = {
+      review_author: uid,
+      content,
+      last_modified: new Date().getTime()
+    };
+    const outgoing_items = [
+      ...this.cachedOutgoingListenlist.items,
+      outgoing_item
+    ];
+    const notification_item = {
+      author: this.fetchCurrentUID(),
+      last_modified: Date.now(),
+      type: "listenlist",
+      review_author: uid,
+      content: content
+    };
+    const batch = this.db.batch();
+    const notification_ref = this.interactions_db.doc(lid);
+    const outgoing_ref = this.listen_list_db.doc(
+      this.fetchCurrentUID() + "_personal" + "_outgoing"
+    );
+    batch.update(outgoing_ref, {
+      items: outgoing_items
+    });
+    batch.set(notification_ref, notification_item);
+    return await batch
+      .commit()
+      .then(() => (this.cachedOutgoingListenlist.items = outgoing_items));
+  }
+
+  /**
+   * @description deletes the reccomendation of the given content to the follower by removing it from their outgoing
+   * listenlist and deleting the notification object on the backend we update the incoming listenlist
+   * of this object
+   * @param {Object} content - the content object we're reccomending
+   * @param {String} uid - the follower's unique Id
+   */
+  async unreccomendContentToFollower(content, uid) {
+    const lid = content.id + uid;
+    const batch = this.db.batch();
+    const outgoing_items = this.cachedOutgoingListenlist.items.filter(
+      item => item.content.id !== content.id || item.review_author !== uid
+    );
+
+    const notification_ref = this.interactions_db.doc(lid);
+    const outgoing_ref = this.listen_list_db.doc(
+      this.fetchCurrentUID() + "_personal" + "_outgoing"
+    );
+
+    batch.update(outgoing_ref, {
+      items: outgoing_items
+    });
+    batch.delete(notification_ref);
+    return await batch
+      .commit()
+      .then(() => (this.cachedOutgoingListenlist.items = outgoing_items));
+  }
+
   async _updatePersonalListenList(content, remove) {
-    console.log(content.id, remove);
     const uid = this.fetchCurrentUID() + "_personal";
     const item = {
       content,
@@ -269,10 +355,10 @@ class useFirestore {
     });
   }
 
-  async getListenlist(user = firestore.fetchCurrentUID(), personal = false) {
-    if (user === this.fetchCurrentUID()) return this.getCachedListenList();
+  async getListenlist(uid = firestore.fetchCurrentUID(), personal = false) {
+    if (uid === this.fetchCurrentUID() && personal) return this.getCachedListenList();
     const type = personal ? "personal" : "incoming";
-    const lid = user + "_" + type;
+    const lid = uid + "_" + type;
     const default_ret = {
       personal,
       items: []
@@ -280,33 +366,14 @@ class useFirestore {
     return await this.listen_list_db
       .doc(lid)
       .get()
-      .then(res => (res.exists ? res.data() : default_ret))
+      .then(res => (res.exists ? res.data() : default_ret));
+  }
+  async addToPersonalListenlist(content) {
+    return await this._updatePersonalListenList(content, false);
   }
 
-  async updateListenList(user, user_to, content, remove) {
-    if (user === user_to && user_to === this.fetchCurrentUID())
-      return await this._updatePersonalListenList(content, remove);
-    const uid = user_to + "_incoming";
-    const item = {
-      content,
-      author: user,
-      last_modified: new Date().getTime()
-    };
-    return remove
-      ? this.listen_list_db.doc(uid).update({
-          items: items.filter(item => item.content.id != content.id)
-        })
-      : this.listen_list_db.doc(uid).update({
-          items: firebase.firestore.FieldValue.arrayUnion([item])
-        });
-  }
-
-  async addToListenList(user, user_to, content) {
-    return await this.updateListenList(user, user_to, content, false);
-  }
-
-  async removeFromListenList(user, content) {
-    return await this.updateListenList(user, user, content, true);
+  async removeFromPersonalListenlist(content) {
+    return await this._updatePersonalListenList(content, true);
   }
 
   // -----------------------------------------------------------------------------------------------------------
@@ -322,7 +389,8 @@ class useFirestore {
       title,
       description: description || "",
       itemKeys: [...itemKeys],
-      items
+      items,
+      review_type: "list"
     };
     return this.reviews_db.add(body);
   }
@@ -363,6 +431,8 @@ class useFirestore {
   }
 
   async addReview(cid, type, content, rating, text) {
+    const is_review = Boolean(text.length);
+    const review_type = type + "_" + (is_review ? "review" : "rating");
     return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
       author: this.auth.currentUser.email,
       content_id: cid,
@@ -374,15 +444,19 @@ class useFirestore {
       num_comments: 0,
       num_likes: 0,
       popularity: 0,
-      is_review: Boolean(text.length)
+      is_review,
+      review_type
     });
   }
 
   async updateReview(rid, cid, type, rating, text) {
+    const is_review = Boolean(text.length);
+    const review_type = type + "_" + (is_review ? "review" : "rating");
     let body = {};
     typeof text == "string" ? (body["text"] = text) : null;
     rating ? (body["rating"] = rating) : null;
-    body["is_review"] = text.length ? true : false;
+    body["is_review"] = is_review;
+    body["review_type"] = review_type;
     body["last_modified"] = new Date().valueOf();
     return this.reviews_db.doc(rid).update(body);
   }
@@ -444,23 +518,12 @@ class useFirestore {
    * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
    * @argument {Array} types - an array of at least one "artist", "album", "track"
    */
-  async getReviewsByAuthorType(
-    uid,
-    types,
-    limit = 100,
-    review_type,
-    start_after = null
-  ) {
+  async getReviewsByAuthorType(uid, types, limit = 100, start_after = null) {
     let base = this.reviews_db
       .where("author", "==", uid)
       .orderBy("last_modified", "desc")
-      .where("type", "in", types);
+      .where("review_type", "in", types);
 
-    if (review_type === true) {
-      base = base.where("is_review", "==", true);
-    } else if (review_type === false) {
-      base = base.where("is_review", "==", false);
-    }
     if (start_after) {
       base = base.startAfter(start_after);
     }
@@ -479,16 +542,10 @@ class useFirestore {
    * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
    * @argument {Array} types - an array of at least one "artist", "album", "track"
    */
-  async getReviewsByType(types, limit = 20, review_type, start_after) {
+  async getReviewsByType(types, limit = 20, start_after) {
     let base = this.reviews_db
       .orderBy("last_modified", "desc")
-      .where("type", "in", types);
-
-    if (review_type === true) {
-      base = base.where("is_review", "==", true);
-    } else if (review_type === false) {
-      base = base.where("is_review", "==", false);
-    }
+      .where("review_type", "in", types);
     if (start_after) {
       base = base.startAfter(start_after);
     }
@@ -573,6 +630,28 @@ class useFirestore {
       .doc(follower_uid + following_uid)
       .get()
       .then(doc => doc.exists);
+  }
+
+  /**
+   * @description - returns the complete user objects for each person the user is following
+   * @argument {Number} user - the user unique ID
+   * @argument {Object} start_after - pagination object
+   */
+  async getUserFollowingObjects(user) {
+    return await this.getFollowing(user).then(res =>
+      this.batchAuthorRequest(res)
+    );
+  }
+
+  /**
+   * @description - returns the complete user objects for each follower
+   * @argument {Number} user - the user unique ID
+   * @argument {Object} start_after - pagination object
+   */
+  async getUserFollowersObjects(user) {
+    return await this.getFollowers(user).then(res =>
+      this.batchAuthorRequest(res)
+    );
   }
 
   /**

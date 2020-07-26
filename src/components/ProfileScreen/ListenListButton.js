@@ -37,8 +37,10 @@ const ListenListButton = ({
       style={styles.container}
       onPress={() =>
         navigation.navigate("ListenList", {
-          list: listenList,
-          user
+          user,
+          personalList: personal ? listenList: undefined,
+          incomingList: personal ? undefined: listenList,
+          type: personal ? "personal": "incoming" 
         })
       }
     >
@@ -51,7 +53,7 @@ const ListenListButton = ({
           textAlign:"center"
         }}
       >
-        {`${number} ${name} on \n${personal?"personal": "general"} ListenList`}
+        {`${number} ${name} on \n${personal?"personal": "incoming"} ListenList`}
       </Text>
     </TouchableOpacity>
   );

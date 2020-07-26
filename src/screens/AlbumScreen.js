@@ -8,7 +8,7 @@ import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
-import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
+import ModalContentCard from "../components/ModalCards/ModalContentCard";
 import ModalTrackCard from "../components/ModalCards/ModalTrackCard";
 import TextRatings from "../components/TextRatings";
 import ArtistNames from "../components/ArtistNames";
@@ -35,7 +35,7 @@ const AlbumScreen = ({ navigation }) => {
   const [showHighlightedTrackCard, setShowHighlightedTrackCard] = useState(
     navigation.getParam("highlighted")
   );
-  const [showReviewCard, setShowReviewCard] = useState(false);
+  const [showContentCard, setShowContentCard] = useState(false);
   const [showTrackCard, setShowTrackCard] = useState(false);
   const [trackData, setTrackData] = useState(null);
   const [onUserListenList, setOnUserListenList] = useState(
@@ -70,7 +70,7 @@ const AlbumScreen = ({ navigation }) => {
   };
 
   const init = async () => {
-    navigation.setParams({ setShowModal: setShowReviewCard });
+    navigation.setParams({ setShowModal: setShowContentCard });
     //getting album rating
     firestore.getContentData(content_id).then(res => setAlbumData(res));
     useMusic.findAlbum(content_id).then(async album => setAlbum(album));
@@ -86,6 +86,9 @@ const AlbumScreen = ({ navigation }) => {
       listener.remove();
     };
   }, []);
+
+  useEffect(()=>{navigation.setParams({album})}, [album])
+
   // wait until get data from all APIs
   if (!album || review === "waiting" || !albumData)
     return <LoadingPage></LoadingPage>;
@@ -126,12 +129,9 @@ const AlbumScreen = ({ navigation }) => {
         <ReviewButton
           onListenList={onUserListenList}
           onListenPress={() => {
-            firestore.updateListenList(
-              firestore.fetchCurrentUID(),
-              firestore.fetchCurrentUID(),
-              album,
-              onUserListenList
-            );
+            onUserListenList
+            ? firestore.removeFromPersonalListenlist(album)
+            : firestore.addToPersonalListenlist(album);
             setOnUserListenList(!onUserListenList);
           }}
           review={review}
@@ -184,18 +184,11 @@ const AlbumScreen = ({ navigation }) => {
           alignItems: "center"
         }}
       />
-      <ModalReviewCard
-        showModal={showReviewCard}
-        setShowModal={v => setShowReviewCard(v)}
-        setReview={v => setReview(v)}
-        review={review}
+      <ModalContentCard
+        showModal={showContentCard}
+        setShowModal={setShowContentCard}
         content={album}
-        onDelete={() => {
-          firestore.deleteReview(review.id);
-          setShowReviewCard(false);
-          return getReview();
-        }}
-      ></ModalReviewCard>
+      ></ModalContentCard>
       <ModalTrackCard
         showModal={showTrackCard}
         setShowModal={setShowTrackCard}
@@ -207,8 +200,10 @@ const AlbumScreen = ({ navigation }) => {
 };
 
 AlbumScreen.navigationOptions = ({ navigation }) => {
-  setShowModal = navigation.getParam("setShowModal");
+  const setShowModal = navigation.getParam("setShowModal");
+  const album = navigation.getParam("album");
   return {
+    title: album ? album.name: "Album",
     headerRight: () => <ModalButton setShowModal={setShowModal}></ModalButton>
   };
 };

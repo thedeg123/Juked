@@ -10,6 +10,7 @@ const firestore = admin.firestore();
 exports.createDefaultUser = functions.auth.user().onCreate(user => {
   const email = user.email;
   const listenlistPersonalId = email + "_personal";
+  const listenlistPersonalOutgoingId = email + "_personal" + "_outgoing";
   const listenlistIncomingId = email + "_incoming";
   const batch = firestore.batch();
 
@@ -20,6 +21,9 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
   const llIncomingRef = firestore
     .collection("listenlist")
     .doc(listenlistIncomingId);
+  const llPersonalOutgoingRef = firestore
+    .collection("listenlist")
+    .doc(listenlistPersonalOutgoingId);
 
   batch.set(userRef, {
     email,
@@ -42,7 +46,10 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
     items: [],
     personal: false
   });
-
+  batch.set(llPersonalOutgoingRef, {
+    items: [],
+    personal: true
+  });
   return batch.commit();
 });
 
@@ -118,6 +125,66 @@ exports.Onunfollow = functions.firestore
     });
     return batch.commit();
   });
+
+  exports.OnReccomend = functions.firestore
+    .document("interactions/{iid}")
+    .onCreate(async (snap, context) => {
+      const newRec = snap.data();
+      if (newRec.type !== "listenlist") {
+        console.log(`Item not of type listenlist, type ${newRec.type}, doing nothing.`)
+        return;
+      }
+
+      const refListenlist = firestore
+        .collection("listenlist")
+        .doc(newRec.review_author + "_incoming");
+
+      firestore.runTransaction(transaction => {
+        return transaction.get(refListenlist).then(doc => {
+          const oldItems = doc.data().items
+          const newItems = [
+            ...oldItems,
+            { author: newRec.author, content: newRec.content, last_modified: new Date().getTime() }
+          ];
+          transaction.update(refListenlist, { items: newItems });
+          return newItems;
+        })
+        .then(()=> console.log("Transaction successfully committed!")
+        )
+        .catch((err) => console.log("Transaction failed: ", err));
+      });
+    });
+
+  exports.OnUnReccomend = functions.firestore
+    .document("interactions/{fid}")
+    .onDelete(async (snap, context) => {
+      const delRec = snap.data();
+      if (delRec.type !== "listenlist") {
+        console.log(`Item not of type listenlist, type ${newRec.type}, doing nothing.`)
+        return;
+      }
+
+      const refListenlist = firestore
+      .collection("listenlist")
+      .doc(delRec.review_author + "_incoming");
+      
+      firestore.runTransaction(transaction => {
+        return transaction.get(refListenlist).then(doc => {
+          const oldItems = doc.data().items
+          const newItems = oldItems.filter(
+            item =>
+              item.author !== delRec.author ||
+              item.content.id !== delRec.content.id
+          );
+          transaction.update(refListenlist, { items: newItems });
+          return newItems;
+        })
+        .then(()=> console.log("Transaction successfully committed!")
+        )
+        .catch((err) => console.log("Transaction failed: ", err)
+        );
+      });
+    });
 
 exports.updateContent = functions.firestore
   .document("reviews/{rid}")
@@ -373,10 +440,9 @@ exports.scheduledFunction = functions.pubsub
   });
 
 // // Create and Deploy Your First Cloud Functions
-// Deploy with: firebase deploy --only functions
-// Deploy one function with: firebase deploy --only functions:myFunction
-// // https://firebase.google.com/docs/functions/write-firebase-functions
 //
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+// Deploy with: firebase deploy --only functions
+// Deploy specific functions with: firebase deploy --only functions:myFunction,functions:myOtherFunction
+//
+// https://firebase.google.com/docs/functions/write-firebase-functions
+

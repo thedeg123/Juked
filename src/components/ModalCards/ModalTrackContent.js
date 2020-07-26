@@ -21,7 +21,6 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
     firestore.contentInlistenList(content.id)
   );
   let temp_rev = null;
-
   const getReview = async () => {
     temp_rev = await firestore
       .getReviewsByAuthorContent(firestore.fetchCurrentUID(), content.id)
@@ -79,15 +78,12 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
           <ReviewButton
             review={review}
             onPress={onClose}
-            content={contentData}
+            content={content}
             onListenList={onUserListenList}
             onListenPress={() => {
-              firestore.updateListenList(
-                firestore.fetchCurrentUID(),
-                firestore.fetchCurrentUID(),
-                content,
-                onUserListenList
-              );
+              onUserListenList
+                ? firestore.removeFromPersonalListenlist(content)
+                : firestore.addToPersonalListenlist(content);
               setOnUserListenList(!onUserListenList);
             }}
           />

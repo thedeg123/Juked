@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { StyleSheet, FlatList, View, RefreshControl } from "react-native";
+import { StyleSheet, FlatList, Text, View, RefreshControl } from "react-native";
 import context from "../context/context";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import LoadingPage from "../components/Loading/LoadingPage";
@@ -9,17 +9,17 @@ import ModalHomeCard from "../components/ModalCards/ModalHomeCard";
 import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
 import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
+import colors from "../constants/colors";
 
 const HomeScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
-  const [reviews, setReviews] = useState(null);
-  const [authors, setAuthors] = useState(null);
-  const [following, setFollowing] = useState(null);
+  const [reviews, setReviews] = useState("waiting");
+  const [authors, setAuthors] = useState("waiting");
+  const [following, setFollowing] = useState("waiting");
   const [userShow, setUserShow] = useState(null);
-  const [contentTypes, setContentTypes] = useState(
-    new Set(["track", "album", "artist", "list"])
+  const [filterTypes, setFilterTypes] = useState(
+    new Set(["track_review", "album_review", "artist_review", "track_rating", "album_rating", "artist_rating", "list"])
   );
-  const [ratingTypes, setRatingTypes] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const { firestore, useMusic } = useContext(context);
   const [startAfter, setStartAfter] = useState(null);
@@ -33,28 +33,25 @@ const HomeScreen = ({ navigation }) => {
   // except harder bc Music is from a different dbs ;)
   const fetchFollowing = () =>
     firestore
-      .getFollowing(firestore.fetchCurrentUID())
-      .then(res => firestore.batchAuthorRequest(res))
+      .getUserFollowingObjects(firestore.fetchCurrentUID())
       .then(res => setFollowing(res));
 
   const fetchHomeScreenData = async (limit = 20, start_after = null) => {
     const [local_reviews, start_next] = userShow
       ? await firestore.getReviewsByAuthorType(
           userShow,
-          Array.from(contentTypes),
+          Array.from(filterTypes),
           limit,
-          ratingTypes,
           start_after
         )
       : await firestore.getReviewsByType(
-          Array.from(contentTypes),
+          Array.from(filterTypes),
           limit,
-          ratingTypes,
           start_after
         );
-    if (!local_reviews.length) return setAllowRefresh(false);
+    if (!local_reviews.length && start_after) return setAllowRefresh(false);
     setStartAfter(start_next);
-    temp_authors = authors ? authors : {};
+    let temp_authors = authors !== "waiting" ? authors : {};
     await firestore
       .batchAuthorRequest([
         ...new Set(local_reviews.map(review => review.data.author))
@@ -71,11 +68,16 @@ const HomeScreen = ({ navigation }) => {
     fetchFollowing();
     fetchHomeScreenData(10, null);
   }, []);
-
-  if (!reviews || !authors || !following) return <LoadingPage></LoadingPage>;
+  if (reviews === "waiting" || authors === "waiting" || following === "waiting") return <LoadingPage />;
   return (
     <View style={{ flex: 1, marginHorizontal: 5 }}>
-      <RefreshControlLoadingIndicator></RefreshControlLoadingIndicator>
+      {!reviews ? null : reviews.length ? (
+        refreshing? <RefreshControlLoadingIndicator />: null
+      ) : (
+        <View style={{justifyContent:"center", flex: 1, }}>
+          <Text style={styles.emptyTextStyle}>No Results Match your current filters</Text>
+        </View>
+      )}
       <FlatList
         ref={flatListRef}
         contentContainerStyle={{ paddingBottom: 85 }}
@@ -144,9 +146,8 @@ const HomeScreen = ({ navigation }) => {
             fetchHomeScreenData(10, null);
           }
         }}
-        contentTypes={contentTypes}
-        ratingTypes={ratingTypes}
-        setRatingTypes={setRatingTypes}
+        filterTypes={filterTypes}
+        setFilterTypes={setFilterTypes}
         following={following}
         userShow={userShow}
         setUserShow={val => {
@@ -167,5 +168,7 @@ HomeScreen.navigationOptions = ({ navigation }) => {
   };
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  emptyTextStyle: { textAlign: "center", fontWeight: "bold", fontSize: 20, color: colors.secondary, }
+});
 export default HomeScreen;

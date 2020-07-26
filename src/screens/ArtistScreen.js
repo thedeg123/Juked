@@ -96,6 +96,8 @@ const ArtistScreen = ({ navigation }) => {
     };
   }, []);
 
+  useEffect(() => {navigation.setParams({artist})}, [artist])
+
   if (!artist || review === "waiting" || !contentData)
     return <LoadingPage></LoadingPage>;
 
@@ -117,12 +119,9 @@ const ArtistScreen = ({ navigation }) => {
       <ReviewButton
         onListenList={onUserListenList}
         onListenPress={() => {
-          firestore.updateListenList(
-            firestore.fetchCurrentUID(),
-            firestore.fetchCurrentUID(),
-            artist,
-            onUserListenList
-          );
+          onUserListenList
+            ? firestore.removeFromPersonalListenlist(artist)
+            : firestore.addToPersonalListenlist(artist);
           setOnUserListenList(!onUserListenList);
         }}
         review={review}
@@ -175,7 +174,9 @@ const ArtistScreen = ({ navigation }) => {
 //Allows customization of header
 ArtistScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
+  const artist = navigation.getParam("artist")
   return {
+    title: artist ? artist.name: "Artist",
     headerRight: () => <ModalButton setShowModal={setShowModal}></ModalButton>
   };
 };

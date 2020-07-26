@@ -1,13 +1,15 @@
 import React, { useContext, useState } from "react";
-import { Alert, StyleSheet, View, KeyboardAvoidingView } from "react-native";
+import { Alert, StyleSheet, View, KeyboardAvoidingView, Keyboard } from "react-native";
 import AuthForm from "../components/AuthForm";
 import colors from "../constants/colors";
 import context from "../context/context";
 import Logo from "../components/Logo";
 import Button from "../components/AuthButton";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 const SignUpScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.containerStyle}>
       <Logo subtext={"Welcome to Juked!"}></Logo>
       <KeyboardAvoidingView behavior="position">
@@ -30,6 +32,7 @@ const SignUpScreen = ({ navigation }) => {
         title="Already have an account? Sign in."
       ></Button>
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 

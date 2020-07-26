@@ -17,6 +17,13 @@ export const getAbreveatedTimeDif = time => {
   else return `${Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 7))}w`;
 };
 
+const stringifyTime = (time_ms)=>{
+  const time = time_ms/60000
+  const mins = Math.floor(time)
+  const secs = Math.floor((time - mins)*60)
+  return `${mins}:${secs<10? "0":""}${secs}`
+}
+
 export default simplifyContent = (content, type) => {
   const toStringDate = num_date => {
     const date = new Date(num_date);
@@ -30,6 +37,7 @@ export default simplifyContent = (content, type) => {
         artists: content.artists.map(artist => {
           return { name: artist.name, id: artist.id };
         }),
+        duration: stringifyTime(content.duration_ms) ,
         url: content.external_urls.spotify,
         album_name: content.album.name,
         album_id: content.album.id,
@@ -56,6 +64,7 @@ export default simplifyContent = (content, type) => {
         image: content.image,
         url: content.url,
         type: "track",
+        duration: stringifyTime(content.duration_ms),
         genres: content.genres
       };
     }

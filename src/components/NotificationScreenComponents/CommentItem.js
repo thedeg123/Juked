@@ -24,12 +24,14 @@ const CommentItem = ({ navigation, fetchReview, item, user, currentUser }) => {
             style={{ marginLeft: 10, flexDirection: "row", top: 7, flex: 1 }}
           >
             <UserPreview
-              containerStyle={{ alignSelf: "center", marginRight: 5 }}
+              containerStyle={{ alignSelf: "center", marginRight: 10 }}
               img={user.profile_url}
               uid={item.data.author}
             ></UserPreview>
             <Text numberOfLines={2} style={[styles.textStyle, { flex: 1 }]}>
-              {user.handle} commented on your review of {item.data.content.name}
+              <Text style={{ fontWeight: "bold" }}>{user.handle} </Text>
+              commented on your review of
+              <Text style={{ fontWeight: "bold" }}> {item.data.content.name} </Text>
             </Text>
             <Text style={[styles.textStyle, { fontWeight: "bold" }]}>
               {getAbreveatedTimeDif(item.data.last_modified)}

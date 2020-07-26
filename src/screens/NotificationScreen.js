@@ -13,6 +13,7 @@ import colors from "../constants/colors";
 import LikeItem from "../components/NotificationScreenComponents/LikeItem";
 import CommentItem from "../components/NotificationScreenComponents/CommentItem";
 import FollowItem from "../components/NotificationScreenComponents/FollowItem";
+import ListenlistItem from "../components/NotificationScreenComponents/ListenlistItem";
 import context from "../context/context";
 import { customNotificationAnimation } from "../constants/heights";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
@@ -72,7 +73,7 @@ const NotificationScreen = ({ navigation }) => {
             fetchReview={fetchReview}
             user={users[item.data.author]}
             currentUser={currentUser}
-          ></LikeItem>
+          />
         );
       case "comment":
         return (
@@ -81,12 +82,14 @@ const NotificationScreen = ({ navigation }) => {
             fetchReview={fetchReview}
             user={users[item.data.author]}
             currentUser={currentUser}
-          ></CommentItem>
+          />
         );
       case "follow":
         return (
-          <FollowItem item={item} user={users[item.data.author]}></FollowItem>
+          <FollowItem item={item} user={users[item.data.author]} />
         );
+      case "listenlist":
+          return <ListenlistItem item={item} user={users[item.data.author]} currentUser={currentUser}/>
       default:
         return null;
     }
@@ -103,8 +106,8 @@ const NotificationScreen = ({ navigation }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {content && content.length > 0 && (
-        <RefreshControlLoadingIndicator></RefreshControlLoadingIndicator>
+      {content && content.length > 0 && refreshing && (
+        <RefreshControlLoadingIndicator />
       )}
       <FlatList
         contentContainerStyle={{ paddingBottom: 85 }}

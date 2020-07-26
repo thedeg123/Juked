@@ -126,7 +126,7 @@ const WriteReviewScreen = ({ navigation }) => {
                     ? firestore.updateReview(
                         review.id,
                         review.data.content_id,
-                        review.data.content_type,
+                        review.data.type,
                         rating[0],
                         text
                       )

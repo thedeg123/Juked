@@ -7,9 +7,8 @@ const ModalHomeCard = ({
   showModal,
   setShowModal,
   refreshData,
-  contentTypes,
-  ratingTypes,
-  setRatingTypes,
+  filterTypes,
+  setFilterTypes,
   following,
   userShow,
   setUserShow,
@@ -24,7 +23,6 @@ const ModalHomeCard = ({
       }}
     >
       <ModalHomeContent
-        contentTypes={contentTypes}
         refreshData={refreshData}
         onClose={() => {
           refreshData();
@@ -33,8 +31,8 @@ const ModalHomeCard = ({
         following={following}
         userShow={userShow}
         setUserShow={setUserShow}
-        ratingTypes={ratingTypes}
-        setRatingTypes={setRatingTypes}
+        filterTypes={filterTypes}
+        setFilterTypes={setFilterTypes}
         setChanged={setChanged}
       ></ModalHomeContent>
     </ModalWrapper>

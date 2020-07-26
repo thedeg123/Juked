@@ -66,9 +66,9 @@ const UserListItem = ({
 
 const styles = StyleSheet.create({
   listNumberStyle: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: "center",
-    width: 30,
+    width: 32,
     color: colors.shadow
   },
   containerStyle: {

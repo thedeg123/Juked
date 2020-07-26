@@ -30,7 +30,7 @@ const LoadingScreen = ({ navigation }) => {
             response = await firestore.getUser(user.email);
             await awaitFunc(user.email, count)
           } while (!response);
-          firestore._establisCachedListenList();
+          firestore.establishCachedContent();
           return response.handle.length
             ? navigation.navigate("homeFlow")
             : navigation.navigate("MakeProfile");

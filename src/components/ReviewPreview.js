@@ -72,7 +72,6 @@ const styles = StyleSheet.create({
   container: {
     marginHorizontal: 10,
     paddingBottom: 5,
-    borderBottomWidth: 0.5,
     borderColor: colors.lightShadow
   },
   iconStyle: {

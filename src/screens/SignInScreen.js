@@ -5,7 +5,8 @@ import {
   View,
   Button,
   KeyboardAvoidingView,
-  Keyboard
+  Keyboard,
+  TouchableWithoutFeedback
 } from "react-native";
 import AuthForm from "../components/AuthForm";
 import colors from "../constants/colors";
@@ -21,6 +22,7 @@ const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState(null);
   const [showForgotPasswordView, setShowForgotPasswordView] = useState(false);
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.containerStyle}>
       <Logo
         subtext={
@@ -93,6 +95,7 @@ const SignInScreen = ({ navigation }) => {
         onPress={() => setShowForgotPasswordView(!showForgotPasswordView)}
       ></Button>
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 

@@ -3,7 +3,8 @@ export default {
   secondary: "#6496ef",
   object: "#f5f5f7",
   background: "#FFFFFF",
-  shadow: "#91989F",
+  shadow: "rgba(0,0,0,0.3)",
+  darkShadow: "rgba(0,0,0,0.4)",
   text: "#1C1C1C",
   heat: "#e88253",
   highlight: "#95b6ed",
@@ -17,7 +18,7 @@ export default {
   spotifyBackground: "rgb(24,20,20)",
   spotifyText: "rgb(101,211,110)",
   danger: "rgb(179,36,39)",
-  lightShadow: "#CCC"
+  lightShadow: "rgba(0,0,0,0.2)"
 };
 
 export const blurRadius = 50;

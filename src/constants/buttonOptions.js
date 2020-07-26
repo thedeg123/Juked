@@ -17,3 +17,8 @@ export const listSearchButtonOptions = [
   { type: "album", title: "Albums" },
   { type: "artist", title: "Artists" }
 ];
+
+export const listenlistButtonOptions = [
+  { type: "personal", title: "Personal" },
+  { type: "incoming", title: "Incoming" }
+];

@@ -1,126 +1,145 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Button,
   Text,
   View,
-  Image,
   TouchableOpacity
 } from "react-native";
 
+import UserSelectorScroll from "./UserSelectorScroll";
 import colors from "../../constants/colors";
-import { FlatList } from "react-native-gesture-handler";
-import images from "../../constants/images";
 import { FontAwesome5 } from "@expo/vector-icons";
+import ModalFilterButton from "./ModalFilterButton";
 
-const ModalReviewContent = ({
-  contentTypes,
+const ModalHomeContent = ({
   onClose,
   following,
   userShow,
   setUserShow,
-  ratingTypes,
-  setRatingTypes,
+  filterTypes,
+  setFilterTypes,
   setChanged
 }) => {
-  const [activeTrack, setActiveTrack] = useState(contentTypes.has("track"));
-  const [activeAlbum, setActiveAlbum] = useState(contentTypes.has("album"));
-  const [activeArtist, setActiveArtist] = useState(contentTypes.has("artist"));
-  const updateContent = type => {
-    contentTypes.has(type) ? contentTypes.delete(type) : contentTypes.add(type);
-    type === "track"
-      ? setActiveTrack(!activeTrack)
-      : type === "album"
-      ? setActiveAlbum(!activeAlbum)
-      : setActiveArtist(!activeArtist);
+  const updateState = () => {
+    setShowReviews(
+      filterTypes.has("track_review") ||
+        filterTypes.has("album_review") ||
+        filterTypes.has("artist_review")
+    );
+    setShowRatings(
+      filterTypes.has("track_rating") ||
+        filterTypes.has("album_rating") ||
+        filterTypes.has("artist_rating")
+    );
+    setShowArtists(
+      filterTypes.has("artist_rating") || filterTypes.has("artist_review")
+    );
+    setShowAlbums(
+      filterTypes.has("album_rating") || filterTypes.has("album_review")
+    );
+    setShowSongs(
+      filterTypes.has("track_rating") || filterTypes.has("track_review")
+    );
+    setShowList(filterTypes.has("list"));
   };
+  const [showReviews, setShowReviews] = useState();
+  const [showRatings, setShowRatings] = useState();
+  const [showSongs, setShowSongs] = useState();
+  const [showAlbums, setShowAlbums] = useState();
+  const [showArtists, setShowArtists] = useState();
+  const [showList, setShowList] = useState();
+
+  useEffect(() => updateState(), []);
+
+  const types = ["track", "album", "artist"];
+  const review_types = ["rating", "review"];
+
+  const updateContent = (type, value) => {
+    const old_filterTypes = new Set(filterTypes);
+    if (review_types.includes(type)) {
+      types.forEach(t =>
+        value
+          ? filterTypes.delete(t + "_" + type)
+          : filterTypes.add(t + "_" + type)
+      );
+    } else if (type === "list") {
+      value ? filterTypes.delete("list") : filterTypes.add("list");
+    } else {
+      review_types.forEach(t =>
+        value
+          ? filterTypes.delete(type + "_" + t)
+          : filterTypes.add(type + "_" + t)
+      );
+    }
+
+    if (filterTypes.size === 0) return setFilterTypes(old_filterTypes);
+    return updateState();
+  };
+
   return (
     <View style={styles.content}>
       <View style={{ alignItems: "flex-start" }}>
         <Button onPress={onClose} title="Done" />
       </View>
       <Text style={styles.sectionTitle}>Filter</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-evenly",
+          marginBottom: 10
+        }}
+      >
+        <ModalFilterButton
+          title={"Reviews"}
+          onPress={() => {
+            setChanged(true);
+            return updateContent("review", showReviews);
+          }}
+          show={showReviews}
+        />
+        <ModalFilterButton
+          title={"Ratings"}
+          onPress={() => {
+            setChanged(true);
+            return updateContent("rating", showRatings);
+          }}
+          show={showRatings}
+        />
+        <ModalFilterButton
+          title={"Lists"}
+          onPress={() => {
+            setChanged(true);
+            return updateContent("list", showList);
+          }}
+          show={showList}
+        />
+      </View>
       <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
-        <TouchableOpacity
+        <ModalFilterButton
+          title={"Songs"}
           onPress={() => {
             setChanged(true);
-            return setRatingTypes(ratingTypes === true ? null : true);
+            return updateContent("track", showSongs);
           }}
-          style={
-            ratingTypes === true
-              ? styles.deactivatedBorder
-              : styles.activatedBorder
-          }
-        >
-          <Text
-            style={
-              ratingTypes === true ? styles.deactiveText : styles.activeText
-            }
-          >
-            Ratings
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+          show={showSongs}
+        />
+        <ModalFilterButton
+          title={"Albums"}
           onPress={() => {
             setChanged(true);
-            setRatingTypes(ratingTypes === false ? null : false);
+            return updateContent("album", showAlbums);
           }}
-          style={
-            ratingTypes === false
-              ? styles.deactivatedBorder
-              : styles.activatedBorder
-          }
-        >
-          <Text
-            style={
-              ratingTypes === false ? styles.deactiveText : styles.activeText
-            }
-          >
-            Reviews
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+          show={showAlbums}
+        />
+        <ModalFilterButton
+          title={"Artists"}
           onPress={() => {
             setChanged(true);
-            updateContent("track");
+            return updateContent("artist", showArtists);
           }}
-          disabled={activeTrack && contentTypes.size === 1}
-          style={
-            activeTrack ? styles.activatedBorder : styles.deactivatedBorder
-          }
-        >
-          <Text style={activeTrack ? styles.activeText : styles.deactiveText}>
-            Songs
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setChanged(true);
-            updateContent("album");
-          }}
-          disabled={activeAlbum && contentTypes.size === 1}
-          style={
-            activeAlbum ? styles.activatedBorder : styles.deactivatedBorder
-          }
-        >
-          <Text style={activeAlbum ? styles.activeText : styles.deactiveText}>
-            Albums
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            setChanged(true);
-            updateContent("artist");
-          }}
-          disabled={activeArtist && contentTypes.size === 1}
-          style={
-            activeArtist ? styles.activatedBorder : styles.deactivatedBorder
-          }
-        >
-          <Text style={activeArtist ? styles.activeText : styles.deactiveText}>
-            Artists
-          </Text>
-        </TouchableOpacity>
+          show={showArtists}
+        />
       </View>
       <Text style={styles.sectionTitle}>See Friends</Text>
       <View style={{ flexDirection: "row" }}>
@@ -135,68 +154,22 @@ const ModalReviewContent = ({
             name="users"
             size={30}
             style={{ margin: 9 }}
-            color={userShow ? colors.text : colors.primary}
+            color={userShow ? colors.text : colors.secondary}
           />
-          <Text
-            style={{
-              marginTop: 5,
-              fontSize: 16,
-              color: colors.text,
-              fontWeight: !userShow ? "bold" : "normal"
-            }}
-          >
-            All
-          </Text>
+          <Text style={[styles.allTextStyle, {    fontWeight: !userShow ? "bold" : "normal"}]}>All</Text>
         </TouchableOpacity>
         {following.length ? (
-          <FlatList
+          <UserSelectorScroll
             data={following}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => {
-              return (
-                <TouchableOpacity
-                  style={
-                    userShow === item.id
-                      ? styles.activatedUserItemStyle
-                      : styles.deactivatedUserItemStyle
-                  }
-                  onPress={() => {
-                    setChanged(true);
-                    return setUserShow(userShow === item.id ? null : item);
-                  }}
-                >
-                  <Image
-                    style={styles.imageStyle}
-                    source={{
-                      uri: item.data.profile_url || images.profileDefault
-                    }}
-                  ></Image>
-                  <Text
-                    style={{
-                      marginTop: 5,
-                      fontSize: 16,
-                      color: colors.text,
-                      fontWeight: userShow === item.id ? "bold" : "normal"
-                    }}
-                  >
-                    {item.data.handle}
-                  </Text>
-                </TouchableOpacity>
-              );
+            selected={userShow}
+            onUserPress={user => {
+              setChanged(true);
+              return setUserShow(userShow === user.id ? null : user);
             }}
-            keyExtractor={item => item.id}
-          ></FlatList>
+          />
         ) : (
-          <View
-            style={{
-              justifyContent: "center",
-              flex: 1
-            }}
-          >
-            <Text
-              style={{ fontSize: 16, color: colors.text, textAlign: "center" }}
-            >
+          <View style={styles.noneWrapper}>
+            <Text style={styles.noneText}>
               Follow users to filter by friends.
             </Text>
           </View>
@@ -205,72 +178,32 @@ const ModalReviewContent = ({
     </View>
   );
 };
-const buttonBorder = {
-  borderRadius: 5,
-  paddingVertical: 10,
-  width: 70,
-  justifyContent: "center",
-  alignItems: "center",
-  borderWidth: 1,
-  borderColor: "rgba(0,0,0,0)"
-};
 
-const userItemStyle = {
-  borderWidth: 1,
-  paddingHorizontal: 5,
-  borderRadius: 5,
-  borderWidth: 3,
-  justifyContent: "center",
-  alignItems: "center"
-};
+
 const styles = StyleSheet.create({
   content: {
     backgroundColor: colors.cardColor,
     paddingBottom: 50,
-    borderRadius: 5,
-    borderColor: colors.heat
-  },
-  ratingNumber: {
-    fontSize: 20,
-    color: colors.primary
-  },
-  imageStyle: {
-    marginTop: 5,
-    aspectRatio: 1,
-    height: 50,
     borderRadius: 5
   },
+  allTextStyle: {
+    marginTop: 5,
+    fontSize: 16,
+    color: colors.text,
+  },
+  noneText: { fontSize: 16, color: colors.text, textAlign: "center" },
+  noneWrapper: {
+    justifyContent: "center",
+    flex: 1
+  },
   sectionTitle: {
+    fontWeight: "bold",
+    color: colors.text,
     marginLeft: 10,
     fontSize: 20,
     marginVertical: 10
   },
-  activeText: {
-    fontWeight: "bold",
-    color: colors.white
-  },
-  deactiveText: {
-    fontWeight: "bold",
-    color: colors.primary
-  },
-  activatedBorder: {
-    ...buttonBorder,
-    backgroundColor: colors.primary
-  },
-  deactivatedBorder: {
-    ...buttonBorder,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.shadow
-  },
-  deactivatedUserItemStyle: {
-    ...userItemStyle,
-    borderColor: "rgba(0,0,0,0)"
-  },
-  activatedUserItemStyle: {
-    ...userItemStyle,
-    borderColor: colors.primary
-  }
+
 });
 
-export default ModalReviewContent;
+export default ModalHomeContent;

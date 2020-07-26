@@ -28,7 +28,7 @@ const ListScreen = ({ navigation }) => {
   if (!data) return <View style={{ flex: 1, alignItems: "center" }}></View>;
   return (
     <View style={styles.containerStyle}>
-      {data.length > 0 && (
+      {data.length > 0 && refreshing && (
         <RefreshControlLoadingIndicator></RefreshControlLoadingIndicator>
       )}
       <FlatList
