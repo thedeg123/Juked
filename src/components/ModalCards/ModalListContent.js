@@ -3,17 +3,19 @@ import { StyleSheet, Button, Text, View } from "react-native";
 import colors from "../../constants/colors";
 import TopBar from "./TopBar";
 
-const ModalListContent = ({ onDelete, onClose, link }) => {
+const ModalListContent = ({ onDelete, onClose, showDelete, link }) => {
   return (
     <View style={styles.content}>
       <TopBar onClose={onClose} link={link} showSpotify></TopBar>
-      <Button
-        title={"Remove from ListenList"}
-        onPress={() => {
-          onDelete();
-          onClose();
-        }}
-      />
+      {showDelete && (
+        <Button
+          title={"Remove from ListenList"}
+          onPress={() => {
+            onDelete();
+            onClose();
+          }}
+        />
+      )}
     </View>
   );
 };

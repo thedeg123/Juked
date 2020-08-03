@@ -60,15 +60,9 @@ const ReviewSection = ({
                       limit,
                       startAfter
                     );
-                    const authors = await firestore
-                      .batchAuthorRequest([
-                        ...new Set(reviews.map(r => r.data.author))
-                      ])
-                      .then(res => {
-                        let ret = {};
-                        res.forEach(r => (ret[r.id] = r.data));
-                        return ret;
-                      });
+                    const authors = await firestore.batchAuthorRequest(
+                      reviews.map(r => r.data.author)
+                    );
                     return [
                       reviews.map(r => {
                         return { review: r, author: authors[r.data.author] };
@@ -83,7 +77,10 @@ const ReviewSection = ({
                         onPress={onPress}
                         author={item.author}
                         content={content}
-                        style={{ paddingTop: 15, backgroundColor:colors.background}}
+                        style={{
+                          paddingTop: 15,
+                          backgroundColor: colors.background
+                        }}
                       ></ReviewPreview>
                     );
                   },
@@ -116,7 +113,6 @@ const ReviewSection = ({
                     onPress={onPress}
                     author={authors[item.data.author]}
                     content={content}
-
                   ></ReviewPreview>
                 </View>
               );

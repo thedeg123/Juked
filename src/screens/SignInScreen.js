@@ -23,78 +23,80 @@ const SignInScreen = ({ navigation }) => {
   const [showForgotPasswordView, setShowForgotPasswordView] = useState(false);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-    <View style={styles.containerStyle}>
-      <Logo
-        subtext={
-          showForgotPasswordView
-            ? "To reset your password, enter your account email"
-            : "Welcome back!"
-        }
-      ></Logo>
-      <KeyboardAvoidingView behavior="position">
-        {!showForgotPasswordView ? (
-          <View>
-            <AuthForm
-              submitButtonAction={(email, password) =>
-                firestore
-                  .signin(email, password)
-                  .then(error =>
-                    error ? Alert.alert("Couldn't sign in", error) : null
-                  )
-              }
-              submitButtonTitle="Sign in"
-            ></AuthForm>
-          </View>
-        ) : (
-          <View style={{ marginTop: 20 }}>
-            <Input
-              label="Email"
-              leftIcon={<Ionicons name="ios-mail" style={styles.iconStyle} />}
-              rightIcon={
-                <TouchableOpacity
-                  onPress={Keyboard.dismiss}
-                  style={{ flex: 1, justifyContent: "center" }}
-                >
-                  <AntDesign name="down" style={{ fontSize: 20 }} />
-                </TouchableOpacity>
-              }
-              value={email}
-              onChangeText={text => setEmail(text)}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              returnKeyType={"send"}
-              selectionColor={colors.white}
-              labelStyle={{ color: colors.white }}
-              autoCorrect={false}
-              onSubmitEditing={() => {
-                firestore
-                  .resetEmail(email)
-                  .then(res =>
-                    res
-                      ? Alert.alert("Couldn't send email", res)
-                      : Alert.alert("Success", "Password reset email sent!")
-                  );
-              }}
-            ></Input>
-          </View>
-        )}
-      </KeyboardAvoidingView>
-      <CustomButton
-        title="Don't have an account? Sign up."
-        onPress={() => {
-          return navigation.navigate("SignUp");
-        }}
-      ></CustomButton>
-      <Button
-        color={colors.white}
-        title={
-          showForgotPasswordView
-            ? "Nevermind, I remembered"
-            : "Forgot Password?"
-        }
-        onPress={() => setShowForgotPasswordView(!showForgotPasswordView)}
-      ></Button>
-    </View>
+      <View style={styles.containerStyle}>
+        <Logo
+          subtext={
+            showForgotPasswordView
+              ? "To reset your password, enter your account email"
+              : "Welcome back!"
+          }
+        ></Logo>
+        <KeyboardAvoidingView behavior="position">
+          {!showForgotPasswordView ? (
+            <View>
+              <AuthForm
+                submitButtonAction={async (email, password) =>
+                  await firestore.signin(email, password).then(error => {
+                    if (error) {
+                      Alert.alert("Couldn't sign in", error);
+                      return false;
+                    }
+                    return true;
+                  })
+                }
+                submitButtonTitle="Sign in"
+              ></AuthForm>
+            </View>
+          ) : (
+            <View style={{ marginTop: 20 }}>
+              <Input
+                label="Email"
+                leftIcon={<Ionicons name="ios-mail" style={styles.iconStyle} />}
+                rightIcon={
+                  <TouchableOpacity
+                    onPress={Keyboard.dismiss}
+                    style={{ flex: 1, justifyContent: "center" }}
+                  >
+                    <AntDesign name="down" style={{ fontSize: 20 }} />
+                  </TouchableOpacity>
+                }
+                value={email}
+                onChangeText={text => setEmail(text)}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                returnKeyType={"send"}
+                selectionColor={colors.white}
+                labelStyle={{ color: colors.white }}
+                autoCorrect={false}
+                onSubmitEditing={() => {
+                  firestore
+                    .resetEmail(email)
+                    .then(res =>
+                      res
+                        ? Alert.alert("Couldn't send email", res)
+                        : Alert.alert("Success", "Password reset email sent!")
+                    );
+                }}
+              ></Input>
+            </View>
+          )}
+        </KeyboardAvoidingView>
+        <CustomButton
+          title="Don't have an account? Sign up."
+          onPress={() => {
+            return navigation.navigate("SignUp");
+          }}
+        ></CustomButton>
+        <Button
+          color={colors.white}
+          title={
+            showForgotPasswordView
+              ? "Nevermind, I remembered"
+              : "Forgot Password?"
+          }
+          onPress={() => setShowForgotPasswordView(!showForgotPasswordView)}
+        ></Button>
+      </View>
     </TouchableWithoutFeedback>
   );
 };

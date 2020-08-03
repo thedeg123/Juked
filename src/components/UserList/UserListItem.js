@@ -42,6 +42,14 @@ const UserListItem = ({
         <View style={{ flexDirection: "row" }}>
           <ContentPic
             img={content.image}
+            style={{
+              borderBottomRightRadius: 0,
+              borderTopRightRadius: 0
+            }}
+            imageStyle={{
+              borderBottomRightRadius: 0,
+              borderTopRightRadius: 0
+            }}
             width={70}
             is_review={false}
           ></ContentPic>

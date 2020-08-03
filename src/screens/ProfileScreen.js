@@ -39,7 +39,6 @@ const UserProfileScreen = ({ navigation }) => {
   const [remover, setRemover] = useState(null);
   const [graphType, setGraphType] = useState(profileButtonOptions[0].type);
   const [personalListenList, setPersonalListenList] = useState(null);
-  const [incomingListenList, setIncomingListenList] = useState(null);
 
   const updateFollow = async () => {
     firestore
@@ -81,12 +80,7 @@ const UserProfileScreen = ({ navigation }) => {
         .getReviewsByAuthorType(uid, ["list"], 5)
         .then(res => res[0])
     };
-    setPersonalListenList(
-      await firestore.getListenlist(uid, true)
-    );
-    setIncomingListenList(
-      await firestore.getListenlist(uid, false)
-    );
+    setPersonalListenList(await firestore.getPersonalListenlist(uid));
     setReviews(reviews);
     updateFollow();
   };
@@ -106,7 +100,7 @@ const UserProfileScreen = ({ navigation }) => {
     navigation.push("List", {
       title,
       fetchData: async (limit, start_after) => {
-        const res = await firestore.batchAuthorRequest(follow);
+        const res = await firestore.batchAuthorRequest(follow, false, false);
         return [res];
       },
       renderItem: ({ item }) => <UserListItem user={item.data} />,
@@ -171,7 +165,7 @@ const UserProfileScreen = ({ navigation }) => {
             img={user.profile_url || images.profileDefault}
             username={user.handle}
             containerStyle={styles.imageStyle}
-            size={100}
+            size={80}
             color={colors.text}
             fontScaler={0.2}
             allowPress={false}
@@ -229,15 +223,35 @@ const UserProfileScreen = ({ navigation }) => {
         <View style={{ marginTop: 10, marginHorizontal: 10 }}>
           <BarGraph data={graphDataContentSelector(graphType)} />
         </View>
-        <View style={{ marginTop: 10, flexDirection:"row", justifyContent:'space-evenly' }}>
+        <View
+          style={{
+            marginTop: 10,
+            flexDirection: "row",
+            justifyContent: "space-evenly"
+          }}
+        >
           <ListenListButton
-            listenList={personalListenList}
+            count={
+              graphType !== "all"
+                ? personalListenList.items.filter(
+                    item => item.content.type === graphType
+                  ).length
+                : personalListenList.items.length
+            }
             type_of_interest={graphType}
             user={user}
             personal
           />
           <ListenListButton
-            listenList={incomingListenList}
+            count={
+              graphType === "all"
+                ? personalListenList.incoming_item_count
+                : graphType === "song"
+                ? personalListenList.incoming_item_count_track
+                : graphType === "album"
+                ? personalListenList.incoming_item_count_album
+                : personalListenList.incoming_item_count_artist
+            }
             type_of_interest={graphType}
             user={user}
           />
@@ -258,7 +272,9 @@ const UserProfileScreen = ({ navigation }) => {
             title="Most Recent Artists"
             user={user}
             data={reviews["artist"]}
-            onPress={() => navigateContent("Artists", ["artist_review", "artist_rating"])}
+            onPress={() =>
+              navigateContent("Artists", ["artist_review", "artist_rating"])
+            }
           />
         ) : null}
         {reviews["album"].length && ["all", "album"].includes(graphType) ? (
@@ -266,7 +282,9 @@ const UserProfileScreen = ({ navigation }) => {
             title="Most Recent Albums"
             user={user}
             data={reviews["album"]}
-            onPress={() => navigateContent("Albums", ["album_review", "album_rating"])}
+            onPress={() =>
+              navigateContent("Albums", ["album_review", "album_rating"])
+            }
           />
         ) : null}
         {reviews["track"].length && ["all", "track"].includes(graphType) ? (
@@ -274,7 +292,9 @@ const UserProfileScreen = ({ navigation }) => {
             title="Most Recent Songs"
             user={user}
             data={reviews["track"]}
-            onPress={() => navigateContent("Songs", ["track_review", "track_rating"])}
+            onPress={() =>
+              navigateContent("Songs", ["track_review", "track_rating"])
+            }
             marginBottom={10}
           />
         ) : null}

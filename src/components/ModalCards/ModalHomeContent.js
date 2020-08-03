@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Button,
-  Text,
-  View,
-  TouchableOpacity
-} from "react-native";
+import { StyleSheet, Button, Text, View, TouchableOpacity } from "react-native";
 
 import UserSelectorScroll from "./UserSelectorScroll";
 import colors from "../../constants/colors";
@@ -141,7 +135,7 @@ const ModalHomeContent = ({
           show={showArtists}
         />
       </View>
-      <Text style={styles.sectionTitle}>See Friends</Text>
+      <Text style={styles.sectionTitle}>See Following</Text>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
           onPress={() => {
@@ -156,7 +150,14 @@ const ModalHomeContent = ({
             style={{ margin: 9 }}
             color={userShow ? colors.text : colors.secondary}
           />
-          <Text style={[styles.allTextStyle, {    fontWeight: !userShow ? "bold" : "normal"}]}>All</Text>
+          <Text
+            style={[
+              styles.allTextStyle,
+              { fontWeight: !userShow ? "bold" : "normal" }
+            ]}
+          >
+            All
+          </Text>
         </TouchableOpacity>
         {following.length ? (
           <UserSelectorScroll
@@ -179,7 +180,6 @@ const ModalHomeContent = ({
   );
 };
 
-
 const styles = StyleSheet.create({
   content: {
     backgroundColor: colors.cardColor,
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   allTextStyle: {
     marginTop: 5,
     fontSize: 16,
-    color: colors.text,
+    color: colors.text
   },
   noneText: { fontSize: 16, color: colors.text, textAlign: "center" },
   noneWrapper: {
@@ -202,8 +202,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 20,
     marginVertical: 10
-  },
-
+  }
 });
 
 export default ModalHomeContent;

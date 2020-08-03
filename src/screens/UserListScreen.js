@@ -19,7 +19,6 @@ import TopButton from "../components/TopButton";
 import firebase from "firebase";
 import "firebase/firestore";
 import LikeBox from "../components/ReviewScreenComponents/LikeBox";
-import ReviewHeader from "../components/ReviewScreenComponents/ReviewHeader";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
 import UserListItem from "../components/UserList/UserListItem";
@@ -53,11 +52,9 @@ const UserListScreen = ({ navigation }) => {
   const fetchComments = async () => {
     firestore.userLikesReview(list.id).then(res => setUserLikes(res));
     const comments = await firestore.getComments(list.id);
-    const userComments = new Set(comments.map(com => com.data.author));
-    const theUsers = {};
-    await firestore
-      .batchAuthorRequest(Array.from(userComments))
-      .then(res => res.forEach(u => (theUsers[u.id] = u)));
+    const theUsers = await firestore.batchAuthorRequest(
+      comments.map(com => com.data.author)
+    );
     setCommentUsers(theUsers);
     return setComments(comments);
   };
@@ -73,7 +70,6 @@ const UserListScreen = ({ navigation }) => {
           .onSnapshot(doc => setList({ id: doc.id, data: doc.data() }));
       } catch {
         remover ? remover() : null;
-        console.error("error from UserListScreen");
       }
     });
     const keyboardOpenListenter = Keyboard.addListener(
@@ -160,7 +156,9 @@ const UserListScreen = ({ navigation }) => {
                   fetchData: async () => {
                     const likes = await firestore.getLikes(list.id);
                     const users = await firestore.batchAuthorRequest(
-                      likes.map(like => like.data.author)
+                      likes.map(like => like.author),
+                      false,
+                      false
                     );
                     return [users];
                   },
@@ -184,7 +182,9 @@ const UserListScreen = ({ navigation }) => {
         </View>
       </View>
       <View style={styles.commentContainerStyle}>
-        <Text style={styles.commentTextStyle}>{comments.length} Comments</Text>
+        <Text style={styles.commentTextStyle}>
+          {comments.length} Comment{comments.length === 1 ? "" : "s"}
+        </Text>
       </View>
     </View>
   );

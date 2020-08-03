@@ -11,16 +11,26 @@ import colors, { blurRadius } from "../../constants/colors";
 import ContentPic from "../HomeScreenComponents/ContentPic";
 import navigateContent from "../../helpers/navigateContent";
 import { withNavigation } from "react-navigation";
-import { Entypo } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 
-const UserListPreviewItem = ({ navigation, list, user }) => {
+const UserListPreviewItem = ({
+  navigation,
+  list,
+  user,
+  onPress,
+  showCheck
+}) => {
   const getMiniPic = (img, style) => (
     <ContentPic imageStyle={style} img={img} width={50}></ContentPic>
   );
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => navigateContent(navigation, null, null, list, null, user)}
+      onPress={() =>
+        onPress
+          ? onPress()
+          : navigateContent(navigation, null, null, list, null, user)
+      }
       style={styles.wrapper}
     >
       <View style={list ? styles.shadow : null}>
@@ -31,38 +41,52 @@ const UserListPreviewItem = ({ navigation, list, user }) => {
             <View style={{ flexDirection: "row" }}>
               {getMiniPic(list.data.items[0].image, {
                 borderRadius: 0,
+                borderWidth: 0,
                 borderTopLeftRadius: 5
               })}
               {getMiniPic(list.data.items[1].image, {
                 borderRadius: 0,
+                borderWidth: 0,
                 borderTopRightRadius: 5
               })}
             </View>
             <View style={{ flexDirection: "row" }}>
-              {getMiniPic(list.data.items[3].image, {
+              {getMiniPic(list.data.items[2].image, {
                 borderRadius: 0,
+                borderWidth: 0,
                 borderBottomLeftRadius: 5
               })}
-              {getMiniPic(list.data.items[4].image, {
+              {getMiniPic(list.data.items[3].image, {
                 borderRadius: 0,
+                borderWidth: 0,
                 borderBottomRightRadius: 5
               })}
             </View>
           </View>
         )}
       </View>
-      <Text
-        numberOfLines={1}
-        style={{
-          textAlign: "center",
-          color: colors.shadow,
-          fontWeight: "bold",
-          fontSize: 18,
-          width: 100
-        }}
-      >
-        {list.data.title}
-      </Text>
+      <View style={{ flexDirection: "row" }}>
+        <Text
+          numberOfLines={1}
+          style={{
+            textAlign: "center",
+            color: colors.darkShadow,
+            fontWeight: "bold",
+            fontSize: 18,
+            width: showCheck ? 80 : 100
+          }}
+        >
+          {list.data.title}
+        </Text>
+        {showCheck && (
+          <MaterialIcons
+            style={{ marginTop: 2 }}
+            name="check"
+            size={18}
+            color={colors.secondary}
+          />
+        )}
+      </View>
     </TouchableOpacity>
   );
 };

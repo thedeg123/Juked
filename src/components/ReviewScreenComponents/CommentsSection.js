@@ -18,21 +18,18 @@ const CommentSection = ({
   currentUser,
   deleteComment
 }) => {
-  const dateComponent = time => {
-    const date = new Date(time);
-    return (
-      <Text
-        style={{
-          color: colors.translucentWhite,
-          fontSize: 16,
-          fontWeight: "bold",
-          marginLeft: 5
-        }}
-      >
-        {getAbreveatedTimeDif(time)}
-      </Text>
-    );
-  };
+  const dateComponent = time => (
+    <Text
+      style={{
+        color: colors.translucentWhite,
+        fontSize: 16,
+        fontWeight: "bold",
+        marginLeft: 5
+      }}
+    >
+      {getAbreveatedTimeDif(time)}
+    </Text>
+  );
 
   return (
     <View style={styles.wrapper}>
@@ -61,8 +58,8 @@ const CommentSection = ({
               >
                 {commentUsers[item.data.author] ? (
                   <UserPreview
-                    img={commentUsers[item.data.author].data.profile_url}
-                    username={commentUsers[item.data.author].data.handle}
+                    img={commentUsers[item.data.author].profile_url}
+                    username={commentUsers[item.data.author].handle}
                     uid={commentUsers[item.data.author].id}
                     color={colors.translucentWhite}
                     size={35}

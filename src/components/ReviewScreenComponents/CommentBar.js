@@ -9,12 +9,13 @@ import {
 import colors from "../../constants/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const CommentBar = ({ keyboardIsActive, submitComment }) => {
+const CommentBar = ({ keyboardIsActive, submitComment, onFocus }) => {
   const [comment, setComment] = useState("");
   const numberOfLines = 5;
   return (
     <View style={{ flex: 1, flexDirection: "row" }}>
       <TextInput
+        onFocus={onFocus}
         style={{
           borderWidth: keyboardIsActive ? 3 : 1,
           flex: 1,
@@ -62,6 +63,10 @@ const CommentBar = ({ keyboardIsActive, submitComment }) => {
       </TouchableOpacity>
     </View>
   );
+};
+
+CommentBar.defaultProps = {
+  onFocus: () => {}
 };
 
 const styles = StyleSheet.create({});

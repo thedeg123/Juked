@@ -76,15 +76,16 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     overflow: "hidden",
     alignSelf: "stretch",
-    marginTop: 10,
+    marginTop: 12,
+    marginHorizontal: 10,
     borderWidth: 0.5,
     borderColor: colors.shadow
   },
   showBox: {
-    shadowColor: colors.shadow,
+    shadowColor: colors.darkShadow,
     shadowOpacity: 1,
-    shadowOffset: { width: 3, height: 3 },
-    shadowRadius: 1,
+    shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 6,
     flex: 1
   },
   child: {

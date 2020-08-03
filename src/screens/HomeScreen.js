@@ -8,7 +8,6 @@ import ModalButton from "../components/ModalCards/ModalButton";
 import ModalHomeCard from "../components/ModalCards/ModalHomeCard";
 import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
-import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
 import colors from "../constants/colors";
 
 const HomeScreen = ({ navigation }) => {
@@ -18,10 +17,18 @@ const HomeScreen = ({ navigation }) => {
   const [following, setFollowing] = useState("waiting");
   const [userShow, setUserShow] = useState(null);
   const [filterTypes, setFilterTypes] = useState(
-    new Set(["track_review", "album_review", "artist_review", "track_rating", "album_rating", "artist_rating", "list"])
+    new Set([
+      "track_review",
+      "album_review",
+      "artist_review",
+      "track_rating",
+      "album_rating",
+      "artist_rating",
+      "list"
+    ])
   );
   const [refreshing, setRefreshing] = useState(false);
-  const { firestore, useMusic } = useContext(context);
+  const { firestore } = useContext(context);
   const [startAfter, setStartAfter] = useState(null);
   const [allowRefresh, setAllowRefresh] = useState(true);
   const [changed, setChanged] = useState(false);
@@ -51,12 +58,9 @@ const HomeScreen = ({ navigation }) => {
         );
     if (!local_reviews.length && start_after) return setAllowRefresh(false);
     setStartAfter(start_next);
-    let temp_authors = authors !== "waiting" ? authors : {};
-    await firestore
-      .batchAuthorRequest([
-        ...new Set(local_reviews.map(review => review.data.author))
-      ])
-      .then(res => res.forEach(r => (temp_authors[r.id] = r.data)));
+    let temp_authors = await firestore.batchAuthorRequest(
+      local_reviews.map(review => review.data.author)
+    );
     setAuthors(temp_authors);
     return reviews && start_after
       ? setReviews([...reviews, ...local_reviews])
@@ -68,14 +72,15 @@ const HomeScreen = ({ navigation }) => {
     fetchFollowing();
     fetchHomeScreenData(10, null);
   }, []);
-  if (reviews === "waiting" || authors === "waiting" || following === "waiting") return <LoadingPage />;
+  if (reviews === "waiting" || authors === "waiting" || following === "waiting")
+    return <LoadingPage />;
   return (
-    <View style={{ flex: 1, marginHorizontal: 5 }}>
-      {!reviews ? null : reviews.length ? (
-        refreshing? <RefreshControlLoadingIndicator />: null
-      ) : (
-        <View style={{justifyContent:"center", flex: 1, }}>
-          <Text style={styles.emptyTextStyle}>No Results Match your current filters</Text>
+    <View style={{ flex: 1 }}>
+      {!reviews ? null : reviews.length ? null : (
+        <View style={{ justifyContent: "center", flex: 1 }}>
+          <Text style={styles.emptyTextStyle}>
+            No Results Match your current filters
+          </Text>
         </View>
       )}
       <FlatList
@@ -106,7 +111,6 @@ const HomeScreen = ({ navigation }) => {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            tintColor="transparent"
             onRefresh={async () => {
               setRefreshing(true);
               setAllowRefresh(true);
@@ -128,11 +132,11 @@ const HomeScreen = ({ navigation }) => {
           refreshing &&
           reviews.length > 9 && (
             <View style={{ padding: 20 }}>
-              <LoadingIndicator></LoadingIndicator>
+              <LoadingIndicator />
             </View>
           )
         }
-      ></FlatList>
+      />
       <ModalHomeCard
         showModal={showModal}
         setShowModal={setShowModal}
@@ -169,6 +173,11 @@ HomeScreen.navigationOptions = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  emptyTextStyle: { textAlign: "center", fontWeight: "bold", fontSize: 20, color: colors.secondary, }
+  emptyTextStyle: {
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 20,
+    color: colors.secondary
+  }
 });
 export default HomeScreen;

@@ -3,11 +3,12 @@ import {
   StyleSheet,
   View,
   FlatList,
-  Text,
   RefreshControl,
   LayoutAnimation,
   UIManager,
-  Platform
+  Text,
+  Platform,
+  ScrollView
 } from "react-native";
 import colors from "../constants/colors";
 import LikeItem from "../components/NotificationScreenComponents/LikeItem";
@@ -17,7 +18,6 @@ import ListenlistItem from "../components/NotificationScreenComponents/Listenlis
 import context from "../context/context";
 import { customNotificationAnimation } from "../constants/heights";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
-import RefreshControlLoadingIndicator from "../components/Loading/RefreshControlLoadingIndicator";
 
 const NotificationScreen = ({ navigation }) => {
   if (Platform.OS === "android") {
@@ -28,7 +28,7 @@ const NotificationScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const [currentUser, setCurrentUser] = useState(null);
   const [users, setUsers] = useState({});
-  const [content, setContent] = useState([]);
+  const [content, setContent] = useState("waiting");
   const [refreshing, setRefreshing] = useState(false);
   const [loadingNext, setLoadingNext] = useState(false);
   const [paginationItem, setPaginationItem] = useState(null);
@@ -36,10 +36,8 @@ const NotificationScreen = ({ navigation }) => {
 
   const fetchUser = async ids => {
     if (!ids.length) return;
-    const toFetch = [];
-    ids.forEach(id => !users[id] && toFetch.push(id));
-    const ret_users = await firestore.batchAuthorRequest(toFetch);
-    return ret_users.forEach(user => (users[user.id] = user.data));
+    const ret_users = await firestore.batchAuthorRequest(ids);
+    return setUsers({ ...users, ...ret_users });
   };
 
   const fetchDataCheck = async (startAfter, resetRefresh = false) => {
@@ -53,13 +51,14 @@ const NotificationScreen = ({ navigation }) => {
     );
     setPaginationItem(paginator);
     await fetchUser(interactions.map(interaction => interaction.data.author));
-    if (!interactions.length) {
-      setLoadingNext(false);
+    if (interactions.length < 10) {
       setAllowLoad(false);
     }
     resetRefresh
       ? setContent(interactions)
       : setContent([...content, ...interactions]);
+
+    setLoadingNext(false);
     return setRefreshing(false);
   };
 
@@ -85,11 +84,15 @@ const NotificationScreen = ({ navigation }) => {
           />
         );
       case "follow":
-        return (
-          <FollowItem item={item} user={users[item.data.author]} />
-        );
+        return <FollowItem item={item} user={users[item.data.author]} />;
       case "listenlist":
-          return <ListenlistItem item={item} user={users[item.data.author]} currentUser={currentUser}/>
+        return (
+          <ListenlistItem
+            item={item}
+            user={users[item.data.author]}
+            currentUser={currentUser}
+          />
+        );
       default:
         return null;
     }
@@ -99,51 +102,68 @@ const NotificationScreen = ({ navigation }) => {
     LayoutAnimation.configureNext(customNotificationAnimation);
     if (!currentUser)
       firestore
-        .getUser(firestore.fetchCurrentUID())
+        .getUser(firestore.fetchCurrentUID(), false)
         .then(user => setCurrentUser(user));
-    if (!content.length) fetchDataCheck(paginationItem);
+    fetchDataCheck(paginationItem, true);
   }, []);
+
+  const refreshControl = (
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={async () => {
+        setRefreshing(true);
+        await fetchDataCheck(null, true);
+      }}
+    />
+  );
 
   return (
     <View style={{ flex: 1 }}>
-      {content && content.length > 0 && refreshing && (
-        <RefreshControlLoadingIndicator />
-      )}
-      <FlatList
-        contentContainerStyle={{ paddingBottom: 85 }}
-        data={content}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        onEndReached={async () => {
-          if (allowLoad && content.length > 9) {
-            setLoadingNext(true);
-            await fetchDataCheck(paginationItem);
+      {content === "waiting" ? null : content && !content.length ? (
+        <ScrollView
+          contentContainerStyle={{ justifyContent: "center", flex: 1 }}
+          refreshControl={refreshControl}
+        >
+          <Text style={styles.emptyTextStyle}>
+            One day, this will be filled with Activity 🥳
+          </Text>
+        </ScrollView>
+      ) : (
+        <FlatList
+          contentContainerStyle={{ paddingBottom: 85 }}
+          data={content}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          onEndReached={async () => {
+            if (allowLoad) {
+              setLoadingNext(true);
+              await fetchDataCheck(paginationItem);
+            }
+          }}
+          onEndReachedThreshold={0}
+          refreshControl={refreshControl}
+          ListFooterComponent={() =>
+            loadingNext &&
+            allowLoad && (
+              <View style={{ padding: 20 }}>
+                <LoadingIndicator size={20} />
+              </View>
+            )
           }
-        }}
-        onEndReachedThreshold={0}
-        initialNumToRender={10}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            tintColor="transparent"
-            onRefresh={async () => {
-              setRefreshing(true);
-              await fetchDataCheck(null, true);
-            }}
-          />
-        }
-        ListFooterComponent={() =>
-          loadingNext && (
-            <View style={{ padding: 20 }}>
-              <LoadingIndicator size={20}></LoadingIndicator>
-            </View>
-          )
-        }
-      ></FlatList>
+        ></FlatList>
+      )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  emptyTextStyle: {
+    textAlign: "center",
+    fontWeight: "bold",
+    marginHorizontal: 20,
+    fontSize: 20,
+    color: colors.secondary
+  }
+});
 
 export default NotificationScreen;

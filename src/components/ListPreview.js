@@ -33,7 +33,7 @@ const ListPreview = ({
           justifyContent: "space-between"
         }}
       >
-        <Text style={styles.reviewTitleStyle}>{title}</Text>
+        {title && <Text style={styles.reviewTitleStyle}>{title}</Text>}
         <TouchableOpacity onPress={onPress}>
           <Text style={styles.seeAllText}>See All</Text>
         </TouchableOpacity>

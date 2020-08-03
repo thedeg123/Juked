@@ -12,7 +12,8 @@ const ContentPic = ({ img, width, is_review, style, imageStyle }) => {
           borderRightWidth: 1,
           borderBottomWidth: is_review ? 1 : 0,
           borderRadius: 5,
-          borderColor: colors.veryTranslucentWhite
+          borderColor: colors.veryTranslucentWhite,
+          ...style
         }}
       >
         <Image
@@ -33,7 +34,8 @@ const styles = StyleSheet.create({
 
 ContentPic.defaultProps = {
   style: {},
-  imageStyle: {}
+  imageStyle: {},
+  width: 0
 };
 
 export default ContentPic;

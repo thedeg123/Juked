@@ -37,9 +37,19 @@ const ListPreviewItem = ({ navigation, content, review, user, textStyle }) => {
             style={styles.imageBackgroundStyle}
           >
             <View style={styles.contentContainer}>
-              <ContentPic img={content.image} width={100}></ContentPic>
+              <ContentPic
+                style={{ borderBottomRightRadius: 0, borderTopRightRadius: 0 }}
+                imageStyle={{
+                  borderBottomRightRadius: 0,
+                  borderTopRightRadius: 0
+                }}
+                img={content.image}
+                width={100}
+              ></ContentPic>
               <View style={styles.rightContent}>
-                <Text style={styles.textStyle}>{review.data.rating}</Text>
+                <Text style={[styles.textStyle, textStyle]}>
+                  {review.data.rating}
+                </Text>
                 {review.data.is_review && (
                   <Entypo name="text" style={styles.textStyle}></Entypo>
                 )}
@@ -57,7 +67,7 @@ const ListPreviewItem = ({ navigation, content, review, user, textStyle }) => {
         style={[
           {
             textAlign: "center",
-            color: colors.shadow,
+            color: colors.darkShadow,
             fontWeight: "bold",
             fontSize: 18,
             width: review ? 150 : 100
@@ -69,6 +79,10 @@ const ListPreviewItem = ({ navigation, content, review, user, textStyle }) => {
       </Text>
     </TouchableOpacity>
   );
+};
+
+ListPreviewItem.defaultProps = {
+  textStyle: {}
 };
 
 const styles = StyleSheet.create({

@@ -52,6 +52,7 @@ const WriteListScreen = ({ navigation }) => {
       setTitle(list.data.title);
       setDescription(list.data.description ? list.data.description : "");
       setItems(list.data.items);
+      setItemKeys(new Set(list.data.itemKeys));
     }
   }, []);
 
@@ -72,7 +73,7 @@ const WriteListScreen = ({ navigation }) => {
                 !showSearch && !title.length
                   ? colors.lightShadow
                   : colors.primary,
-              left: showSearch ? 30 : 40
+              left: showSearch ? 30 : 50
             }
           ]}
           onPress={() => {
@@ -89,7 +90,9 @@ const WriteListScreen = ({ navigation }) => {
             {showSearch
               ? `${
                   stagedItems.length - items.length >= 0 ? "Add" : "Remove"
-                } ${Math.abs(stagedItems.length - items.length)} Items`
+                } ${Math.abs(stagedItems.length - items.length)} Item${
+                  Math.abs(stagedItems.length - items.length) === 1 ? "" : "s"
+                }`
               : list
               ? "Update"
               : "Submit"}
@@ -106,7 +109,7 @@ const WriteListScreen = ({ navigation }) => {
         }}
       >
         <Text style={{ fontSize: 16, color: colors.primary }}>
-          {showSearch ? "Cancel" : "Add Items"}
+          {showSearch ? "Cancel" : "Change Items"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -173,7 +176,7 @@ const WriteListScreen = ({ navigation }) => {
 
   const searchView = () => (
     <View style={{ flex: 1 }}>
-      <Text style={styles.searchText}>Add Items</Text>
+      <Text style={styles.searchText}>Search to Add or Remove</Text>
       <SearchItem
         containerStyle={{ marginHorizontal: 10 }}
         keyboardIsActive={true}

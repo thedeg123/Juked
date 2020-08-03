@@ -2,7 +2,13 @@ import React from "react";
 import ModalWrapper from "./ModalWrapper";
 import ModalListContent from "./ModalListContent";
 
-const ModalListCard = ({ showModal, setShowModal, onDelete, content }) => {
+const ModalListCard = ({
+  showModal,
+  setShowModal,
+  onDelete,
+  showDelete,
+  content
+}) => {
   return (
     <ModalWrapper
       isVisible={showModal}
@@ -15,6 +21,7 @@ const ModalListCard = ({ showModal, setShowModal, onDelete, content }) => {
         onClose={() => {
           setShowModal(false);
         }}
+        showDelete={showDelete}
         onDelete={onDelete}
       ></ModalListContent>
     </ModalWrapper>

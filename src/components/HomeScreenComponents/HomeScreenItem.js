@@ -6,8 +6,10 @@ import ReviewTitle from "./ReviewTitle";
 import ContentPic from "./ContentPic";
 import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
-
 const HomeScreenItem = ({ review, content, author }) => {
+  const picStyle = !review.data.is_review
+    ? { borderBottomRightRadius: 0, borderTopRightRadius: 0 }
+    : {};
   return (
     <HomeScreenBorder
       content={content}
@@ -18,6 +20,8 @@ const HomeScreenItem = ({ review, content, author }) => {
       <View style={styles.contentStyle}>
         <ContentPic
           img={content.image}
+          imageStyle={{ borderRadius: 0 }}
+          style={picStyle}
           width={100}
           is_review={review.data.is_review}
         ></ContentPic>

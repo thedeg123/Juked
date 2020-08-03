@@ -37,11 +37,7 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
     const author_ids = temp_rev
       ? [...reviews.map(r => r.data.author), temp_rev.data.author]
       : reviews.map(r => r.data.author);
-    const authors = await firestore.batchAuthorRequest(author_ids).then(res => {
-      let ret = {};
-      res.forEach(r => (ret[r.id] = r.data));
-      return ret;
-    });
+    const authors = await firestore.batchAuthorRequest(author_ids);
     setAuthors(authors);
     return setReviews(reviews);
   };

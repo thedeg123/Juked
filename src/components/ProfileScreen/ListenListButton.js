@@ -13,34 +13,27 @@ import { Entypo } from "@expo/vector-icons";
  */
 const ListenListButton = ({
   navigation,
-  listenList,
+  count,
   type_of_interest,
   personal,
   user
 }) => {
-  const number =
-    type_of_interest !== "all"
-      ? listenList.items.filter(item => item.content.type === type_of_interest)
-          .length
-      : listenList.items.length;
-
+  count = count === 0 ? "No" : count;
   let name =
     type_of_interest === "all"
       ? "item"
       : type_of_interest === "track"
       ? "song"
-      : type_of_interest
+      : type_of_interest;
 
-  name = name + (number != 1? "s": "");
+  name = name + (count != 1 ? "s" : "");
   return (
     <TouchableOpacity
       style={styles.container}
       onPress={() =>
         navigation.navigate("ListenList", {
           user,
-          personalList: personal ? listenList: undefined,
-          incomingList: personal ? undefined: listenList,
-          type: personal ? "personal": "incoming" 
+          type: personal ? "personal" : "incoming"
         })
       }
     >
@@ -50,10 +43,12 @@ const ListenListButton = ({
           marginLeft: 10,
           color: colors.white,
           fontWeight: "bold",
-          textAlign:"center"
+          textAlign: "center"
         }}
       >
-        {`${number} ${name} on \n${personal?"personal": "incoming"} ListenList`}
+        {`${count} ${name} on \n${
+          personal ? "personal" : "incoming"
+        } ListenList`}
       </Text>
     </TouchableOpacity>
   );
@@ -65,7 +60,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colors.secondary,
     borderRadius: 5,
-    width:170,
+    width: 170,
     paddingVertical: 5,
     justifyContent: "center"
   }

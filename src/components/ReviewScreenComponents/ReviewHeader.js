@@ -5,6 +5,7 @@ import navigateContent from "../../helpers/navigateContent";
 import { withNavigation } from "react-navigation";
 import UserPreview from "../HomeScreenComponents/UserPreview";
 import ArtistNames from "../ArtistNames";
+import ContentPic from "../HomeScreenComponents/ContentPic";
 
 const ReviewHeader = ({ navigation, date, content, user, rating, type }) => {
   return (
@@ -49,7 +50,6 @@ const ReviewHeader = ({ navigation, date, content, user, rating, type }) => {
           img={user.profile_url}
           username={user.handle}
           uid={user.email}
-          size={60}
         ></UserPreview>
         <Text style={styles.ratingText}>{rating}</Text>
       </View>

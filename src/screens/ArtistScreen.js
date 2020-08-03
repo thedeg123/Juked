@@ -12,7 +12,7 @@ import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
 import BarGraph from "../components/Graphs/BarGraph";
-import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
+import ModalContentCard from "../components/ModalCards/ModalContentCard";
 import TextRatings from "../components/TextRatings";
 import ReviewSection from "../components/ReviewSection";
 import RecordRow from "../components/RecordRow";
@@ -59,11 +59,7 @@ const ArtistScreen = ({ navigation }) => {
     const author_ids = temp_rev
       ? [...reviews.map(r => r.data.author), temp_rev.data.author]
       : reviews.map(r => r.data.author);
-    const authors = await firestore.batchAuthorRequest(author_ids).then(res => {
-      let ret = {};
-      res.forEach(r => (ret[r.id] = r.data));
-      return ret;
-    });
+    const authors = await firestore.batchAuthorRequest(author_ids);
     setAuthors(authors);
     return setReviews(reviews);
   };
@@ -96,7 +92,9 @@ const ArtistScreen = ({ navigation }) => {
     };
   }, []);
 
-  useEffect(() => {navigation.setParams({artist})}, [artist])
+  useEffect(() => {
+    navigation.setParams({ artist });
+  }, [artist]);
 
   if (!artist || review === "waiting" || !contentData)
     return <LoadingPage></LoadingPage>;
@@ -155,18 +153,11 @@ const ArtistScreen = ({ navigation }) => {
           data={albums["compilation"]}
         ></RecordRow>
       ) : null}
-      <ModalReviewCard
+      <ModalContentCard
         showModal={showModal}
-        setShowModal={v => setShowModal(v)}
-        setReview={v => setReview(v)}
-        review={review}
+        setShowModal={setShowModal}
         content={artist}
-        onDelete={() => {
-          firestore.deleteReview(review.id);
-          setShowModal(false);
-          return getReview();
-        }}
-      ></ModalReviewCard>
+      ></ModalContentCard>
     </ScrollView>
   );
 };
@@ -174,9 +165,9 @@ const ArtistScreen = ({ navigation }) => {
 //Allows customization of header
 ArtistScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
-  const artist = navigation.getParam("artist")
+  const artist = navigation.getParam("artist");
   return {
-    title: artist ? artist.name: "Artist",
+    title: artist ? artist.name : "Artist",
     headerRight: () => <ModalButton setShowModal={setShowModal}></ModalButton>
   };
 };

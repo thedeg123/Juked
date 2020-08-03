@@ -9,10 +9,11 @@ import { getAbreveatedTimeDif } from "../../helpers/simplifyContent";
 const ListenlistItem = ({ navigation, item, user, currentUser }) => {
   return (
     <TouchableOpacity
-      onPress={async () => navigation.navigate("ListenList", {
-            user: currentUser,
-            type: "incoming"
-          })
+      onPress={async () =>
+        navigation.navigate("ListenList", {
+          user: currentUser,
+          type: "incoming"
+        })
       }
       style={styles.containerStyle}
       activeOpacity={0.8}
@@ -23,18 +24,21 @@ const ListenlistItem = ({ navigation, item, user, currentUser }) => {
           img={user.profile_url}
           uid={item.data.author}
         ></UserPreview>
-        <Text numberOfLines={2} style={[styles.textStyle, { flex: 1 }]}>
-          <Text style={{fontWeight: "bold"}}>{user.handle} </Text> 
-        added
-          <Text style={{fontWeight: "bold"}}> {item.data.content.name} </Text>
-        to your listenlist
+        <Text numberOfLines={3} style={[styles.textStyle, { flex: 1 }]}>
+          <Text style={{ fontWeight: "bold" }}>{user.handle} </Text>
+          added
+          <Text style={{ fontWeight: "bold" }}> {item.data.content.name} </Text>
+          to your listenlist
         </Text>
         <Text style={[styles.textStyle, { fontWeight: "bold" }]}>
           {getAbreveatedTimeDif(item.data.last_modified)}
         </Text>
       </View>
       <ContentPic
-        style={{ marginRight: 10 }}
+        style={{
+          marginRight: 10
+        }}
+        imageStyle={{ borderRadius: 2 }}
         img={item.data.content.image}
         width={60}
       ></ContentPic>

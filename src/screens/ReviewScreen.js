@@ -16,6 +16,7 @@ import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import firebase from "firebase";
 import "firebase/firestore";
+import { toDisplayType } from "../helpers/simplifyContent";
 import LikeBox from "../components/ReviewScreenComponents/LikeBox";
 import ReviewHeader from "../components/ReviewScreenComponents/ReviewHeader";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
@@ -49,17 +50,18 @@ const ReviewScreen = ({ navigation }) => {
   const fetchComments = async () => {
     firestore.userLikesReview(review.id).then(res => setUserLikes(res));
     const comments = await firestore.getComments(review.id);
-    const userComments = new Set(comments.map(com => com.data.author));
-    const theUsers = {};
-    await firestore
-      .batchAuthorRequest(Array.from(userComments))
-      .then(res => res.forEach(u => (theUsers[u.id] = u)));
+    const theUsers = await firestore.batchAuthorRequest(
+      comments.map(com => com.data.author)
+    );
     setCommentUsers(theUsers);
     return setComments(comments);
   };
 
   useEffect(() => {
-    navigation.setParams({ setShowModal });
+    navigation.setParams({
+      setShowModal,
+      reviewType: toDisplayType(review.data.type)
+    });
     fetchComments();
     const listener = navigation.addListener("didFocus", async () => {
       try {
@@ -126,7 +128,9 @@ const ReviewScreen = ({ navigation }) => {
                   fetchData: async () => {
                     const likes = await firestore.getLikes(review.id);
                     const users = await firestore.batchAuthorRequest(
-                      likes.map(like => like.data.author)
+                      likes.map(like => like.data.author),
+                      false,
+                      false
                     );
                     return [users];
                   },
@@ -167,7 +171,7 @@ const ReviewScreen = ({ navigation }) => {
             color: colors.translucentWhite
           }}
         >
-          {comments.length} Comments
+          {comments.length} Comment{comments.length === 1 ? "" : "s"}
         </Text>
       </View>
     </View>
@@ -218,8 +222,10 @@ const styles = StyleSheet.create({
 
 ReviewScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
+  const reviewType = navigation.getParam("reviewType");
 
   return {
+    title: `${reviewType} Review`,
     headerRight: () =>
       navigation.getParam("user").email === auth().currentUser.email ? (
         <TouchableOpacity onPress={() => setShowModal(true)}>

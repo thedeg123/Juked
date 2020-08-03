@@ -38,6 +38,7 @@ const AlbumScreen = ({ navigation }) => {
   const [showContentCard, setShowContentCard] = useState(false);
   const [showTrackCard, setShowTrackCard] = useState(false);
   const [trackData, setTrackData] = useState(null);
+  const [contentTrackData, setContentTrackData] = useState(null);
   const [onUserListenList, setOnUserListenList] = useState(
     firestore.contentInlistenList(content_id)
   );
@@ -60,11 +61,7 @@ const AlbumScreen = ({ navigation }) => {
       .getMostPopularReviewsByType(content_id)
       .then(res => res[0]);
     const author_ids = reviews.map(r => r.data.author);
-    const authors = await firestore.batchAuthorRequest(author_ids).then(res => {
-      let ret = {};
-      res.forEach(r => (ret[r.id] = r.data));
-      return ret;
-    });
+    const authors = await firestore.batchAuthorRequest(author_ids);
     setAuthors(authors);
     return setReviews(reviews);
   };
@@ -87,7 +84,9 @@ const AlbumScreen = ({ navigation }) => {
     };
   }, []);
 
-  useEffect(()=>{navigation.setParams({album})}, [album])
+  useEffect(() => {
+    navigation.setParams({ album });
+  }, [album]);
 
   // wait until get data from all APIs
   if (!album || review === "waiting" || !albumData)
@@ -130,8 +129,8 @@ const AlbumScreen = ({ navigation }) => {
           onListenList={onUserListenList}
           onListenPress={() => {
             onUserListenList
-            ? firestore.removeFromPersonalListenlist(album)
-            : firestore.addToPersonalListenlist(album);
+              ? firestore.removeFromPersonalListenlist(album)
+              : firestore.addToPersonalListenlist(album);
             setOnUserListenList(!onUserListenList);
           }}
           review={review}
@@ -173,6 +172,10 @@ const AlbumScreen = ({ navigation }) => {
                   setTrackData(item);
                   return setShowTrackCard(true);
                 }}
+                showContentCard={() => {
+                  setContentTrackData(item);
+                  return setShowContentCard(true);
+                }}
                 highlighted={highlighted == item.id}
                 showHighlightedTrackCard={showHighlightedTrackCard == item.id}
               />
@@ -186,8 +189,11 @@ const AlbumScreen = ({ navigation }) => {
       />
       <ModalContentCard
         showModal={showContentCard}
-        setShowModal={setShowContentCard}
-        content={album}
+        setShowModal={val => {
+          setContentTrackData(null);
+          return setShowContentCard(val);
+        }}
+        content={contentTrackData || album}
       ></ModalContentCard>
       <ModalTrackCard
         showModal={showTrackCard}
@@ -203,7 +209,7 @@ AlbumScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
   const album = navigation.getParam("album");
   return {
-    title: album ? album.name: "Album",
+    title: album ? album.name : "Album",
     headerRight: () => <ModalButton setShowModal={setShowModal}></ModalButton>
   };
 };

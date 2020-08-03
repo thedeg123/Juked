@@ -10,20 +10,12 @@ const firestore = admin.firestore();
 exports.createDefaultUser = functions.auth.user().onCreate(user => {
   const email = user.email;
   const listenlistPersonalId = email + "_personal";
-  const listenlistPersonalOutgoingId = email + "_personal" + "_outgoing";
-  const listenlistIncomingId = email + "_incoming";
   const batch = firestore.batch();
 
   const userRef = firestore.collection("users").doc(email);
   const llPersonalRef = firestore
     .collection("listenlist")
     .doc(listenlistPersonalId);
-  const llIncomingRef = firestore
-    .collection("listenlist")
-    .doc(listenlistIncomingId);
-  const llPersonalOutgoingRef = firestore
-    .collection("listenlist")
-    .doc(listenlistPersonalOutgoingId);
 
   batch.set(userRef, {
     email,
@@ -40,14 +32,10 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
   });
   batch.set(llPersonalRef, {
     items: [],
-    personal: true
-  });
-  batch.set(llIncomingRef, {
-    items: [],
-    personal: false
-  });
-  batch.set(llPersonalOutgoingRef, {
-    items: [],
+    incoming_item_count: 0,
+    incoming_item_count_track: 0,
+    incoming_item_count_album: 0,
+    incoming_item_count_artist: 0,
     personal: true
   });
   return batch.commit();
@@ -98,7 +86,9 @@ exports.Onfollow = functions.firestore
     const newFollow = snap.data();
     if (newFollow.type !== "follow") return;
     var batch = firestore.batch();
-    const refFollowing = firestore.collection("users").doc(newFollow.review_author);
+    const refFollowing = firestore
+      .collection("users")
+      .doc(newFollow.review_author);
     const refFollower = firestore.collection("users").doc(newFollow.author);
     batch.update(refFollowing, {
       num_follower: admin.firestore.FieldValue.increment(1)
@@ -115,7 +105,9 @@ exports.Onunfollow = functions.firestore
     const delFollow = snap.data();
     if (delFollow.type !== "follow") return;
     var batch = firestore.batch();
-    const refFollowing = firestore.collection("users").doc(delFollow.review_author);
+    const refFollowing = firestore
+      .collection("users")
+      .doc(delFollow.review_author);
     const refFollower = firestore.collection("users").doc(delFollow.author);
     batch.update(refFollowing, {
       num_follower: admin.firestore.FieldValue.increment(-1)
@@ -126,65 +118,51 @@ exports.Onunfollow = functions.firestore
     return batch.commit();
   });
 
-  exports.OnReccomend = functions.firestore
-    .document("interactions/{iid}")
-    .onCreate(async (snap, context) => {
-      const newRec = snap.data();
-      if (newRec.type !== "listenlist") {
-        console.log(`Item not of type listenlist, type ${newRec.type}, doing nothing.`)
-        return;
-      }
-
-      const refListenlist = firestore
-        .collection("listenlist")
-        .doc(newRec.review_author + "_incoming");
-
-      firestore.runTransaction(transaction => {
-        return transaction.get(refListenlist).then(doc => {
-          const oldItems = doc.data().items
-          const newItems = [
-            ...oldItems,
-            { author: newRec.author, content: newRec.content, last_modified: new Date().getTime() }
-          ];
-          transaction.update(refListenlist, { items: newItems });
-          return newItems;
-        })
-        .then(()=> console.log("Transaction successfully committed!")
-        )
-        .catch((err) => console.log("Transaction failed: ", err));
-      });
-    });
-
-  exports.OnUnReccomend = functions.firestore
-    .document("interactions/{fid}")
-    .onDelete(async (snap, context) => {
-      const delRec = snap.data();
-      if (delRec.type !== "listenlist") {
-        console.log(`Item not of type listenlist, type ${newRec.type}, doing nothing.`)
-        return;
-      }
-
-      const refListenlist = firestore
+exports.OnReccomend = functions.firestore
+  .document("interactions/{iid}")
+  .onCreate(async (snap, context) => {
+    const newRec = snap.data();
+    if (newRec.type !== "listenlist") return;
+    const lid = newRec.review_author + "_personal";
+    firestore
       .collection("listenlist")
-      .doc(delRec.review_author + "_incoming");
-      
-      firestore.runTransaction(transaction => {
-        return transaction.get(refListenlist).then(doc => {
-          const oldItems = doc.data().items
-          const newItems = oldItems.filter(
-            item =>
-              item.author !== delRec.author ||
-              item.content.id !== delRec.content.id
-          );
-          transaction.update(refListenlist, { items: newItems });
-          return newItems;
-        })
-        .then(()=> console.log("Transaction successfully committed!")
+      .doc(lid)
+      .update({
+        incoming_item_count: admin.firestore.FieldValue.increment(1),
+        incoming_item_count_track: admin.firestore.FieldValue.increment(
+          Number(newRec.content.type === "track")
+        ),
+        incoming_item_count_album: admin.firestore.FieldValue.increment(
+          Number(newRec.content.type === "album")
+        ),
+        incoming_item_count_artist: admin.firestore.FieldValue.increment(
+          Number(newRec.content.type === "artist")
         )
-        .catch((err) => console.log("Transaction failed: ", err)
-        );
       });
-    });
+  });
+
+exports.OnUnReccomend = functions.firestore
+  .document("interactions/{iid}")
+  .onDelete(async (snap, context) => {
+    const delRec = snap.data();
+    if (delRec.type !== "listenlist") return;
+    const lid = delRec.review_author + "_personal";
+    firestore
+      .collection("listenlist")
+      .doc(lid)
+      .update({
+        incoming_item_count: admin.firestore.FieldValue.increment(-1),
+        incoming_item_count_track: admin.firestore.FieldValue.increment(
+          -1 * Number(delRec.content.type === "track")
+        ),
+        incoming_item_count_album: admin.firestore.FieldValue.increment(
+          -1 * Number(delRec.content.type === "album")
+        ),
+        incoming_item_count_artist: admin.firestore.FieldValue.increment(
+          -1 * Number(delRec.content.type === "artist")
+        )
+      });
+  });
 
 exports.updateContent = functions.firestore
   .document("reviews/{rid}")
@@ -445,4 +423,3 @@ exports.scheduledFunction = functions.pubsub
 // Deploy specific functions with: firebase deploy --only functions:myFunction,functions:myOtherFunction
 //
 // https://firebase.google.com/docs/functions/write-firebase-functions
-

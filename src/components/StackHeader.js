@@ -16,7 +16,13 @@ const StackHeader = ({ title, leftButton, center, previous, rightButton }) => {
       {!previous && rightComponent ? <View style={{ width: 55 }}></View> : null}
       <View style={styles.buttonWrapper}>{leftButton}</View>
       <View style={{ flex: 1, alignItems: "center" }}>
-        {center ? center : <Text style={styles.headerTitleStyle}>{title}</Text>}
+        {center ? (
+          center
+        ) : (
+          <Text numberOfLines={1} style={styles.headerTitleStyle}>
+            {title}
+          </Text>
+        )}
       </View>
       {previous && !rightComponent ? <View style={{ width: 55 }}></View> : null}
       {rightComponent ? (

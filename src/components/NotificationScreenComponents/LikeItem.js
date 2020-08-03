@@ -25,17 +25,22 @@ const LikeItem = ({ navigation, fetchReview, item, user, currentUser }) => {
           img={user.profile_url}
           uid={item.data.author}
         ></UserPreview>
-        <Text numberOfLines={2} style={[styles.textStyle, { flex: 1 }]}>
-        <Text style={{fontWeight: "bold"}}>{user.handle} </Text> 
+        <Text numberOfLines={3} style={[styles.textStyle, { flex: 1 }]}>
+          <Text style={{ fontWeight: "bold" }}>
+            {user.email == currentUser.email ? "You" : user.handle}{" "}
+          </Text>
           liked your review of
-          <Text style={{fontWeight: "bold"}}> {item.data.content.name} </Text>
+          <Text style={{ fontWeight: "bold" }}> {item.data.content.name} </Text>
         </Text>
         <Text style={[styles.textStyle, { fontWeight: "bold" }]}>
           {getAbreveatedTimeDif(item.data.last_modified)}
         </Text>
       </View>
       <ContentPic
-        style={{ marginRight: 10 }}
+        style={{
+          marginRight: 10
+        }}
+        imageStyle={{ borderRadius: 2 }}
         img={item.data.content.image}
         width={60}
       ></ContentPic>

@@ -75,13 +75,11 @@ const AuthForm = ({
           onPress={() => {
             setLoading(true);
             confirmPassword
-              ? submitButtonAction(
-                  email,
-                  password,
-                  verifyPassword
-                ).finally(() => setLoading(false))
-              : submitButtonAction(email, password).finally(() =>
-                  setLoading(false)
+              ? submitButtonAction(email, password, verifyPassword).then(
+                  ok => !ok && setLoading(false)
+                )
+              : submitButtonAction(email, password).then(
+                  ok => !ok && setLoading(false)
                 );
           }}
           title={submitButtonTitle}

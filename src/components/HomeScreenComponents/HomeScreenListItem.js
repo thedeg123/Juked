@@ -39,7 +39,7 @@ const HomeScreenListItem = ({ list, author }) => {
         }}
         renderItem={({ item }) => (
           <ListPreviewItem
-            textStyle={{ color: colors.translucentWhite }}
+            textStyle={{ color: colors.translucentWhite, fontSize: 12 }}
             content={item}
           ></ListPreviewItem>
         )}
