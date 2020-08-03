@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
+import LoadingPage from "../components/Loading/LoadingPage";
 import ScrollViewPadding from "../components/ScrollViewPadding";
 
 const ListScreen = ({ navigation }) => {
@@ -24,7 +25,7 @@ const ListScreen = ({ navigation }) => {
     setData(null);
     fetch(10, null);
   }, []);
-  if (!data) return <View style={{ flex: 1, alignItems: "center" }}></View>;
+  if (!data) return <LoadingPage />;
   return (
     <View style={styles.containerStyle}>
       <FlatList
@@ -47,7 +48,7 @@ const ListScreen = ({ navigation }) => {
           ) : null
         }
       ></FlatList>
-      <ScrollViewPadding></ScrollViewPadding>
+      <ScrollViewPadding />
     </View>
   );
 };

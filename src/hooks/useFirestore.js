@@ -529,7 +529,6 @@ class useFirestore {
   // User relations
 
   saveLiteUser(user) {
-    console.log("saving", user.email);
     this.cachedLiteUsers[user.email] = {
       handle: user.handle,
       email: user.email,
@@ -539,7 +538,6 @@ class useFirestore {
 
   async getUser(uid, liteUser = true) {
     if (this.cachedLiteUsers[uid] && liteUser) {
-      console.log("cache hit", uid);
       return this.cachedLiteUsers[uid];
     }
     const user = await this.users_db
@@ -575,7 +573,6 @@ class useFirestore {
     if (liteUser) {
       uids.forEach(id => {
         if (this.cachedLiteUsers[id]) {
-          console.log("cache hit", id);
           ret[id] = this.cachedLiteUsers[id];
           set_uids.delete(id);
         }
