@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -42,6 +42,10 @@ const ListenListScreen = ({ navigation }) => {
   const [newestFirst, setNewestFirst] = useState(true);
   const [filterTypes, setFilterTypes] = useState(["track", "album", "artist"]);
 
+  let onEndReachedCalledDuringMomentum = false;
+
+  const flatListRef = useRef();
+
   const [currentContent, setCurrentContent] = useState(false);
   if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -50,10 +54,11 @@ const ListenListScreen = ({ navigation }) => {
   }
 
   const fetchLists = async (resetRefresh = false) => {
-    if (listType === "personal")
+    if (listType === "personal") {
       return await firestore
         .getPersonalListenlist(user.email, newestFirst, filterTypes)
         .then(list => setPersonalList(list));
+    }
     if (listType === "incoming") {
       return await firestore
         .getIncomingListenlist(
@@ -88,13 +93,19 @@ const ListenListScreen = ({ navigation }) => {
 
   useEffect(() => {
     navigation.setParams({ setShowModal });
+    if (flatListRef.current)
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
     setStartAfter(null);
     fetchLists(true);
+    setAllowRefresh(true);
     setAllowRefresh(listType === "incoming");
   }, [listType]);
 
   useEffect(() => {
+    if (flatListRef.current)
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
     setStartAfter(null);
+    setAllowRefresh(true);
     fetchLists(true);
   }, [newestFirst, filterTypes]);
 
@@ -120,7 +131,6 @@ const ListenListScreen = ({ navigation }) => {
       )}
     </View>
   );
-
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: 10 }}>
@@ -136,17 +146,24 @@ const ListenListScreen = ({ navigation }) => {
         <LoadingPage />
       ) : (
         <FlatList
+          ref={flatListRef}
           contentContainerStyle={{ paddingBottom: 85 }}
           keyExtractor={item => item.content.id + item.last_modified}
           data={listType === "personal" ? personalList.items : incomingList}
           renderItem={renderListItem}
+          onMomentumScrollBegin={() =>
+            (onEndReachedCalledDuringMomentum = true)
+          }
           onEndReached={async () => {
-            if (!allowRefresh || incomingList.length < batchLimit) return;
+            if (!allowRefresh || !onEndReachedCalledDuringMomentum) {
+              return;
+            }
+            onEndReachedCalledDuringMomentum = false;
             setRefreshing(true);
             await fetchLists();
             setRefreshing(false);
           }}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0}
           initialNumToRender={10}
           ListFooterComponent={() =>
             refreshing &&
