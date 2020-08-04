@@ -162,6 +162,7 @@ const HomeScreen = ({ navigation }) => {
         setShowModal={setShowModal}
         refreshData={() => {
           if (changed) {
+            setEndReached(false);
             setChanged(false);
             setStartAfter(null);
             if (flatListRef.current)

@@ -20,16 +20,23 @@ const UserSelectorScroll = ({ data, selected, onUserPress }) => {
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
           <UserSelectorScrollItem
-            containerStyle={{ borderColor: selected === item.id ? colors.primary : "transparent" }}
+            containerStyle={{
+              borderColor:
+                selected === item.id || item.email
+                  ? colors.primary
+                  : "transparent"
+            }}
             textStyle={{ fontWeight: selected === item.id ? "bold" : "normal" }}
-            onPress={() =>  onUserPress(item)}
+            onPress={() => onUserPress(item)}
             image={{
-                uri: item.data.profile_url || images.profileDefault
-              }}
-            text={item.data.handle}
+              uri:
+                (item.data ? item.data.profile_url : item.profile_url) ||
+                images.profileDefault
+            }}
+            text={item.data ? item.data.handle : item.handle}
           />
         )}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id || item.email}
       ></FlatList>
     </View>
   );

@@ -626,7 +626,12 @@ class useFirestore {
       .get()
       .then(content => {
         let ret = [];
-        content.forEach(element => ret.push(element.data()));
+
+        content.forEach(element => {
+          const user = element.data();
+          if (user) this.saveLiteUser(user);
+          ret.push(user);
+        });
         return ret;
       });
   }
