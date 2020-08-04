@@ -84,7 +84,7 @@ const SearchScreen = ({ navigation }) => {
       ) : keyboardIsActive || users || search ? (
         <ResultsList users={users} searchType={searchType} search={search} />
       ) : null}
-      {!search && searchHelp}
+      {!term.length && searchHelp}
     </View>
   );
 };
