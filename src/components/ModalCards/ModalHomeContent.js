@@ -5,6 +5,7 @@ import UserSelectorScroll from "./UserSelectorScroll";
 import colors from "../../constants/colors";
 import { FontAwesome5 } from "@expo/vector-icons";
 import ModalFilterButton from "./ModalFilterButton";
+import ContentTypeRow from "./ContentTypeRow";
 
 const ModalHomeContent = ({
   onClose,
@@ -109,32 +110,15 @@ const ModalHomeContent = ({
           show={showList}
         />
       </View>
-      <View style={{ flexDirection: "row", justifyContent: "space-evenly" }}>
-        <ModalFilterButton
-          title={"Songs"}
-          onPress={() => {
-            setChanged(true);
-            return updateContent("track", showSongs);
-          }}
-          show={showSongs}
-        />
-        <ModalFilterButton
-          title={"Albums"}
-          onPress={() => {
-            setChanged(true);
-            return updateContent("album", showAlbums);
-          }}
-          show={showAlbums}
-        />
-        <ModalFilterButton
-          title={"Artists"}
-          onPress={() => {
-            setChanged(true);
-            return updateContent("artist", showArtists);
-          }}
-          show={showArtists}
-        />
-      </View>
+      <ContentTypeRow
+        showSongs={showSongs}
+        showAlbums={showAlbums}
+        showArtists={showArtists}
+        onPress={(type, val) => {
+          setChanged(true);
+          return updateContent(type, val);
+        }}
+      />
       <Text style={styles.sectionTitle}>See Following</Text>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity

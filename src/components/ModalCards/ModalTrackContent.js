@@ -54,6 +54,7 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
   useEffect(() => {
     init().then(onLoad);
   }, []);
+
   if (review === "waiting" || reviews === "waiting" || authors === "waiting") {
     return (
       <View style={{ alignSelf: "stretch" }}>
@@ -64,11 +65,20 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
       </View>
     );
   }
-
   return (
     <View style={styles.card}>
       <Text style={styles.contentTitle}>{content.name}</Text>
-      <View style={styles.content}>
+      <View
+        style={[
+          styles.content,
+          {
+            paddingBottom:
+              (review && review.is_review) || (reviews && reviews.length)
+                ? 0
+                : 20
+          }
+        ]}
+      >
         <TopBar onClose={onClose} link={content.url}></TopBar>
         <View style={{ alignSelf: "stretch" }}>
           <ReviewButton
@@ -107,7 +117,6 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
 const styles = StyleSheet.create({
   content: {
     backgroundColor: colors.cardColor,
-    paddingBottom: 50,
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "stretch",

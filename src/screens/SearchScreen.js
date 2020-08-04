@@ -1,9 +1,16 @@
 import React, { useState, useContext, useEffect } from "react";
-import { StyleSheet, View, Text, Keyboard } from "react-native";
+import {
+  StyleSheet,
+  View,
+  KeyboardAvoidingView,
+  Text,
+  Keyboard
+} from "react-native";
 import ResultsList from "../components/ResultsList";
 import context from "../context/context";
 import colors from "../constants/colors";
 import SearchItem from "../components/SearchItem";
+import { Octicons } from "@expo/vector-icons";
 
 const SearchScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
@@ -38,6 +45,21 @@ const SearchScreen = ({ navigation }) => {
     }
   };
 
+  const searchHelp = (
+    <KeyboardAvoidingView behavior="padding" style={styles.searchHelpContainer}>
+      <View style={{ bottom: keyboardIsActive ? 15 : 0, alignItems: "center" }}>
+        <Octicons
+          name="search"
+          size={60}
+          color={keyboardIsActive ? colors.primary : colors.shadow}
+        />
+        <Text style={{ marginTop: 20, color: colors.darkShadow }}>
+          Find albums, reviews, lists and more
+        </Text>
+      </View>
+    </KeyboardAvoidingView>
+  );
+
   return (
     <View style={{ flex: 1, marginBottom: 85 }}>
       <View style={styles.topContainerStyle}>
@@ -54,7 +76,7 @@ const SearchScreen = ({ navigation }) => {
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <Text style={{ fontSize: 16, color: colors.heat }}>
+          <Text style={{ fontSize: 16, color: colors.secondary }}>
             No {searchType === "track" ? "song" : searchType}s found matching "
             {term}"
           </Text>
@@ -62,6 +84,7 @@ const SearchScreen = ({ navigation }) => {
       ) : keyboardIsActive || users || search ? (
         <ResultsList users={users} searchType={searchType} search={search} />
       ) : null}
+      {!search && searchHelp}
     </View>
   );
 };
@@ -70,6 +93,11 @@ const styles = StyleSheet.create({
   topContainerStyle: {
     margin: 10,
     marginBottom: 0
+  },
+  searchHelpContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
   }
 });
 

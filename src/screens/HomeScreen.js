@@ -164,7 +164,8 @@ const HomeScreen = ({ navigation }) => {
           if (changed) {
             setChanged(false);
             setStartAfter(null);
-            flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+            if (flatListRef.current)
+              flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
             fetchHomeScreenData(10, null);
           }
         }}

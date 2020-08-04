@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     margin: 10,
     flexDirection: "row",
     alignItems: "center",
-    height: 65,
+    height: 64,
     backgroundColor: colors.object,
     borderWidth: 0.5,
     borderColor: colors.shadow
@@ -82,8 +82,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 5,
     width: 63,
     aspectRatio: 1,
-    borderColor: colors.shadow,
-    right: 2
+    borderColor: colors.shadow
   }
 });
 

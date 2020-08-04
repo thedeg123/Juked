@@ -1,5 +1,14 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+  Image
+} from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import images from "../constants/images";
@@ -7,6 +16,7 @@ import { withNavigation } from "react-navigation";
 import navigateContent from "../helpers/navigateContent";
 import ArtistNames from "./ArtistNames";
 import { AntDesign } from "@expo/vector-icons";
+import { customCardAnimation } from "../constants/heights";
 
 /**
  * SearchPreview Component for ListScreen
@@ -24,6 +34,18 @@ const SearchPreview = ({
 }) => {
   const itemAdded = addItem && itemKeys && itemKeys.has(object.id);
   const date = object.string_release_date;
+  const [show, setShow] = useState(false);
+
+  if (Platform.OS === "android") {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
+
+  useEffect(() => {
+    LayoutAnimation.configureNext(customCardAnimation);
+    setShow(true);
+  }, []);
 
   const renderRightIcon = () => {
     if (addItem) {
@@ -38,46 +60,48 @@ const SearchPreview = ({
   };
 
   return (
-    <TouchableOpacity
-      style={styles.containerStyle}
-      onPress={() => {
-        if (addItem) {
-          itemAdded ? onItemRemove(object) : onItemAdd(object);
-        } else {
-          navigateContent(
-            navigation,
-            object.cid,
-            object.album_id,
-            null,
-            object,
-            null
-          );
-        }
-      }}
-    >
-      <Image
-        style={styles.imageStyle}
-        source={{ uri: object.image || images.artistDefault }}
-      />
-      <View style={styles.textWrapperStyle}>
-        <Text numberOfLines={1} style={styles.textStyle}>
-          {object.name}
-        </Text>
-        {object.artists ? (
-          <ArtistNames
-            artists={object.artists}
-            allowPress={false}
-            textStyle={styles.subtextStyle}
-          ></ArtistNames>
-        ) : null}
-        {date ? (
-          <Text numberOfLines={1} style={styles.dateStyle}>
-            {date}
+    show && (
+      <TouchableOpacity
+        style={styles.containerStyle}
+        onPress={() => {
+          if (addItem) {
+            itemAdded ? onItemRemove(object) : onItemAdd(object);
+          } else {
+            navigateContent(
+              navigation,
+              object.cid,
+              object.album_id,
+              null,
+              object,
+              null
+            );
+          }
+        }}
+      >
+        <Image
+          style={styles.imageStyle}
+          source={{ uri: object.image || images.artistDefault }}
+        />
+        <View style={styles.textWrapperStyle}>
+          <Text numberOfLines={1} style={styles.textStyle}>
+            {object.name}
           </Text>
-        ) : null}
-      </View>
-      <View style={styles.iconWrapper}>{renderRightIcon()}</View>
-    </TouchableOpacity>
+          {object.artists ? (
+            <ArtistNames
+              artists={object.artists}
+              allowPress={false}
+              textStyle={styles.subtextStyle}
+            ></ArtistNames>
+          ) : null}
+          {date ? (
+            <Text numberOfLines={1} style={styles.dateStyle}>
+              {date}
+            </Text>
+          ) : null}
+        </View>
+        <View style={styles.iconWrapper}>{renderRightIcon()}</View>
+      </TouchableOpacity>
+    )
   );
 };
 

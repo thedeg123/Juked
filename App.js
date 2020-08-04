@@ -1,5 +1,5 @@
 import React from "react";
-import { Animated } from "react-native";
+import { Animated, StatusBar } from "react-native";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
@@ -83,21 +83,20 @@ const defaultNavigationOptions = {
 
     return (
       <Animated.View style={{ opacity }}>
-        {
-          <StackHeader
-            title={title}
-            previous={previous}
-            center={options.headerComponent}
-            leftButton={
-              previous ? (
-                <HeaderBackButton onPress={() => navigation.goBack()} />
-              ) : (
-                undefined
-              )
-            }
-            rightButton={options.headerRight}
-          ></StackHeader>
-        }
+        <StatusBar backgroundColor={colors.white} barStyle={"dark-content"} />
+        <StackHeader
+          title={title}
+          previous={previous}
+          center={options.headerComponent}
+          leftButton={
+            previous ? (
+              <HeaderBackButton onPress={() => navigation.goBack()} />
+            ) : (
+              undefined
+            )
+          }
+          rightButton={options.headerRight}
+        />
       </Animated.View>
     );
   },

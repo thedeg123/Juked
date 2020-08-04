@@ -96,6 +96,27 @@ const UserProfileScreen = ({ navigation }) => {
     return () => (local_remover ? local_remover() : null);
   }, []);
 
+  const updateContent = (type, types) => {
+    if (user && reviews) {
+      firestore.getReviewsByAuthorType(uid, types, 5).then(res => {
+        reviews[type] = res[0];
+        setReviews({ ...reviews });
+      });
+    }
+  };
+
+  useEffect(() => {
+    updateContent("track", ["track_review", "track_rating"]);
+  }, [user && user.review_data_songs.reduce((a, b) => a + b)]);
+
+  useEffect(() => {
+    updateContent("album", ["album_review", "album_rating"]);
+  }, [user && user.review_data_albums.reduce((a, b) => a + b)]);
+
+  useEffect(() => {
+    updateContent("artist", ["artist_review", "artist_rating"]);
+  }, [user && user.review_data_artists.reduce((a, b) => a + b)]);
+
   const navigateFollow = (title, follow) =>
     navigation.push("List", {
       title,
@@ -190,7 +211,8 @@ const UserProfileScreen = ({ navigation }) => {
                 }
               >
                 <Text style={styles.followStyle}>
-                  {user.num_follower} Followers
+                  {user.num_follower} Follower
+                  {user.num_follower === 1 ? "" : "s"}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity

@@ -12,6 +12,7 @@ import colors from "../constants/colors";
 import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import { getAbreveatedTimeDif } from "../helpers/simplifyContent";
+import ModalSortCard from "../components/ModalCards/ModalSortCard";
 import ModalListCard from "../components/ModalCards/ModalListCard";
 import UserListItem from "../components/UserList/UserListItem";
 import OptionBar from "../components/OptionBar";
@@ -35,7 +36,12 @@ const ListenListScreen = ({ navigation }) => {
     navigation.getParam("type") === "incoming"
   );
   const batchLimit = 10;
+
   const [showModal, setShowModal] = useState(false);
+  const [showModalItemCard, setShowModalItemCard] = useState(false);
+  const [newestFirst, setNewestFirst] = useState(true);
+  const [filterTypes, setFilterTypes] = useState(["track", "album", "artist"]);
+
   const [currentContent, setCurrentContent] = useState(false);
   if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -43,17 +49,23 @@ const ListenListScreen = ({ navigation }) => {
     }
   }
 
-  const fetchLists = async () => {
+  const fetchLists = async (resetRefresh = false) => {
     if (listType === "personal")
       return await firestore
-        .getPersonalListenlist(user.email)
+        .getPersonalListenlist(user.email, newestFirst, filterTypes)
         .then(list => setPersonalList(list));
     if (listType === "incoming") {
       return await firestore
-        .getIncomingListenlist(user.email, batchLimit, startAfter)
+        .getIncomingListenlist(
+          user.email,
+          batchLimit,
+          !resetRefresh ? startAfter : null,
+          newestFirst,
+          filterTypes
+        )
         .then(async res => {
           await fetchContributors(res[0].map(item => item.author));
-          if (incomingList === "waiting") {
+          if (incomingList === "waiting" || resetRefresh) {
             setIncomingList(res[0]);
           } else {
             setIncomingList([...incomingList, ...res[0]]);
@@ -75,10 +87,16 @@ const ListenListScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    navigation.setParams({ type: listType, setShowModal });
-    fetchLists();
+    navigation.setParams({ setShowModal });
+    setStartAfter(null);
+    fetchLists(true);
     setAllowRefresh(listType === "incoming");
   }, [listType]);
+
+  useEffect(() => {
+    setStartAfter(null);
+    fetchLists(true);
+  }, [newestFirst, filterTypes]);
 
   const renderListItem = ({ item }) => (
     <View style={{ flexDirection: "row" }}>
@@ -87,7 +105,7 @@ const ListenListScreen = ({ navigation }) => {
         content={item.content}
         onLongPress={() => {
           setCurrentContent(item);
-          return setShowModal(true);
+          return setShowModalItemCard(true);
         }}
       />
       {listType === "incoming" && (
@@ -140,9 +158,17 @@ const ListenListScreen = ({ navigation }) => {
           }
         />
       )}
-      <ModalListCard
+      <ModalSortCard
         showModal={showModal}
         setShowModal={setShowModal}
+        newestFirst={newestFirst}
+        setNewestFirst={setNewestFirst}
+        setFilterTypes={setFilterTypes}
+        filterTypes={filterTypes}
+      />
+      <ModalListCard
+        showModal={showModalItemCard}
+        setShowModal={setShowModalItemCard}
         showDelete={user.email === firestore.fetchCurrentUID()}
         onDelete={() => {
           if (listType === "incoming") {
@@ -175,10 +201,9 @@ const ListenListScreen = ({ navigation }) => {
 ListenListScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
   const { handle } = navigation.getParam("user");
-  const type = navigation.getParam("type");
 
   return {
-    title: `${handle}'s ${type} listenlist`,
+    title: `${handle}'s listenlist`,
     headerRight: () =>
       navigation.getParam("user").email === auth().currentUser.email ? (
         <TouchableOpacity onPress={() => setShowModal(true)}>

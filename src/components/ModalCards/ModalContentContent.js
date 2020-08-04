@@ -15,11 +15,11 @@ const ModalContentContent = ({ onClose, link, content }) => {
   const [contentRecs, setContentRecs] = useState({});
 
   const renderItem = ({ item }) => {
-    let contentReccomendedToFollower = contentRecs[content.id + item.id];
+    let contentReccomendedToFollower = contentRecs[content.id + item.email];
     return (
       <UserSelectorScrollItem
         image={{
-          uri: item.data.profile_url || images.profileDefault
+          uri: item.profile_url || images.profileDefault
         }}
         showCheck={contentReccomendedToFollower}
         textStyle={{
@@ -27,12 +27,12 @@ const ModalContentContent = ({ onClose, link, content }) => {
         }}
         onPress={async () => {
           contentReccomendedToFollower
-            ? await firestore.unreccomendContentToFollower(content, item.id)
-            : await firestore.reccomendContentToFollower(content, item.id);
-          contentRecs[content.id + item.id] = !contentReccomendedToFollower;
+            ? await firestore.unreccomendContentToFollower(content, item.email)
+            : await firestore.reccomendContentToFollower(content, item.email);
+          contentRecs[content.id + item.email] = !contentReccomendedToFollower;
           setContentRecs({ ...contentRecs });
         }}
-        text={item.data.handle}
+        text={item.handle}
       />
     );
   };
@@ -89,7 +89,6 @@ const ModalContentContent = ({ onClose, link, content }) => {
     }
     setLists([...lists]);
   };
-
   return (
     <View style={styles.content}>
       <View>
@@ -106,25 +105,31 @@ const ModalContentContent = ({ onClose, link, content }) => {
             <FlatList
               data={followers}
               horizontal
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.email}
               renderItem={renderItem}
             />
           </View>
         ) : showContentType === "userlist" ? (
           <View>
-            <Text style={styles.sectionTitle}>Add to a List</Text>
-            <FlatList
-              data={lists}
-              horizontal
-              keyExtractor={item => item.id + item.last_modified}
-              renderItem={({ item }) => (
-                <UserListPreviewItem
-                  showCheck={item.data.itemKeys.includes(content.id)}
-                  list={item}
-                  onPress={() => updateUserList(item)}
-                />
-              )}
-            />
+            <Text style={styles.sectionTitle}>
+              {lists && lists.length
+                ? "Add to a List"
+                : "Create a list from your profile to add to it"}
+            </Text>
+            {lists && lists.length ? (
+              <FlatList
+                data={lists}
+                horizontal
+                keyExtractor={item => item.id + item.last_modified}
+                renderItem={({ item }) => (
+                  <UserListPreviewItem
+                    showCheck={item.data.itemKeys.includes(content.id)}
+                    list={item}
+                    onPress={() => updateUserList(item)}
+                  />
+                )}
+              />
+            ) : null}
           </View>
         ) : (
           <View>

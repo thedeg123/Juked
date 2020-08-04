@@ -270,12 +270,13 @@ class useFirestore {
    */
   async reccomendContentToFollower(content, uid) {
     const lid = content.id + uid;
-
     const notification_item = {
       author: this.fetchCurrentUID(),
       last_modified: Date.now(),
       type: "listenlist",
       review_author: uid,
+      genres: content.genres,
+      content_type: content.type,
       content: content
     };
 
@@ -298,6 +299,8 @@ class useFirestore {
     const uid = this.fetchCurrentUID() + "_personal";
     const item = {
       content,
+      genres: content.genres,
+      content_type: content.type,
       last_modified: new Date().getTime()
     };
     this.cachedListenList.items = this.cachedListenList.items.filter(
@@ -311,11 +314,18 @@ class useFirestore {
     });
   }
 
-  async getIncomingListenlist(uid, limit = 3, start_after = null) {
+  async getIncomingListenlist(
+    uid,
+    limit = 3,
+    start_after = null,
+    newestFirst = true,
+    filterTypes = ["track", "album", "artist"]
+  ) {
     let base = this.interactions_db
       .where("type", "==", "listenlist")
       .where("review_author", "==", uid)
-      .orderBy("last_modified", "desc");
+      .where("content_type", "in", filterTypes)
+      .orderBy("last_modified", newestFirst ? "desc" : "asc");
     if (start_after) base = base.startAfter(start_after);
     return await base
       .limit(limit)
@@ -323,7 +333,11 @@ class useFirestore {
       .then(res => [res.docs.map(r => r.data()), res.docs.pop()]);
   }
 
-  async getPersonalListenlist(uid = firestore.fetchCurrentUID()) {
+  async getPersonalListenlist(
+    uid = firestore.fetchCurrentUID(),
+    newestFirst = true,
+    filterTypes = ["track", "album", "artist"]
+  ) {
     // If we dont want to update numbers on prof screen
     // if (uid === this.fetchCurrentUID()) return this.getCachedListenList();
     const type = "personal";
@@ -331,7 +345,17 @@ class useFirestore {
     return await this.listen_list_db
       .doc(lid)
       .get()
-      .then(res => res.data());
+      .then(res => {
+        const ret = res.data();
+        ret.items = ret.items
+          .sort((a, b) =>
+            newestFirst
+              ? a.last_modified < b.last_modified
+              : a.last_modified > b.last_modified
+          )
+          .filter(item => filterTypes.includes(item.content_type));
+        return ret;
+      });
   }
   async addToPersonalListenlist(content) {
     return await this._updatePersonalListenList(content, false);
@@ -569,11 +593,16 @@ class useFirestore {
   }
   async batchAuthorRequest(uids, liteUser = true, returnObj = true) {
     const set_uids = new Set(uids);
+    const ret_list = [];
     const ret = {};
     if (liteUser) {
       uids.forEach(id => {
         if (this.cachedLiteUsers[id]) {
-          ret[id] = this.cachedLiteUsers[id];
+          if (returnObj) {
+            ret[id] = this.cachedLiteUsers[id];
+          } else {
+            ret_list.push(this.cachedLiteUsers[id]);
+          }
           set_uids.delete(id);
         }
       });
@@ -584,7 +613,7 @@ class useFirestore {
       Array.from(set_uids)
     ).then(res => {
       res.forEach(r => this.saveLiteUser(r.data));
-      if (!returnObj) return res;
+      if (!returnObj) return [...ret_list, ...res];
       res.forEach(r => (ret[r.id] = r.data));
       return ret;
     });

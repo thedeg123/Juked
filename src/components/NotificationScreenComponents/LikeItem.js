@@ -37,9 +37,7 @@ const LikeItem = ({ navigation, fetchReview, item, user, currentUser }) => {
         </Text>
       </View>
       <ContentPic
-        style={{
-          marginRight: 10
-        }}
+        style={{ marginRight: 5 }}
         imageStyle={{ borderRadius: 2 }}
         img={item.data.content.image}
         width={60}
