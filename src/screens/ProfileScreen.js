@@ -184,6 +184,7 @@ const UserProfileScreen = ({ navigation }) => {
             )}
             <View style={styles.numberStyle}>
               <TouchableOpacity
+                disabled={!user.num_follower}
                 onPress={async () =>
                   navigateFollow("Followers", await firestore.getFollowers(uid))
                 }
@@ -193,6 +194,7 @@ const UserProfileScreen = ({ navigation }) => {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
+                disabled={!user.num_following}
                 onPress={async () =>
                   navigateFollow("Following", await firestore.getFollowing(uid))
                 }
@@ -267,14 +269,15 @@ const UserProfileScreen = ({ navigation }) => {
             showListItems
           />
         ) : null}
-        {reviews["artist"].length && ["all", "artist"].includes(graphType) ? (
+        {reviews["track"].length && ["all", "track"].includes(graphType) ? (
           <ListPreview
-            title="Most Recent Artists"
+            title="Most Recent Songs"
             user={user}
-            data={reviews["artist"]}
+            data={reviews["track"]}
             onPress={() =>
-              navigateContent("Artists", ["artist_review", "artist_rating"])
+              navigateContent("Songs", ["track_review", "track_rating"])
             }
+            marginBottom={10}
           />
         ) : null}
         {reviews["album"].length && ["all", "album"].includes(graphType) ? (
@@ -287,15 +290,14 @@ const UserProfileScreen = ({ navigation }) => {
             }
           />
         ) : null}
-        {reviews["track"].length && ["all", "track"].includes(graphType) ? (
+        {reviews["artist"].length && ["all", "artist"].includes(graphType) ? (
           <ListPreview
-            title="Most Recent Songs"
+            title="Most Recent Artists"
             user={user}
-            data={reviews["track"]}
+            data={reviews["artist"]}
             onPress={() =>
-              navigateContent("Songs", ["track_review", "track_rating"])
+              navigateContent("Artists", ["artist_review", "artist_rating"])
             }
-            marginBottom={10}
           />
         ) : null}
       </ScrollView>

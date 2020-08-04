@@ -27,12 +27,17 @@ const HomeScreen = ({ navigation }) => {
       "list"
     ])
   );
+
   const [refreshing, setRefreshing] = useState(false);
-  const { firestore } = useContext(context);
+  const [loadingNext, setLoadingNext] = useState(false);
+  const [endReached, setEndReached] = useState(false);
   const [startAfter, setStartAfter] = useState(null);
-  const [allowRefresh, setAllowRefresh] = useState(true);
+
+  const { firestore } = useContext(context);
   const [changed, setChanged] = useState(false);
   const flatListRef = useRef();
+
+  let onEndReachedCalledDuringMomentum = false;
 
   // if yk sql, this is what were doing here:
   // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
@@ -56,15 +61,22 @@ const HomeScreen = ({ navigation }) => {
           limit,
           start_after
         );
-    if (!local_reviews.length && start_after) return setAllowRefresh(false);
-    setStartAfter(start_next);
+
+    if (local_reviews.length < limit) setEndReached(true);
+
     let temp_authors = await firestore.batchAuthorRequest(
       local_reviews.map(review => review.data.author)
     );
-    setAuthors(temp_authors);
-    return reviews && start_after
-      ? setReviews([...reviews, ...local_reviews])
-      : setReviews(local_reviews);
+    if (!start_after) {
+      setReviews(local_reviews);
+      setAuthors(temp_authors);
+    } else {
+      setReviews([...reviews, ...local_reviews]);
+      setAuthors({ ...temp_authors, ...authors });
+    }
+    setStartAfter(start_next);
+    setLoadingNext(false);
+    return setRefreshing(false);
   };
 
   useEffect(() => {
@@ -72,81 +84,87 @@ const HomeScreen = ({ navigation }) => {
     fetchFollowing();
     fetchHomeScreenData(10, null);
   }, []);
+
   if (reviews === "waiting" || authors === "waiting" || following === "waiting")
     return <LoadingPage />;
   return (
     <View style={{ flex: 1 }}>
-      {!reviews ? null : reviews.length ? null : (
+      {reviews && reviews.length ? (
+        <FlatList
+          ref={flatListRef}
+          contentContainerStyle={{ paddingBottom: 85 }}
+          keyExtractor={reviewItem =>
+            reviewItem.data.last_modified + reviewItem.id
+          }
+          data={reviews}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => {
+            return (
+              authors[item.data.author] && //we dont want our authors to be undefined, so we skip and wait to finish the fetch
+              (item.data.type === "list" ? (
+                <HomeScreenListItem
+                  list={item}
+                  author={authors[item.data.author]}
+                ></HomeScreenListItem>
+              ) : (
+                <HomeScreenItem
+                  review={item}
+                  content={item.data.content}
+                  author={authors[item.data.author]}
+                ></HomeScreenItem>
+              ))
+            );
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={async () => {
+                setRefreshing(true);
+                setEndReached(false);
+                await fetchFollowing();
+                return await fetchHomeScreenData(10, null);
+              }}
+            />
+          }
+          onMomentumScrollBegin={() =>
+            (onEndReachedCalledDuringMomentum = true)
+          }
+          onEndReached={async () => {
+            if (
+              endReached ||
+              loadingNext ||
+              !onEndReachedCalledDuringMomentum
+            ) {
+              return;
+            }
+            onEndReachedCalledDuringMomentum = false;
+            await setLoadingNext(true);
+            await fetchHomeScreenData(10, startAfter, reviews);
+          }}
+          onEndReachedThreshold={0}
+          ListFooterComponent={() =>
+            loadingNext && (
+              <View style={{ padding: 20 }}>
+                <LoadingIndicator />
+              </View>
+            )
+          }
+        />
+      ) : (
         <View style={{ justifyContent: "center", flex: 1 }}>
           <Text style={styles.emptyTextStyle}>
             No Results Match your current filters
           </Text>
         </View>
       )}
-      <FlatList
-        ref={flatListRef}
-        contentContainerStyle={{ paddingBottom: 85 }}
-        keyExtractor={reviewItem =>
-          reviewItem.data.last_modified + reviewItem.id
-        }
-        data={reviews}
-        showsVerticalScrollIndicator={false}
-        renderItem={({ item }) => {
-          return (
-            authors[item.data.author] && //we dont want our authors to be undefined, so we skip and wait to finish the fetch
-            (item.data.type === "list" ? (
-              <HomeScreenListItem
-                list={item}
-                author={authors[item.data.author]}
-              ></HomeScreenListItem>
-            ) : (
-              <HomeScreenItem
-                review={item}
-                content={item.data.content}
-                author={authors[item.data.author]}
-              ></HomeScreenItem>
-            ))
-          );
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={async () => {
-              setRefreshing(true);
-              setAllowRefresh(true);
-              await fetchHomeScreenData(10, null);
-              await fetchFollowing();
-              return setRefreshing(false);
-            }}
-          />
-        }
-        onEndReached={async () => {
-          if (!allowRefresh || reviews.length < 10) return;
-          setRefreshing(true);
-          await fetchHomeScreenData(10, startAfter);
-          setRefreshing(false);
-        }}
-        onEndReachedThreshold={0.5}
-        initialNumToRender={10}
-        ListFooterComponent={() =>
-          refreshing &&
-          reviews.length > 9 && (
-            <View style={{ padding: 20 }}>
-              <LoadingIndicator />
-            </View>
-          )
-        }
-      />
       <ModalHomeCard
         showModal={showModal}
         setShowModal={setShowModal}
         refreshData={() => {
           if (changed) {
             setChanged(false);
-            setReviews(null);
-            flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-            setAllowRefresh(true);
             setStartAfter(null);
+            flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
             fetchHomeScreenData(10, null);
           }
         }}
