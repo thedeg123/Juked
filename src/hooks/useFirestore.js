@@ -443,7 +443,7 @@ class useFirestore {
     const review_type = type + "_" + (is_review ? "review" : "rating");
     let body = {};
     typeof text == "string" ? (body["text"] = text) : null;
-    rating ? (body["rating"] = rating) : null;
+    rating || rating === 0 ? (body["rating"] = rating) : null;
     body["is_review"] = is_review;
     body["review_type"] = review_type;
     body["last_modified"] = new Date().valueOf();

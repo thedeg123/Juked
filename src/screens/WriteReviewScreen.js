@@ -13,9 +13,9 @@ import {
   TouchableWithoutFeedback
 } from "react-native";
 import colors, { blurRadius } from "../constants/colors";
-import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import context from "../context/context";
 import ArtistNames from "../components/ArtistNames";
+import Slider from "react-native-slider";
 
 /**
  *
@@ -29,11 +29,12 @@ const WriteReviewScreen = ({ navigation }) => {
   const content = navigation.getParam("content");
   const { firestore } = useContext(context);
   const [text, setText] = useState("");
-  const [rating, setRating] = useState([5]);
+  const [rating, setRating] = useState(5);
+
   useEffect(() => {
     if (review) {
       setText(review.data.text);
-      setRating([review.data.rating]);
+      setRating(review.data.rating);
     }
   }, []);
   if (!content) {
@@ -72,23 +73,18 @@ const WriteReviewScreen = ({ navigation }) => {
               </View>
               <View style={styles.ratingContainer}>
                 <Text style={styles.ratingStyle}>{rating}</Text>
-                <View style={styles.sliderStyle}>
-                  <MultiSlider
-                    values={rating}
-                    onValuesChange={setRating}
-                    snapped
-                    min={0}
-                    max={10}
+                <View style={styles.sliderContainer}>
+                  <Slider
+                    value={rating}
+                    onValueChange={setRating}
                     step={1}
-                    unselectedStyle={{
-                      backgroundColor: colors.veryTranslucentWhite
-                    }}
-                    selectedStyle={{
-                      backgroundColor: colors.secondary,
-                      height: 5
-                    }}
-                    sliderLength={250}
-                  ></MultiSlider>
+                    minimumValue={0}
+                    maximumValue={10}
+                    minimumTrackTintColor={colors.secondary}
+                    maximumTrackTintColor={colors.veryTranslucentWhite}
+                    thumbTintColor={colors.white}
+                    trackStyle={{ height: 5 }}
+                  />
                 </View>
               </View>
               <TextInput
@@ -107,9 +103,7 @@ const WriteReviewScreen = ({ navigation }) => {
                 }
                 onChangeText={setText}
                 multiline
-                style={{
-                  ...styles.reviewTextStyle
-                }}
+                style={styles.reviewTextStyle}
               ></TextInput>
 
               <TouchableOpacity
@@ -127,14 +121,14 @@ const WriteReviewScreen = ({ navigation }) => {
                         review.id,
                         review.data.content_id,
                         review.data.type,
-                        rating[0],
+                        rating,
                         text
                       )
                     : firestore.addReview(
                         content.id,
                         content.type,
                         content,
-                        rating[0],
+                        rating,
                         text
                       );
                   return navigation.pop();
@@ -185,11 +179,15 @@ const styles = StyleSheet.create({
   },
   ratingStyle: {
     color: colors.veryTranslucentWhite,
-    fontSize: 80
+    fontSize: 80,
+    textAlign: "center",
+    width: 90
   },
-  sliderStyle: {
+  sliderContainer: {
+    flex: 1,
     marginTop: 20,
-    marginRight: 10,
+    marginRight: 20,
+    marginLeft: 10,
     alignSelf: "center"
   },
   subheaderText: {

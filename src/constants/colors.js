@@ -12,6 +12,7 @@ export default {
   errorText: "#9a3732",
   translucentWhite: "rgba(255,255,255,0.95)",
   veryTranslucentWhite: "rgba(255,255,255,0.6)",
+  veryVeryTranslucentWhite: "rgba(255,255,255,0.2)",
   darkener: "rgba(0,0,0,0.35)",
   cardColor: "rgba(255,255,255,0.85)",
   white: "#FFF",
