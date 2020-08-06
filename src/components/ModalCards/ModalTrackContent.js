@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import context from "../../context/context";
-import { StyleSheet, Button, Text, View } from "react-native";
-import { withNavigation } from "react-navigation";
+import { StyleSheet, Text, View } from "react-native";
 import colors from "../../constants/colors";
 import BarGraph from "../Graphs/BarGraph";
 import TextRatings from "../TextRatings";
@@ -10,49 +9,52 @@ import LoadingIndicator from "../Loading/LoadingIndicator";
 import TopBar from "./TopBar";
 import ReviewButton from "../ReviewButton";
 
-const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
+const ModalTrackContent = ({ onClose, content, author, setScrollEnabled }) => {
   const { firestore } = useContext(context);
   const [contentData, setContentData] = useState(null);
+
   const [review, setReview] = useState("waiting");
-  const [author, setAuthor] = useState("waiting");
   const [reviews, setReviews] = useState("waiting");
+
   const [authors, setAuthors] = useState("waiting");
+
   const [onUserListenList, setOnUserListenList] = useState(
     firestore.contentInlistenList(content.id)
   );
-  let temp_rev = null;
-  const getReview = async () => {
-    temp_rev = await firestore
-      .getReviewsByAuthorContent(firestore.fetchCurrentUID(), content.id)
-      .then(review => (review.exists ? review : null));
-    if (temp_rev)
-      firestore.getUser(temp_rev.data.author).then(res => setAuthor(res));
-    return setReview(temp_rev);
-  };
 
   const getReviews = async () => {
     const reviews = await firestore
       .getMostPopularReviewsByType(content.id)
       .then(res => res[0]);
-    const author_ids = temp_rev
-      ? [...reviews.map(r => r.data.author), temp_rev.data.author]
-      : reviews.map(r => r.data.author);
-    const authors = await firestore.batchAuthorRequest(author_ids);
+    const authors = await firestore.batchAuthorRequest(
+      reviews.map(r => r.data.author)
+    );
     setAuthors(authors);
     return setReviews(reviews);
   };
 
   const init = async () => {
-    firestore.getContentData(content.id).then(v => setContentData(v));
     firestore
       .getReviewsByAuthorContent(firestore.fetchCurrentUID(), content.id)
       .then(r => setReview(r.exists ? r : null));
-    await getReview();
     return await getReviews();
   };
 
   useEffect(() => {
-    init().then(onLoad);
+    init();
+    init();
+    const [
+      content_remover,
+      review_remover
+    ] = firestore.listenToContentandReview(
+      content.id,
+      setContentData,
+      setReview
+    );
+    return () => {
+      content_remover ? content_remover() : null;
+      review_remover ? review_remover() : null;
+    };
   }, []);
 
   if (review === "waiting" || reviews === "waiting" || authors === "waiting") {
@@ -95,7 +97,8 @@ const ModalTrackContent = ({ navigation, onClose, content, onLoad }) => {
           />
           <BarGraph
             data={contentData ? contentData.rating_nums : null}
-          ></BarGraph>
+            setScrollEnabled={setScrollEnabled}
+          />
           <TextRatings
             review={review}
             averageReview={contentData ? contentData.avg : 0}
@@ -137,4 +140,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigation(ModalTrackContent);
+export default ModalTrackContent;

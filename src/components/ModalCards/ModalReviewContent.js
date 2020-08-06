@@ -3,7 +3,15 @@ import { StyleSheet, Button, Text, View } from "react-native";
 import colors from "../../constants/colors";
 import TopBar from "./TopBar";
 
-const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose, link, content_type }) => {
+const ModalReviewContent = ({
+  onCreate,
+  onEdit,
+  onDelete,
+  onClose,
+  link,
+  content_type,
+  hideEdit
+}) => {
   const [showDelete, setShowDelete] = useState(false);
   return (
     <View style={styles.content}>
@@ -34,14 +42,21 @@ const ModalReviewContent = ({ onCreate, onEdit, onDelete, onClose, link, content
         </View>
       ) : (
         <View>
-          <TopBar onClose={onClose} link={link} showSpotify={content_type !== "List"}></TopBar>
-          {onEdit ? (
+          <TopBar
+            onClose={onClose}
+            link={link}
+            showSpotify={content_type !== "List"}
+          ></TopBar>
+          {hideEdit ? null : onEdit ? (
             <Button onPress={onEdit} title={`Edit ${content_type}`} />
           ) : (
             <Button onPress={onCreate} title={`Add ${content_type}`} />
           )}
           {onEdit ? (
-            <Button onPress={() => setShowDelete(true)} title={`Delete ${content_type}`} />
+            <Button
+              onPress={() => setShowDelete(true)}
+              title={`Delete ${content_type}`}
+            />
           ) : null}
         </View>
       )}

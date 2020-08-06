@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ModalWrapper from "./ModalWrapper";
 import ModalTrackContent from "./ModalTrackContent";
 
@@ -6,10 +6,13 @@ const ModalTrackCard = ({
   showModal,
   setShowModal,
   content,
-  setShowHighlightedTrackCard
+  setShowHighlightedTrackCard,
+  author
 }) => {
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   return (
     <ModalWrapper
+      swipeDirection={scrollEnabled ? ["up", "down"] : null}
       isVisible={showModal}
       onSwipeComplete={() => {
         setShowHighlightedTrackCard(null);
@@ -17,11 +20,12 @@ const ModalTrackCard = ({
       }}
     >
       <ModalTrackContent
+        setScrollEnabled={setScrollEnabled}
+        author={author}
         onClose={() => {
           setShowHighlightedTrackCard(null);
           setShowModal(false);
         }}
-        onFinish={() => setisFinished(true)}
         content={content}
       ></ModalTrackContent>
     </ModalWrapper>

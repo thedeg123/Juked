@@ -28,17 +28,21 @@ import ListenListButton from "../components/ProfileScreen/ListenListButton";
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, disconnect } = useContext(context);
-  const firestoreConcurrent = firebase.firestore();
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
-  const [reviews, setReviews] = useState(null);
   const [followsYou, setFollowsYou] = useState(null);
   const [showProfileCard, setShowProfileCard] = useState(false);
   const [userFollowing, setUserFollowing] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [remover, setRemover] = useState(null);
+  const [removers, setRemovers] = useState([]);
   const [graphType, setGraphType] = useState(profileButtonOptions[0].type);
   const [personalListenList, setPersonalListenList] = useState(null);
+
+  const [lists, setLists] = useState([]);
+  const [trackReviews, setTrackReviews] = useState([]);
+  const [albumReviews, setAlbumReviews] = useState([]);
+  const [artistReviews, setArtistReviews] = useState([]);
+
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const updateFollow = async () => {
     firestore
@@ -64,58 +68,75 @@ const UserProfileScreen = ({ navigation }) => {
     }
   };
 
-  const fetch = async () => {
-    if (!uid) uid = firestore.fetchCurrentUID();
-    const reviews = {
-      track: await firestore
-        .getReviewsByAuthorType(uid, ["track_review", "track_rating"], 5)
-        .then(res => res[0]),
-      album: await firestore
-        .getReviewsByAuthorType(uid, ["album_review", "album_rating"], 5)
-        .then(res => res[0]),
-      artist: await firestore
-        .getReviewsByAuthorType(uid, ["artist_review", "artist_rating"], 5)
-        .then(res => res[0]),
-      list: await firestore
-        .getReviewsByAuthorType(uid, ["list"], 5)
-        .then(res => res[0])
-    };
-    setPersonalListenList(await firestore.getPersonalListenlist(uid));
-    setReviews(reviews);
+  const reviewTypeSelector = type => {
+    switch (type) {
+      case "list":
+        return lists;
+      case "track":
+        return trackReviews;
+      case "album":
+        return albumReviews;
+      case "artist":
+        return artistReviews;
+      default:
+        return [];
+    }
+  };
+
+  const init = () => {
+    firestore
+      .getPersonalListenlist(uid)
+      .then(res => setPersonalListenList(res));
+
     updateFollow();
+
+    const track_remover = firestore.listenToReviewsByAuthorType(
+      uid,
+      ["track_review", "track_rating"],
+      5,
+      setTrackReviews
+    );
+    const album_remover = firestore.listenToReviewsByAuthorType(
+      uid,
+      ["album_review", "album_rating"],
+      5,
+      setAlbumReviews
+    );
+    const artist_remover = firestore.listenToReviewsByAuthorType(
+      uid,
+      ["artist_review", "artist_rating"],
+      5,
+      setArtistReviews
+    );
+    const list_remover = firestore.listenToReviewsByAuthorType(
+      uid,
+      ["list"],
+      5,
+      setLists
+    );
+    return [track_remover, album_remover, artist_remover, list_remover];
+  };
+
+  const clearRemovers = () => {
+    removers.forEach(remover => (remover ? remover() : null));
   };
 
   useEffect(() => {
+    const firestoreConcurrent = firebase.firestore();
+    const removers = init();
+
     navigation.setParams({ setShowModal: setShowProfileCard });
+
     const local_remover = firestoreConcurrent
       .collection("users")
       .doc(uid)
       .onSnapshot(res => setUser(res.data()));
-    setRemover(() => async () => await local_remover());
-    fetch();
-    return () => (local_remover ? local_remover() : null);
+
+    removers.push(local_remover);
+
+    setRemovers(removers);
+    return () => clearRemovers();
   }, []);
-
-  const updateContent = (type, types) => {
-    if (user && reviews) {
-      firestore.getReviewsByAuthorType(uid, types, 5).then(res => {
-        reviews[type] = res[0];
-        setReviews({ ...reviews });
-      });
-    }
-  };
-
-  useEffect(() => {
-    updateContent("track", ["track_review", "track_rating"]);
-  }, [user && user.review_data_songs.reduce((a, b) => a + b)]);
-
-  useEffect(() => {
-    updateContent("album", ["album_review", "album_rating"]);
-  }, [user && user.review_data_albums.reduce((a, b) => a + b)]);
-
-  useEffect(() => {
-    updateContent("artist", ["artist_review", "artist_rating"]);
-  }, [user && user.review_data_artists.reduce((a, b) => a + b)]);
 
   const navigateFollow = (title, follow) =>
     navigation.push("List", {
@@ -157,7 +178,6 @@ const UserProfileScreen = ({ navigation }) => {
   };
   if (
     !user ||
-    !reviews ||
     !personalListenList ||
     typeof followsYou !== "boolean" ||
     typeof userFollowing !== "boolean"
@@ -167,19 +187,10 @@ const UserProfileScreen = ({ navigation }) => {
   return user ? (
     <View style={{ flex: 1 }}>
       <ScrollView
+        scrollEnabled={scrollEnabled}
         style={styles.containerStyle}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 85 }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={async () => {
-              setRefreshing(true);
-              await fetch();
-              return setRefreshing(false);
-            }}
-          />
-        }
       >
         <View style={styles.headerContainer}>
           <UserPreview
@@ -245,7 +256,10 @@ const UserProfileScreen = ({ navigation }) => {
         ></OptionBar>
 
         <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-          <BarGraph data={graphDataContentSelector(graphType)} />
+          <BarGraph
+            data={graphDataContentSelector(graphType)}
+            setScrollEnabled={setScrollEnabled}
+          />
         </View>
         <View
           style={{
@@ -281,42 +295,46 @@ const UserProfileScreen = ({ navigation }) => {
           />
         </View>
         {"all" === graphType &&
-        (reviews["list"].length || uid === firestore.fetchCurrentUID()) ? (
+        (reviewTypeSelector("list").length ||
+          uid === firestore.fetchCurrentUID()) ? (
           <ListPreview
             title="Most Recent Lists"
             user={user}
-            data={reviews["list"]}
+            data={reviewTypeSelector("list")}
             onPress={() => navigateContent("Lists", ["list"])}
             showAddListButton={uid === firestore.fetchCurrentUID()}
             showListItems
           />
         ) : null}
-        {reviews["track"].length && ["all", "track"].includes(graphType) ? (
+        {reviewTypeSelector("track").length &&
+        ["all", "track"].includes(graphType) ? (
           <ListPreview
             title="Most Recent Songs"
             user={user}
-            data={reviews["track"]}
+            data={reviewTypeSelector("track")}
             onPress={() =>
               navigateContent("Songs", ["track_review", "track_rating"])
             }
             marginBottom={10}
           />
         ) : null}
-        {reviews["album"].length && ["all", "album"].includes(graphType) ? (
+        {reviewTypeSelector("album").length &&
+        ["all", "album"].includes(graphType) ? (
           <ListPreview
             title="Most Recent Albums"
             user={user}
-            data={reviews["album"]}
+            data={reviewTypeSelector("album")}
             onPress={() =>
               navigateContent("Albums", ["album_review", "album_rating"])
             }
           />
         ) : null}
-        {reviews["artist"].length && ["all", "artist"].includes(graphType) ? (
+        {reviewTypeSelector("artist").length &&
+        ["all", "artist"].includes(graphType) ? (
           <ListPreview
             title="Most Recent Artists"
             user={user}
-            data={reviews["artist"]}
+            data={reviewTypeSelector("artist")}
             onPress={() =>
               navigateContent("Artists", ["artist_review", "artist_rating"])
             }
@@ -326,7 +344,7 @@ const UserProfileScreen = ({ navigation }) => {
       <ModalProfileCard
         showModal={showProfileCard}
         onSignOut={async () => {
-          remover ? await remover() : null;
+          clearRemovers();
           await disconnect();
           firestore.signout();
         }}

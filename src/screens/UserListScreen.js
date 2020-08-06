@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import {
   View,
   Text,
@@ -31,6 +31,7 @@ const UserListScreen = ({ navigation }) => {
   const firestoreConcurrent = firebase.firestore();
   const [list, setList] = useState(navigation.getParam("list"));
   const user = navigation.getParam("user");
+  const flatListRef = useRef();
 
   if (!list || !user)
     console.error("ReviewScreen should be passed review, content, user");
@@ -38,7 +39,7 @@ const UserListScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [keyboardIsActive, setKeyboardIsActive] = useState(false);
   const [comments, setComments] = useState([]);
-  const [commentUsers, setCommentUsers] = useState(null);
+  const [commentUsers, setCommentUsers] = useState({});
   const [userLikes, setUserLikes] = useState(null);
   const content = list.data && list.data.items[0];
   let remover = null;
@@ -49,29 +50,22 @@ const UserListScreen = ({ navigation }) => {
     }
   }
 
-  const fetchComments = async () => {
-    firestore.userLikesReview(list.id).then(res => setUserLikes(res));
-    const comments = await firestore.getComments(list.id);
-    const theUsers = await firestore.batchAuthorRequest(
-      comments.map(com => com.data.author)
-    );
-    setCommentUsers(theUsers);
-    return setComments(comments);
-  };
+  useEffect(() => {
+    if (comments)
+      firestore
+        .batchAuthorRequest(comments.map(comment => comment.data.author))
+        .then(users => setCommentUsers(users));
+  }, [comments]);
 
   useEffect(() => {
     navigation.setParams({ setShowModal, title: list.data.title });
-    fetchComments();
-    const listener = navigation.addListener("didFocus", async () => {
-      try {
-        remover = await firestoreConcurrent
-          .collection("reviews")
-          .doc(list.id)
-          .onSnapshot(doc => setList({ id: doc.id, data: doc.data() }));
-      } catch {
-        remover ? remover() : null;
-      }
-    });
+    const comment_remover = firestore.getComments(list.id, setComments);
+
+    remover = firestoreConcurrent
+      .collection("reviews")
+      .doc(list.id)
+      .onSnapshot(doc => setList({ id: doc.id, data: doc.data() }));
+
     const keyboardOpenListenter = Keyboard.addListener(
       "keyboardWillShow",
       () => {
@@ -88,9 +82,9 @@ const UserListScreen = ({ navigation }) => {
     );
     return () => {
       remover ? remover() : null;
+      comment_remover ? comment_remover() : null;
       keyboardOpenListenter.remove();
       keyboardCloseListenter.remove();
-      listener.remove();
     };
   }, []);
   if (!list || !list.data) {
@@ -123,6 +117,7 @@ const UserListScreen = ({ navigation }) => {
         </View>
 
         <FlatList
+          ref={flatListRef}
           data={list.data.items}
           renderItem={({ item, index }) => (
             <UserListItem
@@ -174,9 +169,7 @@ const UserListScreen = ({ navigation }) => {
             keyboardIsActive={keyboardIsActive}
             submitComment={comment => {
               Keyboard.dismiss();
-              firestore
-                .addComment(list.id, list.data.author, comment, content)
-                .then(() => fetchComments());
+              firestore.addComment(list.id, list.data.author, comment, content);
             }}
           ></CommentBar>
         </View>
@@ -207,9 +200,7 @@ const UserListScreen = ({ navigation }) => {
           comments={comments}
           commentUsers={commentUsers}
           currentUser={firestore.fetchCurrentUID()}
-          deleteComment={did =>
-            firestore.deleteComment(did).then(fetchComments())
-          }
+          deleteComment={did => firestore.deleteComment(did)}
         ></CommentsSection>
       </KeyboardAvoidingView>
       <ModalReviewCard

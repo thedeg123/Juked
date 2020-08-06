@@ -1,25 +1,15 @@
 //Provides margin on components
-import React, { useState } from "react";
+import React from "react";
 import { View, Text } from "react-native";
 import colors from "../../constants/colors";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
-const BarItem = ({ value, width, height, total_height, label, setNum }) => {
-  const [activated, setActivated] = useState(false);
+const BarItem = ({ width, height, total_height, label, activated }) => {
   return (
     <View>
-      <TouchableWithoutFeedback
+      <View
         style={{
           height: total_height,
           justifyContent: "flex-end"
-        }}
-        onPressIn={() => {
-          setActivated(true);
-          return setNum(value);
-        }}
-        onPressOut={() => {
-          setActivated(false);
-          return setNum(null);
         }}
       >
         <View
@@ -33,7 +23,7 @@ const BarItem = ({ value, width, height, total_height, label, setNum }) => {
             borderTopRightRadius: 5
           }}
         ></View>
-      </TouchableWithoutFeedback>
+      </View>
       <Text
         style={{
           textAlign: "center",

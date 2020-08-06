@@ -221,12 +221,11 @@ ListenListScreen.navigationOptions = ({ navigation }) => {
 
   return {
     title: `${handle}'s listenlist`,
-    headerRight: () =>
-      navigation.getParam("user").email === auth().currentUser.email ? (
-        <TouchableOpacity onPress={() => setShowModal(true)}>
-          <TopButton text={"Sort"} />
-        </TouchableOpacity>
-      ) : null
+    headerRight: () => (
+      <TouchableOpacity onPress={() => setShowModal(true)}>
+        <TopButton text={"Sort"} />
+      </TouchableOpacity>
+    )
   };
 };
 

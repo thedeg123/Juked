@@ -24,7 +24,7 @@ const SearchItem = ({
           setTerm(new_term);
           waitTime && clearTimeout(waitTime);
           setWaitTime(
-            setTimeout(() => searchForTerm(new_term, searchType), 500)
+            setTimeout(() => searchForTerm(new_term, searchType), 250)
           );
         }}
         onTermSubmit={async new_term => {

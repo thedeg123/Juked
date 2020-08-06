@@ -43,41 +43,36 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
 
 exports.deleteUser = functions.auth.user().onDelete(async user => {
   // //deleting all reviews
+  var batch = firestore.batch();
   await firestore
     .collection("reviews")
     .where("author", "==", user.email)
     .get()
-    .then(res => {
-      var batch = firestore.batch();
-      res.forEach(doc => batch.delete(doc.ref));
-      return batch.commit();
-    });
-  //deleting all follows
+    .then(res => res.forEach(doc => batch.delete(doc.ref)));
+  //deleting all interactions
   await firestore
     .collection("interactons")
     .where("type", "==", "follow")
     .where("author", "==", user.email)
     .get()
-    .then(res => {
-      var batch = firestore.batch();
-      res.forEach(doc => batch.delete(doc.ref));
-      return batch.commit();
-    });
+    .then(res => res.forEach(doc => batch.delete(doc.ref)));
   await firestore
     .collection("interactons")
     .where("type", "==", "follow")
     .where("review_author", "==", user.email)
     .get()
-    .then(res => {
-      var batch = firestore.batch();
-      res.forEach(doc => batch.delete(doc.ref));
-      return batch.commit();
-    });
+    .then(res => res.forEach(doc => batch.delete(doc.ref)));
+  // delete thier listenlist
+  const llPersonalRef = firestore
+    .collection("listenlist")
+    .doc(user.email + "_personal");
+  batch.delete(llPersonalRef);
+
   // delete the user
-  return await firestore
-    .collection("users")
-    .doc(user.email)
-    .delete();
+  const userDoc = firestore.collection("users").doc(user.email);
+  batch.delete(userDoc);
+
+  return await batch.commit();
 });
 
 exports.Onfollow = functions.firestore

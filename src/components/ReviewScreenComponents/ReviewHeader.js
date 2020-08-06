@@ -5,7 +5,7 @@ import navigateContent from "../../helpers/navigateContent";
 import { withNavigation } from "react-navigation";
 import UserPreview from "../HomeScreenComponents/UserPreview";
 import ArtistNames from "../ArtistNames";
-import ContentPic from "../HomeScreenComponents/ContentPic";
+import { getStringDate } from "../../helpers/simplifyContent";
 
 const ReviewHeader = ({ navigation, date, content, user, rating, type }) => {
   return (
@@ -39,10 +39,7 @@ const ReviewHeader = ({ navigation, date, content, user, rating, type }) => {
           textStyle={styles.subheaderText}
         ></ArtistNames>
         <Text style={styles.dateText}>
-          Reviewed on{" "}
-          {`${date.toLocaleString("default", {
-            month: "long"
-          })} ${date.getDate()}, ${date.getFullYear()}`}
+          Reviewed {getStringDate(date, false)}
         </Text>
       </View>
       <View style={styles.headerUserContainerStyle}>

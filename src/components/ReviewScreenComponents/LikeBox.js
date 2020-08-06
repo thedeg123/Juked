@@ -2,10 +2,17 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import { impactAsync, ImpactFeedbackStyle } from "expo-haptics";
+
 const LikeBox = ({ onLike, liked, numLikes, onPress }) => {
   return (
     <View style={styles.containerStyle}>
-      <TouchableOpacity onPress={onLike}>
+      <TouchableOpacity
+        onPress={() => {
+          impactAsync(ImpactFeedbackStyle.Light);
+          return onLike();
+        }}
+      >
         <Ionicons
           style={styles.iconStyle}
           name={liked ? "md-heart" : "md-heart-empty"}

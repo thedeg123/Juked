@@ -37,9 +37,8 @@ const ReviewScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [keyboardIsActive, setKeyboardIsActive] = useState(false);
   const [comments, setComments] = useState([]);
-  const [commentUsers, setCommentUsers] = useState(null);
+  const [commentUsers, setCommentUsers] = useState({});
   const [userLikes, setUserLikes] = useState(null);
-  let remover = null;
 
   if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -47,33 +46,26 @@ const ReviewScreen = ({ navigation }) => {
     }
   }
 
-  const fetchComments = async () => {
-    firestore.userLikesReview(review.id).then(res => setUserLikes(res));
-    const comments = await firestore.getComments(review.id);
-    const theUsers = await firestore.batchAuthorRequest(
-      comments.map(com => com.data.author)
-    );
-    setCommentUsers(theUsers);
-    return setComments(comments);
-  };
+  useEffect(() => {
+    if (comments)
+      firestore
+        .batchAuthorRequest(comments.map(comment => comment.data.author))
+        .then(users => setCommentUsers(users));
+  }, [comments]);
 
   useEffect(() => {
+    firestore.userLikesReview(review.id).then(res => setUserLikes(res));
     navigation.setParams({
       setShowModal,
       reviewType: toDisplayType(review.data.type)
     });
-    fetchComments();
-    const listener = navigation.addListener("didFocus", async () => {
-      try {
-        remover = await firestoreConcurrent
-          .collection("reviews")
-          .doc(review.id)
-          .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
-      } catch {
-        remover ? remover() : null;
-        console.error("error from ReviewScreen");
-      }
-    });
+
+    const comment_remover = firestore.getComments(review.id, setComments);
+    const remover = firestoreConcurrent
+      .collection("reviews")
+      .doc(review.id)
+      .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
+
     const keyboardOpenListenter = Keyboard.addListener(
       "keyboardWillShow",
       () => {
@@ -90,11 +82,12 @@ const ReviewScreen = ({ navigation }) => {
     );
     return () => {
       remover ? remover() : null;
+      comment_remover ? comment_remover() : null;
       keyboardOpenListenter.remove();
       keyboardCloseListenter.remove();
-      listener.remove();
     };
   }, []);
+
   if (!review.data) {
     return <View></View>;
   }
@@ -146,9 +139,12 @@ const ReviewScreen = ({ navigation }) => {
             keyboardIsActive={keyboardIsActive}
             submitComment={comment => {
               Keyboard.dismiss();
-              firestore
-                .addComment(review.id, review.data.author, comment, content)
-                .then(() => fetchComments());
+              firestore.addComment(
+                review.id,
+                review.data.author,
+                comment,
+                content
+              );
             }}
           ></CommentBar>
         </View>
@@ -193,9 +189,7 @@ const ReviewScreen = ({ navigation }) => {
           comments={comments}
           commentUsers={commentUsers}
           currentUser={firestore.fetchCurrentUID()}
-          deleteComment={did =>
-            firestore.deleteComment(did).then(fetchComments())
-          }
+          deleteComment={did => firestore.deleteComment(did)}
         ></CommentsSection>
       </View>
       <ModalReviewCard
@@ -229,7 +223,7 @@ ReviewScreen.navigationOptions = ({ navigation }) => {
     headerRight: () =>
       navigation.getParam("user").email === auth().currentUser.email ? (
         <TouchableOpacity onPress={() => setShowModal(true)}>
-          <TopButton text={"Edit"}></TopButton>
+          <TopButton text={"Edit"} />
         </TouchableOpacity>
       ) : null
   };

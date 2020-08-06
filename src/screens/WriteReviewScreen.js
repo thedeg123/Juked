@@ -16,7 +16,9 @@ import colors, { blurRadius } from "../constants/colors";
 import context from "../context/context";
 import ArtistNames from "../components/ArtistNames";
 import Slider from "react-native-slider";
-
+import { auth } from "firebase";
+import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
+import TopButton from "../components/TopButton";
 /**
  *
  * @param {string} content_id - the type of  content to be displayed, sent if this is first time were writing review
@@ -30,11 +32,13 @@ const WriteReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const [text, setText] = useState("");
   const [rating, setRating] = useState(5);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (review) {
       setText(review.data.text);
       setRating(review.data.rating);
+      navigation.setParams({ setShowModal, author: review.data.author });
     }
   }, []);
   if (!content) {
@@ -147,6 +151,18 @@ const WriteReviewScreen = ({ navigation }) => {
             </KeyboardAvoidingView>
           </View>
         </TouchableWithoutFeedback>
+        <ModalReviewCard
+          showModal={showModal}
+          setShowModal={setShowModal}
+          review={review}
+          content={content}
+          hideEdit
+          onDelete={() => {
+            firestore.deleteReview(review.id);
+            setShowModal(false);
+            return navigation.pop();
+          }}
+        ></ModalReviewCard>
       </View>
     </ImageBackground>
   );
@@ -210,9 +226,18 @@ const styles = StyleSheet.create({
   }
 });
 
-WriteReviewScreen.navigationOptions = () => {
+WriteReviewScreen.navigationOptions = ({ navigation }) => {
+  const setShowModal = navigation.getParam("setShowModal");
+  const author = navigation.getParam("author");
+
   return {
-    headerTitle: "My Review"
+    title: `My Review`,
+    headerRight: () =>
+      setShowModal && author === auth().currentUser.email ? (
+        <TouchableOpacity onPress={() => setShowModal(true)}>
+          <TopButton text={"Edit"} />
+        </TouchableOpacity>
+      ) : null
   };
 };
 

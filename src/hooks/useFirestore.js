@@ -59,6 +59,10 @@ class useFirestore {
     return this.auth.currentUser;
   }
 
+  async fetchCurrentUserData() {
+    return await this.getUser(this.fetchCurrentUID());
+  }
+
   async signup(email, password, verifypassword) {
     if (password !== verifypassword) return "Passwords do not match";
     return await this.auth
@@ -113,6 +117,22 @@ class useFirestore {
   }
 
   // -----------------------------------------------------------------------------------------------------------
+  // Helpful listeners
+  listenToContentandReview(cid, setContent, setReview) {
+    const rid = cid + this.fetchCurrentUID();
+    const content_remover = this.content_db
+      .doc(cid)
+      .onSnapshot(res =>
+        setContent(res.exists ? res.data() : this.getDummyContentObject())
+      );
+    const review_remover = this.reviews_db
+      .doc(rid)
+      .onSnapshot(res =>
+        setReview(res.exists ? { data: res.data(), id: res.id } : null)
+      );
+    return [content_remover, review_remover];
+  }
+  // -----------------------------------------------------------------------------------------------------------
   // Content relations
 
   async getContentData(cid) {
@@ -120,14 +140,16 @@ class useFirestore {
       .doc(cid)
       .get()
       .then(content =>
-        content.exists
-          ? content.data()
-          : {
-              avg: 0,
-              number_reviews: 0,
-              review_nums: new Array(11).fill(0)
-            }
+        content.exists ? content.data() : this.getDummyContentObject()
       );
+  }
+
+  getDummyContentObject() {
+    return {
+      avg: 0,
+      number_reviews: 0,
+      review_nums: new Array(11).fill(0)
+    };
   }
 
   // -----------------------------------------------------------------------------------------------------------
@@ -503,11 +525,15 @@ class useFirestore {
       ]);
   }
 
+  _processDocs = res =>
+    res.docs.map(r => {
+      return { id: r.id, data: r.data() };
+    });
   /**
    * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
    * @argument {Array} types - an array of at least one "artist", "album", "track"
    */
-  async getReviewsByAuthorType(uid, types, limit = 100, start_after = null) {
+  async getReviewsByAuthorType(uid, types, limit = 20, start_after = null) {
     let base = this.reviews_db
       .where("author", "==", uid)
       .orderBy("last_modified", "desc")
@@ -516,15 +542,26 @@ class useFirestore {
     if (start_after) {
       base = base.startAfter(start_after);
     }
-    return base
+
+    return await base
       .limit(limit)
       .get()
-      .then(res => [
-        res.docs.map(r => {
-          return { id: r.id, data: r.data() };
-        }),
-        res.docs.pop()
-      ]);
+      .then(res => [this._processDocs(res), res.docs.pop()]);
+  }
+
+  /**
+   * @argument {Boolean} review_type - if True, get reviews, false get ratings, undefined get both
+   * @argument {Array} types - an array of at least one "artist", "album", "track"
+   */
+  listenToReviewsByAuthorType(uid, types, limit = 20, setReviews) {
+    let base = this.reviews_db
+      .where("author", "==", uid)
+      .orderBy("last_modified", "desc")
+      .where("review_type", "in", types);
+
+    return base
+      .limit(limit)
+      .onSnapshot(snap => setReviews(this._processDocs(snap)));
   }
 
   /**
@@ -741,19 +778,25 @@ class useFirestore {
    * @argument {String} rid - the review id to get the comments for
    * @return {Array<Object>} - Array of comment objects
    */
-  async getComments(rid) {
-    return await this.interactions_db
+  getComments(rid, setComments) {
+    const base = this.interactions_db
       .where("type", "==", "comment")
       .where("review", "==", rid)
-      .orderBy("last_modified", "desc")
-      .get()
-      .then(res => {
-        let ret = [];
-        res.forEach(comment =>
-          ret.push({ id: comment.id, data: comment.data() })
-        );
-        return ret;
-      });
+      .orderBy("last_modified", "desc");
+
+    const processRes = res => {
+      let ret = [];
+      res.forEach(comment =>
+        ret.push({ id: comment.id, data: comment.data() })
+      );
+      return ret;
+    };
+
+    if (!setComments) {
+      return base.get().then(res => processRes(res));
+    }
+
+    return base.onSnapshot(res => setComments(processRes(res)));
   }
   /**
    * @argument {Number} limit - the number of items to return per batch

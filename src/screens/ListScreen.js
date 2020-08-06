@@ -22,9 +22,9 @@ const ListScreen = ({ navigation }) => {
     });
 
   useEffect(() => {
-    setData(null);
     fetch(10, null);
   }, []);
+
   if (!data) return <LoadingPage />;
   return (
     <View style={styles.containerStyle}>

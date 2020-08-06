@@ -2,6 +2,7 @@ import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 import ArtistNames from "../ArtistNames";
+import { getStringDate } from "../../helpers/simplifyContent";
 
 const ContentTitle = ({ header, subheader, date, review, fontScaling }) => {
   const [titleFont, subtitleFont, dateFont] = [20, 18, 14].map(
@@ -31,8 +32,7 @@ const ContentTitle = ({ header, subheader, date, review, fontScaling }) => {
           numberOfLines={1}
           style={[styles.dateStyle, { fontSize: dateFont }]}
         >
-          {review ? "Reviewed" : "Rated"}: {date.getMonth() + 1}/
-          {date.getDate()}/{date.getFullYear()}
+          {review ? "Reviewed" : "Rated"} {getStringDate(date)}
         </Text>
       )}
     </View>

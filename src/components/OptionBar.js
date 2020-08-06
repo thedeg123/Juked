@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import colors from "../constants/colors";
 import { customBarAnimation } from "../constants/heights";
+import { selectionAsync } from "expo-haptics";
 
 const OptionBar = ({ options, searchType, containerStyle, onPress }) => {
   if (Platform.OS === "android") {
@@ -29,6 +30,7 @@ const OptionBar = ({ options, searchType, containerStyle, onPress }) => {
             : styles.deactivatedButtonStyle
         }
         onPress={() => {
+          selectionAsync();
           LayoutAnimation.configureNext(customBarAnimation);
           onPress(type);
         }}

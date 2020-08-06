@@ -6,7 +6,6 @@ import {
   ImageBackground,
   ScrollView
 } from "react-native";
-import Container from "../components/Container";
 import colors from "../constants/colors";
 import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
@@ -20,7 +19,7 @@ import ReviewButton from "../components/ReviewButton";
 
 const ArtistScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
-  if (!content_id) console.error("ArtistScreen must be called with content_id");
+  if (!content_id) console.warn("ArtistScreen must be called with content_id");
 
   const [albums, setAlbums] = useState({
     album: [],
@@ -35,30 +34,18 @@ const ArtistScreen = ({ navigation }) => {
   const [author, setAuthor] = useState("waiting");
   const [authors, setAuthors] = useState("waiting");
   const { firestore, useMusic } = useContext(context);
-  const email = firestore.fetchCurrentUID();
   const [contentData, setContentData] = useState(null);
-  let temp_rev = null;
   const [onUserListenList, setOnUserListenList] = useState(
     firestore.contentInlistenList(content_id)
   );
   const [showModal, setShowModal] = useState(false);
-
-  const getReview = async () => {
-    temp_rev = await firestore
-      .getReviewsByAuthorContent(email, content_id)
-      .then(review => (review.exists ? review : null));
-    if (temp_rev)
-      firestore.getUser(temp_rev.data.author).then(res => setAuthor(res));
-    return setReview(temp_rev);
-  };
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const getReviews = async () => {
     const reviews = await firestore
       .getMostPopularReviewsByType(content_id)
       .then(res => res[0]);
-    const author_ids = temp_rev
-      ? [...reviews.map(r => r.data.author), temp_rev.data.author]
-      : reviews.map(r => r.data.author);
+    const author_ids = reviews.map(r => r.data.author);
     const authors = await firestore.batchAuthorRequest(author_ids);
     setAuthors(authors);
     return setReviews(reviews);
@@ -72,23 +59,29 @@ const ArtistScreen = ({ navigation }) => {
     };
     navigation.setParams({ setShowModal });
     // init and get all data needed via ap
+    firestore.fetchCurrentUserData().then(res => setAuthor(res));
+
     useMusic.findArtist(content_id).then(artist => setArtist(artist));
-    firestore.getContentData(content_id).then(res => setContentData(res));
-    useMusic
-      .findAlbumsOfAnArtist(content_id)
-      .then(res => res.forEach(a => newAlbums[a.album_type].push(a)));
-    setAlbums(newAlbums);
-    getReview();
+    useMusic.findAlbumsOfAnArtist(content_id).then(res => {
+      res.forEach(a => newAlbums[a.album_type].push(a));
+      setAlbums(newAlbums);
+    });
     return getReviews();
   };
 
   useEffect(() => {
     init();
-    const listener = navigation.addListener("didFocus", async () =>
-      getReview()
+    const [
+      content_remover,
+      review_remover
+    ] = firestore.listenToContentandReview(
+      content_id,
+      setContentData,
+      setReview
     );
     return () => {
-      listener.remove();
+      content_remover ? content_remover() : null;
+      review_remover ? review_remover() : null;
     };
   }, []);
 
@@ -104,6 +97,7 @@ const ArtistScreen = ({ navigation }) => {
       style={{ flex: 1 }}
       contentContainerStyle={{ paddingBottom: 85 }}
       scrollIndicatorInsets={{ right: 1 }}
+      scrollEnabled={scrollEnabled}
     >
       <ImageBackground
         source={{ uri: artist.image }}
@@ -127,7 +121,10 @@ const ArtistScreen = ({ navigation }) => {
       />
       <Text style={styles.sectionStyle}>Reviews</Text>
       <View style={{ marginHorizontal: 10 }}>
-        <BarGraph data={contentData.rating_nums}></BarGraph>
+        <BarGraph
+          data={contentData.rating_nums}
+          setScrollEnabled={setScrollEnabled}
+        />
       </View>
       <View style={{ marginHorizontal: 5, marginBottom: 10 }}></View>
       <TextRatings

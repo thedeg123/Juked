@@ -4,6 +4,7 @@ import UserPreview from "./UserPreview";
 import HomeScreenBorder from "./HomeScreenBorder";
 import colors from "../../constants/colors";
 import ListPreviewItem from "../ProfileScreen/ListPreviewItem";
+import { getStringDate } from "../../helpers/simplifyContent";
 
 const HomeScreenListItem = ({ list, author }) => {
   const previewItems = list.data.items.slice(0, 5);
@@ -16,8 +17,7 @@ const HomeScreenListItem = ({ list, author }) => {
             {list.data.title}
           </Text>
           <Text numberOfLines={1} style={styles.dateStyle}>
-            {"Created"}: {date.getMonth() + 1}/{date.getDate()}/
-            {date.getFullYear()}
+            {"Created"}: {getStringDate(date)}
           </Text>
         </View>
         <UserPreview

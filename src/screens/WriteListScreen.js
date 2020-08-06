@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   Keyboard,
   Platform,
-  Button,
   Dimensions,
   TouchableWithoutFeedback
 } from "react-native";
@@ -56,6 +55,7 @@ const WriteListScreen = ({ navigation }) => {
     }
   }, []);
 
+  const submitDisabled = !showSearch && (!title.length || !items.length);
   const bottomRowButtons = () => (
     <View
       style={{
@@ -65,14 +65,13 @@ const WriteListScreen = ({ navigation }) => {
     >
       <View style={{ flex: 1 }}>
         <TouchableOpacity
-          disabled={!showSearch && !title.length}
+          disabled={submitDisabled}
           style={[
             styles.submitButtonStyle,
             {
-              backgroundColor:
-                !showSearch && !title.length
-                  ? colors.lightShadow
-                  : colors.primary,
+              backgroundColor: submitDisabled
+                ? colors.lightShadow
+                : colors.primary,
               left: showSearch ? 30 : 50
             }
           ]}

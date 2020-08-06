@@ -121,7 +121,6 @@ const HomeScreen = ({ navigation }) => {
               onRefresh={async () => {
                 setRefreshing(true);
                 setEndReached(false);
-                await fetchFollowing();
                 return await fetchHomeScreenData(10, null);
               }}
             />

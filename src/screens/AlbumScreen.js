@@ -1,9 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
-import { auth } from "firebase";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
-import Container from "../components/Container";
 import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
@@ -20,41 +18,31 @@ import ReviewButton from "../components/ReviewButton";
 const AlbumScreen = ({ navigation }) => {
   const content_id = navigation.getParam("content_id");
   const highlighted = navigation.getParam("highlighted");
-  const email = auth().currentUser.email;
   const { firestore, useMusic } = useContext(context);
   // data from spotify
   const [album, setAlbum] = useState(null);
+  const [track, setTrack] = useState(null);
 
   // data from review database
   const [review, setReview] = useState("waiting");
   const [author, setAuthor] = useState("waiting");
-  const [albumData, setAlbumData] = useState(null);
+  const [contentData, setContentData] = useState(null);
+
   const [reviews, setReviews] = useState("waiting");
   const [authors, setAuthors] = useState("waiting");
 
   const [showHighlightedTrackCard, setShowHighlightedTrackCard] = useState(
     navigation.getParam("highlighted")
   );
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const [showContentCard, setShowContentCard] = useState(false);
   const [showTrackCard, setShowTrackCard] = useState(false);
   const [trackData, setTrackData] = useState(null);
-  const [contentTrackData, setContentTrackData] = useState(null);
   const [onUserListenList, setOnUserListenList] = useState(
     firestore.contentInlistenList(content_id)
   );
 
-  let temp_rev = null;
-
   // initialization
-
-  const getReview = async () => {
-    temp_rev = await firestore
-      .getReviewsByAuthorContent(email, content_id)
-      .then(review => (review.exists ? review : null));
-    if (temp_rev)
-      firestore.getUser(temp_rev.data.author).then(res => setAuthor(res));
-    return setReview(temp_rev);
-  };
 
   const getReviews = async () => {
     const reviews = await firestore
@@ -68,19 +56,25 @@ const AlbumScreen = ({ navigation }) => {
 
   const init = async () => {
     navigation.setParams({ setShowModal: setShowContentCard });
-    //getting album rating
-    firestore.getContentData(content_id).then(res => setAlbumData(res));
+    await firestore.fetchCurrentUserData().then(res => setAuthor(res));
     useMusic.findAlbum(content_id).then(async album => setAlbum(album));
-    getReview();
     return getReviews();
   };
 
   useEffect(() => {
     init();
-    const listener = navigation.addListener("didFocus", () => getReview()); //any time we return to this screen we do another fetch
+    const [
+      content_remover,
+      review_remover
+    ] = firestore.listenToContentandReview(
+      content_id,
+      setContentData,
+      setReview
+    );
     return () => {
       setShowHighlightedTrackCard(false);
-      listener.remove();
+      content_remover ? content_remover() : null;
+      review_remover ? review_remover() : null;
     };
   }, []);
 
@@ -89,8 +83,7 @@ const AlbumScreen = ({ navigation }) => {
   }, [album]);
 
   // wait until get data from all APIs
-  if (!album || review === "waiting" || !albumData)
-    return <LoadingPage></LoadingPage>;
+  if (!album || review === "waiting" || !contentData) return <LoadingPage />;
   const headerComponent = (
     <View style={{ flex: 1 }}>
       <View style={styles.headerContainer}>
@@ -137,10 +130,13 @@ const AlbumScreen = ({ navigation }) => {
           content={album}
         />
         <View style={{ marginHorizontal: 10 }}>
-          <BarGraph data={albumData.rating_nums}></BarGraph>
+          <BarGraph
+            data={contentData.rating_nums}
+            setScrollEnabled={setScrollEnabled}
+          />
           <TextRatings
             review={review}
-            averageReview={albumData.avg}
+            averageReview={contentData.avg}
           ></TextRatings>
         </View>
       </View>
@@ -159,6 +155,7 @@ const AlbumScreen = ({ navigation }) => {
         contentContainerStyle={{
           paddingBottom: 85
         }}
+        scrollEnabled={scrollEnabled}
         scrollIndicatorInsets={{ right: 1 }}
         data={album.tracks}
         keyExtracter={({ item }) => String(item.track_number)}
@@ -173,7 +170,7 @@ const AlbumScreen = ({ navigation }) => {
                   return setShowTrackCard(true);
                 }}
                 showContentCard={() => {
-                  setContentTrackData(item);
+                  setTrack(item);
                   return setShowContentCard(true);
                 }}
                 highlighted={highlighted == item.id}
@@ -190,15 +187,16 @@ const AlbumScreen = ({ navigation }) => {
       <ModalContentCard
         showModal={showContentCard}
         setShowModal={val => {
-          setContentTrackData(null);
+          setTrack(null);
           return setShowContentCard(val);
         }}
-        content={contentTrackData || album}
+        content={track || album}
       ></ModalContentCard>
       <ModalTrackCard
         showModal={showTrackCard}
         setShowModal={setShowTrackCard}
         content={trackData}
+        author={author}
         setShowHighlightedTrackCard={setShowHighlightedTrackCard}
       ></ModalTrackCard>
     </View>

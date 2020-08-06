@@ -31,6 +31,17 @@ const stringifyTime = time_ms => {
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 };
 
+export const getStringDate = (date, fullDate = false) => {
+  const diffTime = Math.abs(new Date().getTime() - date);
+  if (diffTime < 1000 * 60 * 60 * 24) return "Today";
+  if (diffTime < 2 * 1000 * 60 * 60 * 24) return "Yesterday";
+  return fullDate
+    ? `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+    : `${date.toLocaleString("default", {
+        month: "long"
+      })} ${date.getDate()}, ${date.getFullYear()}`;
+};
+
 export default simplifyContent = (content, type) => {
   const toStringDate = num_date => {
     const date = new Date(num_date);
