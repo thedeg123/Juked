@@ -8,10 +8,14 @@ const ModalSortContent = ({
   newestFirst,
   setNewestFirst,
   filterTypes,
-  setFilterTypes
+  setFilterTypes,
+  onClose
 }) => {
   return (
     <View style={styles.content}>
+      <View style={{ alignItems: "flex-start" }}>
+        <Button onPress={onClose} title="Done" />
+      </View>
       <View
         style={{
           flexDirection: "row",

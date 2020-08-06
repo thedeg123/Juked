@@ -107,6 +107,7 @@ const UserListScreen = ({ navigation }) => {
               containerStyle={{ alignSelf: "flex-start" }}
               img={user.profile_url}
               username={user.handle}
+              uid={user.email}
             ></UserPreview>
           </View>
           {list.data.description ? (

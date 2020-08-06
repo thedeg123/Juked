@@ -9,13 +9,14 @@ import ContentTypeRow from "./ContentTypeRow";
 
 const ModalHomeContent = ({
   onClose,
-  following,
   userShow,
   setUserShow,
   filterTypes,
   setFilterTypes,
-  setChanged
+  setChanged,
+  fetchFollowing
 }) => {
+  const [following, setFollowing] = useState([]);
   const updateState = () => {
     setShowReviews(
       filterTypes.has("track_review") ||
@@ -45,7 +46,10 @@ const ModalHomeContent = ({
   const [showArtists, setShowArtists] = useState();
   const [showList, setShowList] = useState();
 
-  useEffect(() => updateState(), []);
+  useEffect(() => {
+    fetchFollowing().then(res => setFollowing(res));
+    updateState();
+  }, []);
 
   const types = ["track", "album", "artist"];
   const review_types = ["rating", "review"];
@@ -77,12 +81,11 @@ const ModalHomeContent = ({
       <View style={{ alignItems: "flex-start" }}>
         <Button onPress={onClose} title="Done" />
       </View>
-      <Text style={styles.sectionTitle}>Filter</Text>
       <View
         style={{
           flexDirection: "row",
           justifyContent: "space-evenly",
-          marginBottom: 10
+          marginVertical: 10
         }}
       >
         <ModalFilterButton

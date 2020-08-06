@@ -9,7 +9,7 @@ const ModalHomeCard = ({
   refreshData,
   filterTypes,
   setFilterTypes,
-  following,
+  fetchFollowing,
   userShow,
   setUserShow,
   setChanged
@@ -28,7 +28,7 @@ const ModalHomeCard = ({
           refreshData();
           setShowModal(false);
         }}
-        following={following}
+        fetchFollowing={fetchFollowing}
         userShow={userShow}
         setUserShow={setUserShow}
         filterTypes={filterTypes}

@@ -11,7 +11,16 @@ class useFirestore {
     this.auth = firebase.auth();
     this.listen_list_db = this.db.collection("listenlist");
     this.cachedListenList = null;
-    this.cachedLiteUsers = [];
+    this.cachedLiteUsers = {};
+    this.userFollowingIds = null;
+    this.userFollowerIds = null;
+    this.removers = [];
+  }
+
+  async disconnect() {
+    return this.removers.forEach(async remove =>
+      remove ? await remove() : null
+    );
   }
 
   /**
@@ -19,6 +28,7 @@ class useFirestore {
    * @argument {String} content_id  - the unique id of the content we  want to get the reviwes of (supplied by spotifty api)
    */
   async batchRequest(db, key, ids) {
+    if (!ids || !ids.length) return [];
     const uids = [...new Set(ids)];
     let ret = [];
     for (let i = 0; i < uids.length; i += 10) {
@@ -251,7 +261,27 @@ class useFirestore {
   // ListenList relations
 
   async establishCachedContent() {
-    await this._establisCachedListenList();
+    this._establishUserFollowIds("author");
+    this._establishUserFollowIds("review_author");
+    return await this._establisCachedListenList();
+  }
+
+  _establishUserFollowIds(type) {
+    const remover = this.interactions_db
+      .where("type", "==", "follow")
+      .where(type, "==", this.fetchCurrentUID())
+      .onSnapshot(snap => {
+        const ret = [];
+        snap.forEach(d =>
+          ret.push(d.data()[type === "author" ? "review_author" : "author"])
+        );
+        if (type === "author") {
+          this.userFollowingIds = ret;
+        } else {
+          this.userFollowerIds = ret;
+        }
+      });
+    return this.removers.push(remover);
   }
 
   async _establisCachedListenList() {
@@ -746,6 +776,10 @@ class useFirestore {
    * @return {Set} - the set of followers UIDs.
    */
   async getFollowers(uid) {
+    if (uid === this.fetchCurrentUID() && this.userFollowerIds) {
+      console.log("using cache2");
+      return this.userFollowerIds;
+    }
     return await this.interactions_db
       .where("type", "==", "follow")
       .where("review_author", "==", uid)
@@ -761,6 +795,10 @@ class useFirestore {
    * @return {Set} - the set of following UIDs.
    */
   async getFollowing(uid) {
+    if (uid === this.fetchCurrentUID() && this.userFollowingIds) {
+      console.log("using cache");
+      return this.userFollowingIds;
+    }
     return await this.interactions_db
       .where("type", "==", "follow")
       .where("author", "==", uid)

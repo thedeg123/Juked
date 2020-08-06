@@ -14,7 +14,6 @@ const HomeScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
   const [reviews, setReviews] = useState("waiting");
   const [authors, setAuthors] = useState("waiting");
-  const [following, setFollowing] = useState("waiting");
   const [userShow, setUserShow] = useState(null);
   const [filterTypes, setFilterTypes] = useState(
     new Set([
@@ -43,10 +42,8 @@ const HomeScreen = ({ navigation }) => {
   // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
   // groupby type theta join type==content_id on (select * from Music)) natural join Users;
   // except harder bc Music is from a different dbs ;)
-  const fetchFollowing = () =>
-    firestore
-      .getUserFollowingObjects(firestore.fetchCurrentUID())
-      .then(res => setFollowing(res));
+  const fetchFollowing = async () =>
+    await firestore.getUserFollowingObjects(firestore.fetchCurrentUID());
 
   const fetchHomeScreenData = async (limit = 20, start_after = null) => {
     const [local_reviews, start_next] = userShow
@@ -81,12 +78,10 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     navigation.setParams({ setShowModal });
-    fetchFollowing();
     fetchHomeScreenData(10, null);
   }, []);
 
-  if (reviews === "waiting" || authors === "waiting" || following === "waiting")
-    return <LoadingPage />;
+  if (reviews === "waiting" || authors === "waiting") return <LoadingPage />;
   return (
     <View style={{ flex: 1 }}>
       {reviews && reviews.length ? (
@@ -171,11 +166,17 @@ const HomeScreen = ({ navigation }) => {
         }}
         filterTypes={filterTypes}
         setFilterTypes={setFilterTypes}
-        following={following}
+        fetchFollowing={fetchFollowing}
         userShow={userShow}
-        setUserShow={val => {
-          navigation.setParams({ userStream: val ? val.data.handle : null });
-          setUserShow(val ? val.id : null);
+        setUserShow={user => {
+          navigation.setParams({
+            userStream: !user
+              ? null
+              : user.data
+              ? user.data.handle
+              : user.handle
+          });
+          setUserShow(!user ? null : user.id || user.email);
         }}
         setChanged={setChanged}
       ></ModalHomeCard>

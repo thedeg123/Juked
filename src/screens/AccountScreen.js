@@ -18,7 +18,9 @@ import ModalAccountCard from "../components/ModalCards/ModalAccountCard";
 
 const AccountScreen = ({ navigation }) => {
   const user = navigation.getParam("user");
-  const { firestore, disconnect } = useContext(context);
+  const { firestore, disconnect_music, disconnect_firestore } = useContext(
+    context
+  );
   const [showProfile, setShowProfile] = useState(true);
   const [profile_url, setProfile_url] = useState(user.profile_url);
   const [handle, setHandle] = useState(user.handle);
@@ -178,7 +180,8 @@ const AccountScreen = ({ navigation }) => {
         showModal={showModal}
         onClose={() => setShowModal(false)}
         onDelete={async password => {
-          await disconnect();
+          await disconnect_firestore();
+          await disconnect_music();
           firestore.deleteAccount(password);
         }}
       ></ModalAccountCard>

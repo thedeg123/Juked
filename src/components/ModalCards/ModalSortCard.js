@@ -11,12 +11,11 @@ const ModalSortCard = ({
   filterTypes,
   setFilterTypes
 }) => {
+  const onClose = () => setShowModal(false);
   return (
-    <ModalWrapper
-      isVisible={showModal}
-      onSwipeComplete={() => setShowModal(false)}
-    >
+    <ModalWrapper isVisible={showModal} onSwipeComplete={onClose}>
       <ModalSortContent
+        onClose={onClose}
         newestFirst={newestFirst}
         setNewestFirst={setNewestFirst}
         filterTypes={filterTypes}

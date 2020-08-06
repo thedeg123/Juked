@@ -27,7 +27,9 @@ import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenLis
 import ListenListButton from "../components/ProfileScreen/ListenListButton";
 
 const UserProfileScreen = ({ navigation }) => {
-  const { firestore, disconnect } = useContext(context);
+  const { firestore, disconnect_music, disconnect_firestore } = useContext(
+    context
+  );
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [followsYou, setFollowsYou] = useState(null);
@@ -115,6 +117,13 @@ const UserProfileScreen = ({ navigation }) => {
       setLists
     );
     return [track_remover, album_remover, artist_remover, list_remover];
+  };
+
+  const onSignOut = async () => {
+    clearRemovers();
+    await disconnect_firestore();
+    await disconnect_music();
+    firestore.signout();
   };
 
   const clearRemovers = () => {
@@ -343,11 +352,7 @@ const UserProfileScreen = ({ navigation }) => {
       </ScrollView>
       <ModalProfileCard
         showModal={showProfileCard}
-        onSignOut={async () => {
-          clearRemovers();
-          await disconnect();
-          firestore.signout();
-        }}
+        onSignOut={onSignOut}
         onEdit={() => {
           setShowProfileCard(false);
           navigation.navigate("Account", { user });

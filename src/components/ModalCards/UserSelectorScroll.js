@@ -22,7 +22,7 @@ const UserSelectorScroll = ({ data, selected, onUserPress }) => {
           <UserSelectorScrollItem
             containerStyle={{
               borderColor:
-                selected === item.id || item.email
+                selected && (selected === item.id || selected === item.email)
                   ? colors.primary
                   : "transparent"
             }}

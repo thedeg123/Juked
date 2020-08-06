@@ -40,7 +40,7 @@ const LoadingScreen = ({ navigation }) => {
           return navigation.navigate("loginFlow");
         }
 
-        firestore.establishCachedContent();
+        await firestore.establishCachedContent();
         return response.handle.length
           ? navigation.navigate("homeFlow")
           : navigation.navigate("MakeProfile");
