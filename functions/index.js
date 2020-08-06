@@ -51,14 +51,12 @@ exports.deleteUser = functions.auth.user().onDelete(async user => {
     .then(res => res.forEach(doc => batch.delete(doc.ref)));
   //deleting all interactions
   await firestore
-    .collection("interactons")
-    .where("type", "==", "follow")
+    .collection("interactions")
     .where("author", "==", user.email)
     .get()
     .then(res => res.forEach(doc => batch.delete(doc.ref)));
   await firestore
-    .collection("interactons")
-    .where("type", "==", "follow")
+    .collection("interactions")
     .where("review_author", "==", user.email)
     .get()
     .then(res => res.forEach(doc => batch.delete(doc.ref)));
@@ -68,11 +66,14 @@ exports.deleteUser = functions.auth.user().onDelete(async user => {
     .doc(user.email + "_personal");
   batch.delete(llPersonalRef);
 
-  // delete the user
-  const userDoc = firestore.collection("users").doc(user.email);
-  batch.delete(userDoc);
+  // delete the user data
+  await batch.commit();
 
-  return await batch.commit();
+  // delete the user
+  return await firestore
+    .collection("users")
+    .doc(user.email)
+    .delete();
 });
 
 exports.Onfollow = functions.firestore
@@ -99,18 +100,31 @@ exports.Onunfollow = functions.firestore
   .onDelete(async (snap, context) => {
     const delFollow = snap.data();
     if (delFollow.type !== "follow") return;
-    var batch = firestore.batch();
-    const refFollowing = firestore
+    // we dont want the whole query to fail if the user has been deleted, therefore its not a batch
+    firestore
       .collection("users")
-      .doc(delFollow.review_author);
-    const refFollower = firestore.collection("users").doc(delFollow.author);
-    batch.update(refFollowing, {
-      num_follower: admin.firestore.FieldValue.increment(-1)
-    });
-    batch.update(refFollower, {
-      num_following: admin.firestore.FieldValue.increment(-1)
-    });
-    return batch.commit();
+      .doc(delFollow.author)
+      .update({
+        num_following: admin.firestore.FieldValue.increment(-1)
+      });
+
+    firestore
+      .collection("users")
+      .doc(delFollow.review_author)
+      .update({
+        num_follower: admin.firestore.FieldValue.increment(-1)
+      });
+
+    return firestore
+      .collection("interactions")
+      .where("author", "==", delFollow.review_author)
+      .where("type", "==", "listenlist")
+      .get()
+      .then(res => {
+        const batch = firestore.batch();
+        res.forEach(doc => batch.delete(doc.ref));
+        return batch.commit();
+      });
   });
 
 exports.OnReccomend = functions.firestore

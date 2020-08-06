@@ -27,9 +27,7 @@ import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenLis
 import ListenListButton from "../components/ProfileScreen/ListenListButton";
 
 const UserProfileScreen = ({ navigation }) => {
-  const { firestore, disconnect_music, disconnect_firestore } = useContext(
-    context
-  );
+  const { firestore, disconnect } = useContext(context);
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [followsYou, setFollowsYou] = useState(null);
@@ -43,6 +41,8 @@ const UserProfileScreen = ({ navigation }) => {
   const [trackReviews, setTrackReviews] = useState([]);
   const [albumReviews, setAlbumReviews] = useState([]);
   const [artistReviews, setArtistReviews] = useState([]);
+
+  const [refreshing, setRefreshing] = useState(false);
 
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
@@ -85,10 +85,14 @@ const UserProfileScreen = ({ navigation }) => {
     }
   };
 
-  const init = () => {
-    firestore
+  const fetchPersonalList = async () => {
+    return await firestore
       .getPersonalListenlist(uid)
       .then(res => setPersonalListenList(res));
+  };
+
+  const init = () => {
+    fetchPersonalList();
 
     updateFollow();
 
@@ -121,8 +125,7 @@ const UserProfileScreen = ({ navigation }) => {
 
   const onSignOut = async () => {
     clearRemovers();
-    await disconnect_firestore();
-    await disconnect_music();
+    await disconnect();
     firestore.signout();
   };
 
@@ -200,6 +203,16 @@ const UserProfileScreen = ({ navigation }) => {
         style={styles.containerStyle}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 85 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={async () => {
+              setRefreshing(true);
+              await fetchPersonalList();
+              return setRefreshing(false);
+            }}
+          />
+        }
       >
         <View style={styles.headerContainer}>
           <UserPreview

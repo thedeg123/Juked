@@ -13,8 +13,10 @@ export const Provider = ({ children }) => {
     <context.Provider
       value={{
         ...dbs,
-        disconnect_firestore: () => dbs.firestore.disconnect(),
-        disconnect_music: () => dbs.useMusic.disconnect()
+        disconnect: async () => {
+          await dbs.firestore.disconnect();
+          return await dbs.useMusic.disconnect();
+        }
       }}
     >
       {children}
