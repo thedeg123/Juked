@@ -72,12 +72,11 @@ const SearchScreen = ({ navigation }) => {
           setSearchType={setSearchType}
         ></SearchItem>
       </View>
-      {search && search.length === 0 && term.length !== 0 ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text style={{ fontSize: 16, color: colors.secondary }}>
-            No {searchType === "track" ? "song" : searchType}s found matching "
+      {((search && search.length === 0) || (users && users.length === 0)) &&
+      term.length !== 0 ? (
+        <View style={styles.erorrViewStyle}>
+          <Text style={styles.errorTextStyle}>
+            No {searchType === "track" ? "song" : searchType}s found matching "{" "}
             {term}"
           </Text>
         </View>
@@ -98,7 +97,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center"
-  }
+  },
+  erorrViewStyle: { flex: 1, justifyContent: "center", alignItems: "center" },
+  errorTextStyle: { fontSize: 16, color: colors.secondary }
 });
 
 SearchScreen.navigationOptions = ({ navigation }) => {

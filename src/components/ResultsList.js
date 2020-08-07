@@ -25,7 +25,7 @@ const ResultsList = ({
         containerStyle
       ]}
     >
-      {searchType === "user" ? (
+      {users && searchType === "user" ? (
         <FlatList
           contentContainerStyle={{ paddingBottom: 85 }}
           data={users}
