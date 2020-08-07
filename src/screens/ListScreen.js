@@ -30,6 +30,7 @@ const ListScreen = ({ navigation }) => {
     <View style={styles.containerStyle}>
       <FlatList
         data={data}
+        contentContainerStyle={{ paddingBottom: 85 }}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         onEndReached={async () => {
@@ -48,7 +49,6 @@ const ListScreen = ({ navigation }) => {
           ) : null
         }
       ></FlatList>
-      <ScrollViewPadding />
     </View>
   );
 };
