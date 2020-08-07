@@ -777,7 +777,6 @@ class useFirestore {
    */
   async getFollowers(uid) {
     if (uid === this.fetchCurrentUID() && this.userFollowerIds) {
-      console.log("using cache2");
       return this.userFollowerIds;
     }
     return await this.interactions_db
@@ -796,7 +795,6 @@ class useFirestore {
    */
   async getFollowing(uid) {
     if (uid === this.fetchCurrentUID() && this.userFollowingIds) {
-      console.log("using cache");
       return this.userFollowingIds;
     }
     return await this.interactions_db
