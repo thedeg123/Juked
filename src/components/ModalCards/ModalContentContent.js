@@ -100,7 +100,9 @@ const ModalContentContent = ({ onClose, link, content }) => {
         {showContentType === "listenlist" ? (
           <View>
             <Text style={styles.sectionTitle}>
-              Add to Follower's Listenlist
+              {followers && followers.length
+                ? "Add to a Follower's Listenlist"
+                : "You have no followers to recommend this to 😞"}
             </Text>
             <FlatList
               data={followers}

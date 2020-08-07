@@ -1,5 +1,12 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { StyleSheet, FlatList, Text, View, RefreshControl } from "react-native";
+import {
+  StyleSheet,
+  FlatList,
+  Text,
+  View,
+  RefreshControl,
+  Alert
+} from "react-native";
 import context from "../context/context";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import LoadingPage from "../components/Loading/LoadingPage";
@@ -29,23 +36,28 @@ const HomeScreen = ({ navigation }) => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [loadingNext, setLoadingNext] = useState(false);
-  const [endReached, setEndReached] = useState(false);
+  const [allowLoad, setAllowLoad] = useState(true);
+
   const [startAfter, setStartAfter] = useState(null);
 
   const { firestore } = useContext(context);
   const [changed, setChanged] = useState(false);
   const flatListRef = useRef();
 
-  let onEndReachedCalledDuringMomentum = false;
-
-  // if yk sql, this is what were doing here:
-  // select * from (select * from (select content_id from Reviews sortby last_modified limit 1)
-  // groupby type theta join type==content_id on (select * from Music)) natural join Users;
-  // except harder bc Music is from a different dbs ;)
   const fetchFollowing = async () =>
     await firestore.getUserFollowingObjects(firestore.fetchCurrentUID());
 
-  const fetchHomeScreenData = async (limit = 20, start_after = null) => {
+  const fetchHomeScreenData = async (limit = 20, reset_refresh = false) => {
+    if (refreshing || loadingNext || (!allowLoad && !reset_refresh)) return;
+
+    const start_after = reset_refresh ? null : startAfter;
+    if (reset_refresh) {
+      setAllowLoad(true);
+      setRefreshing(true);
+    } else {
+      setLoadingNext(true);
+    }
+
     const [local_reviews, start_next] = userShow
       ? await firestore.getReviewsByAuthorType(
           userShow,
@@ -59,26 +71,31 @@ const HomeScreen = ({ navigation }) => {
           start_after
         );
 
-    if (local_reviews.length < limit) setEndReached(true);
-
-    let temp_authors = await firestore.batchAuthorRequest(
+    let local_authors = await firestore.batchAuthorRequest(
       local_reviews.map(review => review.data.author)
     );
-    if (!start_after) {
+
+    if (local_reviews.length < limit) setAllowLoad(false);
+
+    if (reset_refresh) {
       setReviews(local_reviews);
-      setAuthors(temp_authors);
+      setAuthors(local_authors);
     } else {
       setReviews([...reviews, ...local_reviews]);
-      setAuthors({ ...temp_authors, ...authors });
+      setAuthors({ ...authors, ...local_authors });
     }
     setStartAfter(start_next);
-    setLoadingNext(false);
-    return setRefreshing(false);
+
+    return reset_refresh ? setRefreshing(false) : setLoadingNext(false);
   };
 
   useEffect(() => {
     navigation.setParams({ setShowModal });
-    fetchHomeScreenData(10, null);
+    fetchHomeScreenData(10, true);
+    Alert.alert(
+      "Welcome to the Juked Beta!",
+      `Remember this is for testing purposes only. All beta accounts will likely be deleted prior to launch. Have fun!`
+    );
   }, []);
 
   if (reviews === "waiting" || authors === "waiting") return <LoadingPage />;
@@ -114,28 +131,16 @@ const HomeScreen = ({ navigation }) => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={async () => {
-                setRefreshing(true);
-                setEndReached(false);
-                return await fetchHomeScreenData(10, null);
+                return await fetchHomeScreenData(10, true);
               }}
             />
           }
-          onMomentumScrollBegin={() =>
-            (onEndReachedCalledDuringMomentum = true)
-          }
-          onEndReached={async () => {
-            if (
-              endReached ||
-              loadingNext ||
-              !onEndReachedCalledDuringMomentum
-            ) {
-              return;
+          onEndReached={async ({ distanceFromEnd }) => {
+            if (distanceFromEnd >= 0) {
+              await fetchHomeScreenData(10);
             }
-            onEndReachedCalledDuringMomentum = false;
-            await setLoadingNext(true);
-            await fetchHomeScreenData(10, startAfter, reviews);
           }}
-          onEndReachedThreshold={0}
+          onEndReachedThreshold={0.7}
           ListFooterComponent={() =>
             loadingNext && (
               <View style={{ padding: 20 }}>
@@ -156,12 +161,9 @@ const HomeScreen = ({ navigation }) => {
         setShowModal={setShowModal}
         refreshData={() => {
           if (changed) {
-            setEndReached(false);
-            setChanged(false);
-            setStartAfter(null);
             if (flatListRef.current)
               flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-            fetchHomeScreenData(10, null);
+            fetchHomeScreenData(10, true);
           }
         }}
         filterTypes={filterTypes}
