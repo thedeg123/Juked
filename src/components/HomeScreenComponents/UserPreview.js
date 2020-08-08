@@ -32,6 +32,7 @@ const UserPreview = ({
     >
       <Image
         style={{
+          backgroundColor: colors.white,
           width: size,
           aspectRatio: 1,
           borderColor: colors.lightShadow,

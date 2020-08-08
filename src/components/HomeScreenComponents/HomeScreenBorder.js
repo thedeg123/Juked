@@ -77,9 +77,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     alignSelf: "stretch",
     marginTop: 12,
-    marginHorizontal: 10,
-    borderWidth: 0.5,
-    borderColor: colors.shadow
+    marginHorizontal: 10
   },
   showBox: {
     shadowColor: colors.darkShadow,
