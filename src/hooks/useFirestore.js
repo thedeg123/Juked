@@ -477,6 +477,7 @@ class useFirestore {
     return this.reviews_db.doc(cid + this.auth.currentUser.email).set({
       author: this.auth.currentUser.email,
       content_id: cid,
+      content_year: content.year ? content.year : null,
       content,
       last_modified: new Date().getTime(),
       rating,

@@ -49,6 +49,9 @@ export default simplifyContent = (content, type) => {
       month: "long"
     })} ${date.getDate()}, ${date.getFullYear()}`;
   };
+
+  const dateToYear = date => new Date(date).getFullYear();
+
   switch (type) {
     case "track": {
       return {
@@ -67,7 +70,10 @@ export default simplifyContent = (content, type) => {
         string_release_date: toStringDate(content.album.release_date),
         id: content.id,
         type: "track",
-        genres: content.genres ? content.genres : null
+        genres: content.genres ? content.genres : null,
+        preview_url: content.preview_url,
+        year: dateToYear(content.album.release_date),
+        popularity: content.popularity
       };
     }
     case "track_album": {
@@ -83,7 +89,8 @@ export default simplifyContent = (content, type) => {
         url: content.url,
         type: "track",
         duration: stringifyTime(content.duration_ms),
-        genres: content.genres
+        genres: content.genres,
+        preview_url: content.preview_url
       };
     }
     case "album": {
@@ -97,10 +104,16 @@ export default simplifyContent = (content, type) => {
         name: content.name,
         genres: content.genres ? content.genres : null,
         release_date: content.release_date,
+        year: dateToYear(content.release_date),
         string_release_date: toStringDate(content.release_date),
         id: content.id,
         url: content.external_urls.spotify,
         album_type: content.album_type,
+        popularity: content.popularity,
+        preview_url:
+          content.tracks && content.tracks.items
+            ? content.tracks.items[0].preview_url
+            : null,
         tracks: content.tracks
           ? content.tracks.items.map(track =>
               simplifyContent(
@@ -123,6 +136,7 @@ export default simplifyContent = (content, type) => {
     case "artist": {
       return {
         name: content.name,
+        popularity: content.popularity,
         id: content.id,
         genres: content.genres ? content.genres : null,
         url: content.external_urls.spotify,
