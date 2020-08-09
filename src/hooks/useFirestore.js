@@ -478,6 +478,7 @@ class useFirestore {
       author: this.auth.currentUser.email,
       content_id: cid,
       content_year: content.year ? content.year : null,
+      content_popularity: content.popularity ? content.popularity : null,
       content,
       last_modified: new Date().getTime(),
       rating,

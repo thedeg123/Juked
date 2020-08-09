@@ -90,7 +90,9 @@ export default simplifyContent = (content, type) => {
         type: "track",
         duration: stringifyTime(content.duration_ms),
         genres: content.genres,
-        preview_url: content.preview_url
+        preview_url: content.preview_url,
+        popularity: content.popularity,
+        year: content.year
       };
     }
     case "album": {
@@ -124,6 +126,8 @@ export default simplifyContent = (content, type) => {
                     ? content.images[0]["url"]
                     : images.artistDefault,
                   url: content.external_urls.spotify,
+                  popularity: content.popularity,
+                  year: dateToYear(content.release_date),
                   genres: content.genres ? content.genres : null
                 },
                 "track_album"
