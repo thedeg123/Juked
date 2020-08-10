@@ -17,7 +17,7 @@ const ModalListCard = ({
       }}
     >
       <ModalListContent
-        link={content ? content.url : null}
+        content={content}
         onClose={() => {
           setShowModal(false);
         }}

@@ -2,13 +2,22 @@
 import React from "react";
 import { StyleSheet, Button, View } from "react-native";
 import colors from "../../constants/colors";
-import SpotifyButton from "./SpotifyButton";
+import { OpenButton, PlayButton } from "./SpotifyButtons";
 
-const TopBar = ({ onClose, link, showSpotify }) => {
+const TopBar = ({ onClose, content, showSpotify }) => {
   return (
     <View style={styles.buttonWrapper}>
-      <Button onPress={onClose} title="Done" />
-      {showSpotify && <SpotifyButton link={link}></SpotifyButton>}
+      <View>
+        {showSpotify && content && content.preview_url && (
+          <PlayButton content={content} />
+        )}
+        <Button onPress={onClose} title="Done" />
+      </View>
+      {showSpotify && content && content.url && (
+        <View>
+          <OpenButton link={content.url} />
+        </View>
+      )}
     </View>
   );
 };

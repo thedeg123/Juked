@@ -76,12 +76,12 @@ const ModalTrackContent = ({ onClose, content, author, setScrollEnabled }) => {
           {
             paddingBottom:
               (review && review.is_review) || (reviews && reviews.length)
-                ? 0
+                ? 10
                 : 20
           }
         ]}
       >
-        <TopBar onClose={onClose} link={content.url}></TopBar>
+        <TopBar onClose={onClose} content={content} />
         <View style={{ alignSelf: "stretch" }}>
           <ReviewButton
             review={review}

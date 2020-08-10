@@ -22,6 +22,7 @@ const ModalReviewCard = ({
         <ModalReviewContent
           onDelete={onDelete}
           hideEdit={hideEdit}
+          content={content}
           onEdit={() => {
             setShowModal(false);
             return review.data.type === "list"
@@ -34,7 +35,6 @@ const ModalReviewCard = ({
                 });
           }}
           onClose={() => setShowModal(false)}
-          link={content.url}
           content_type={content_type}
         ></ModalReviewContent>
       ) : (
@@ -46,7 +46,7 @@ const ModalReviewCard = ({
             });
           }}
           onClose={() => setShowModal(false)}
-          link={content.url}
+          content={content}
           hideEdit={hideEdit}
           content_type={content_type}
         ></ModalReviewContent>

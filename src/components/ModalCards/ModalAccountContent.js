@@ -10,7 +10,7 @@ import { Input } from "react-native-elements";
 import colors from "../../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 
-const ModalReviewContent = ({ onClose, onDelete }) => {
+const ModalAccountContent = ({ onClose, onDelete }) => {
   const [oldPassword, setOldPassword] = useState("");
   return (
     <KeyboardAvoidingView behavior="padding">
@@ -90,4 +90,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ModalReviewContent;
+export default ModalAccountContent;

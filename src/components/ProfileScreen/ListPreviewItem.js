@@ -43,7 +43,7 @@ const ListPreviewItem = ({ navigation, content, review, user, textStyle }) => {
                   borderBottomRightRadius: 0,
                   borderTopRightRadius: 0
                 }}
-                img={content.image}
+                content={content}
                 width={100}
               ></ContentPic>
               <View style={styles.rightContent}>
@@ -58,7 +58,7 @@ const ListPreviewItem = ({ navigation, content, review, user, textStyle }) => {
           </ImageBackground>
         ) : (
           <View>
-            <ContentPic img={content.image} width={100}></ContentPic>
+            <ContentPic content={content} width={100}></ContentPic>
           </View>
         )}
       </View>

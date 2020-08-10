@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import colors from "../../constants/colors";
 import UserPreview from "../HomeScreenComponents/UserPreview";
-import ContentPic from "../HomeScreenComponents/ContentPic";
 import { withNavigation } from "react-navigation";
 import { getAbreveatedTimeDif } from "../../helpers/simplifyContent";
 
@@ -26,7 +25,9 @@ const FollowItem = ({ navigation, item, user }) => {
           uid={item.data.author}
         ></UserPreview>
         <Text numberOfLines={2} style={[styles.textStyle, { flex: 1 }]}>
-          <Text style={{fontWeight: "bold"}}>{user.handle}</Text> followed you!</Text>
+          <Text style={{ fontWeight: "bold" }}>{user.handle}</Text> followed
+          you!
+        </Text>
         <Text style={[styles.textStyle, { fontWeight: "bold" }]}>
           {getAbreveatedTimeDif(item.data.last_modified)}
         </Text>

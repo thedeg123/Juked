@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
-import colors from "../constants/colors";
+import colors from "../../constants/colors";
 
 const StackHeader = ({ title, leftButton, center, previous, rightButton }) => {
   const height = Dimensions.get("window").height * 0.098;

@@ -12,7 +12,6 @@ import TextRatings from "../components/TextRatings";
 import ArtistNames from "../components/ArtistNames";
 import ReviewSection from "../components/ReviewSection";
 import ReviewButton from "../components/ReviewButton";
-
 // if redirect from an album: content_id(album spotify ID), highlighted("")
 // if redirect from a song: content_id(album spotify ID), highlighted(song spotify ID)
 const AlbumScreen = ({ navigation }) => {
@@ -81,7 +80,6 @@ const AlbumScreen = ({ navigation }) => {
   useEffect(() => {
     navigation.setParams({ album });
   }, [album]);
-
   // wait until get data from all APIs
   if (!album || review === "waiting" || !contentData) return <LoadingPage />;
   const headerComponent = (

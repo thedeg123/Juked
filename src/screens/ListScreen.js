@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
 import LoadingPage from "../components/Loading/LoadingPage";
-import ScrollViewPadding from "../components/ScrollViewPadding";
 
 const ListScreen = ({ navigation }) => {
   const fetchData = navigation.getParam("fetchData");

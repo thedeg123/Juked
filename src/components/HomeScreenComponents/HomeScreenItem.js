@@ -6,6 +6,7 @@ import ReviewTitle from "./ReviewTitle";
 import ContentPic from "./ContentPic";
 import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
+
 const HomeScreenItem = ({ review, content, author }) => {
   const picStyle = !review.data.is_review
     ? { borderBottomRightRadius: 0, borderTopRightRadius: 0 }
@@ -19,7 +20,8 @@ const HomeScreenItem = ({ review, content, author }) => {
     >
       <View style={styles.contentStyle}>
         <ContentPic
-          img={content.image}
+          content={content}
+          showPlay
           imageStyle={{ borderRadius: 0 }}
           style={picStyle}
           width={100}

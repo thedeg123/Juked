@@ -3,10 +3,10 @@ import { StyleSheet, Button, Text, View } from "react-native";
 import colors from "../../constants/colors";
 import TopBar from "./TopBar";
 
-const ModalListContent = ({ onDelete, onClose, showDelete, link }) => {
+const ModalListContent = ({ onDelete, onClose, showDelete, content }) => {
   return (
     <View style={styles.content}>
-      <TopBar onClose={onClose} link={link} showSpotify></TopBar>
+      <TopBar onClose={onClose} content={content} showSpotify></TopBar>
       {showDelete && (
         <Button
           title={"Remove from ListenList"}

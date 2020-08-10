@@ -1,12 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import {
-  StyleSheet,
-  FlatList,
-  Text,
-  View,
-  RefreshControl,
-  Alert
-} from "react-native";
+import { StyleSheet, FlatList, Text, View, RefreshControl } from "react-native";
 import context from "../context/context";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import LoadingPage from "../components/Loading/LoadingPage";
@@ -92,10 +85,10 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     navigation.setParams({ setShowModal });
     fetchHomeScreenData(10, true);
-    Alert.alert(
-      "Welcome to the Juked Beta!",
-      `Remember this is for testing purposes only. All beta accounts will likely be deleted prior to launch. Have fun!`
-    );
+    // Alert.alert(
+    //   "Welcome to the Juked Beta!",
+    //   `Remember this is for testing purposes only. All beta accounts will likely be deleted prior to launch. Have fun!`
+    // );
   }, []);
 
   if (reviews === "waiting" || authors === "waiting") return <LoadingPage />;

@@ -1,6 +1,7 @@
 const navigateContent = (navigation, cid, album_cid, review, content, user) => {
+  const navigate = navigation.push ? navigation.push : navigation.navigate;
   if (review && review.data.type === "list") {
-    return navigation.push("UserList", {
+    return navigate("UserList", {
       list: review,
       user: user
     });
@@ -8,14 +9,14 @@ const navigateContent = (navigation, cid, album_cid, review, content, user) => {
   if (!review || !review.data.is_review) {
     switch (content.type) {
       case "album":
-        return navigation.push("Album", {
+        return navigate("Album", {
           content_id: content.id,
           highlighted: ""
         });
       case "artist":
-        return navigation.push("Artist", { content_id: content.id });
+        return navigate("Artist", { content_id: content.id });
       case "track":
-        return navigation.push("Album", {
+        return navigate("Album", {
           content_id: content.album_id,
           highlighted: content.id
         });

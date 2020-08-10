@@ -13,7 +13,11 @@ export default class useMusic {
     this.cached_content = { track: {}, album: {}, artist: {} };
     this.errorPrompt =
       "There was a problem loading the page. Please try again.";
+
+    this.set_play = () => {};
+    this.set_content = () => {};
   }
+
   async connectToken() {
     //setting update of token
     this.remover = await this.db
@@ -32,6 +36,24 @@ export default class useMusic {
   async disconnect() {
     console.log("disconnecting token");
     return this.remover ? await this.remover() : null;
+  }
+
+  /**
+   *
+   * @param {Object} content - the content object to play
+   */
+  playContent(content) {
+    this.set_content(content);
+    this.set_play(true);
+  }
+
+  stopContent() {
+    this.set_play(false);
+  }
+
+  establishMusicPlayer(listener, contentListener) {
+    this.set_play = listener;
+    this.set_content = contentListener;
   }
   /**
    * @async

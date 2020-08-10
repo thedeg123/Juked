@@ -37,7 +37,8 @@ const ListenlistItem = ({ navigation, item, user, currentUser }) => {
       <ContentPic
         style={{ marginRight: 5 }}
         imageStyle={{ borderRadius: 2 }}
-        img={item.data.content.image}
+        content={item.data.content}
+        showPlay
         width={60}
       ></ContentPic>
     </TouchableOpacity>

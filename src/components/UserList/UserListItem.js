@@ -41,7 +41,8 @@ const UserListItem = ({
       >
         <View style={{ flexDirection: "row" }}>
           <ContentPic
-            img={content.image}
+            content={content}
+            showPlay
             style={{
               borderBottomRightRadius: 0,
               borderTopRightRadius: 0

@@ -94,7 +94,7 @@ const ModalContentContent = ({ onClose, link, content }) => {
       <View>
         <TopBar
           onClose={onClose}
-          link={link}
+          content={content}
           showSpotify={content.type !== "List"}
         />
         {showContentType === "listenlist" ? (

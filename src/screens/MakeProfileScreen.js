@@ -85,7 +85,11 @@ const MakeProfileScreen = ({
           <Button
             title="Get Jukin'!"
             onPress={() => {
-              handle.length < 3 || handle.length > 15
+              imageURL &&
+              !imageURL.endsWith(".jpg") &&
+              !imageURL.endsWith(".png")
+                ? Alert.alert("Sorry", "URLs must end with .jpg or .png")
+                : handle.length < 3 || handle.length > 15
                 ? Alert.alert(
                     "Uh oh",
                     "Handles must be between 3 and 15 characters."

@@ -8,7 +8,8 @@ import {
   Keyboard,
   Platform,
   Dimensions,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Alert
 } from "react-native";
 import colors from "../constants/colors";
 import context from "../context/context";
@@ -46,6 +47,7 @@ const WriteListScreen = ({ navigation }) => {
       : firestore.addList(title, description, items, itemKeys);
     return navigation.pop();
   };
+
   useEffect(() => {
     if (list) {
       setTitle(list.data.title);
@@ -55,7 +57,40 @@ const WriteListScreen = ({ navigation }) => {
     }
   }, []);
 
+  const goBackAlert = () =>
+    Alert.alert(
+      "Are you sure you want to go back?",
+      "All your work on this list will be lost",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Yes, delete it",
+          onPress: () => navigation.goBack(),
+          style: "destructive"
+        }
+      ]
+    );
+
   const submitDisabled = !showSearch && (!title.length || !items.length);
+
+  // setting the top button to  go back to  showing the list not pop page
+  useEffect(() => {
+    navigation.setParams({
+      onBackPress: showSearch
+        ? onChangePress
+        : items.length || title.length
+        ? goBackAlert
+        : null
+    });
+  }, [showSearch]);
+
+  const onChangePress = () => {
+    setStagedItemKeys(itemKeys);
+    setTerm("");
+    setStagedItems(items);
+    setShowSearch(!showSearch);
+  };
+
   const bottomRowButtons = () => (
     <View
       style={{
@@ -65,7 +100,6 @@ const WriteListScreen = ({ navigation }) => {
     >
       <View style={{ flex: 1 }}>
         <TouchableOpacity
-          disabled={submitDisabled}
           style={[
             styles.submitButtonStyle,
             {
@@ -81,7 +115,12 @@ const WriteListScreen = ({ navigation }) => {
               setItemKeys(stagedItemKeys);
               setShowSearch(!showSearch);
             } else {
-              submitList();
+              submitDisabled
+                ? Alert.alert(
+                    "Can't submit an empty list!",
+                    "Lists require a title and at least one item."
+                  )
+                : submitList();
             }
           }}
         >
@@ -100,12 +139,7 @@ const WriteListScreen = ({ navigation }) => {
       </View>
       <TouchableOpacity
         style={{ justifyContent: "center", top: 5, marginRight: 10 }}
-        onPress={() => {
-          setStagedItemKeys(itemKeys);
-          setTerm("");
-          setStagedItems(items);
-          setShowSearch(!showSearch);
-        }}
+        onPress={onChangePress}
       >
         <Text style={{ fontSize: 16, color: colors.primary }}>
           {showSearch ? "Cancel" : "Change Items"}
@@ -117,7 +151,7 @@ const WriteListScreen = ({ navigation }) => {
   const listView = () => (
     <View style={{ flex: 1 }}>
       <TextInput
-        placeholder="Add a Title"
+        placeholder="Tap to add a title"
         blurOnSubmit
         returnKeyType="done"
         placeholderTextColor={colors.lightShadow}
@@ -259,8 +293,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     padding: 10,
     borderRadius: 5,
-    borderColor: colors.primary,
-    borderWidth: 3,
     fontSize: 20
   },
   titleTextStyle: {
@@ -273,8 +305,10 @@ const styles = StyleSheet.create({
   }
 });
 
-WriteListScreen.navigationOptions = () => {
+WriteListScreen.navigationOptions = ({ navigation }) => {
+  const onBackPress = navigation.getParam("onBackPress");
   return {
+    onBackPress,
     headerTitle: "My List"
   };
 };

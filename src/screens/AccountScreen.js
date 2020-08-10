@@ -80,13 +80,16 @@ const AccountScreen = ({ navigation }) => {
                 containerStyle={{ marginVertical: 10 }}
                 labelStyle={{ color: colors.text }}
                 blurOnSubmit
-                returnKeyType={"done"}
                 onChangeText={setBio}
               ></Input>
               <TouchableOpacity
                 onPress={() => {
                   Keyboard.dismiss();
-                  handle.length < 3 || handle.length > 15
+                  profile_url &&
+                  !profile_url.endsWith(".jpg") &&
+                  !profile_url.endsWith(".png")
+                    ? Alert.alert("Sorry", "URLs must end with .jpg or .png")
+                    : handle.length < 3 || handle.length > 15
                     ? Alert.alert(
                         "Handles must be between 3 and 15 characters."
                       )

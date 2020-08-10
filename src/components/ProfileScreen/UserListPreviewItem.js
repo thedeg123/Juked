@@ -20,8 +20,8 @@ const UserListPreviewItem = ({
   onPress,
   showCheck
 }) => {
-  const getMiniPic = (img, style) => (
-    <ContentPic imageStyle={style} img={img} width={50}></ContentPic>
+  const getMiniPic = (content, style) => (
+    <ContentPic imageStyle={style} content={content} width={50}></ContentPic>
   );
   return (
     <TouchableOpacity
@@ -35,28 +35,28 @@ const UserListPreviewItem = ({
     >
       <View style={list ? styles.shadow : null}>
         {list.data.items.length < 4 ? (
-          <ContentPic img={list.data.items[0].image} width={100}></ContentPic>
+          <ContentPic content={list.data.items[0]} width={100}></ContentPic>
         ) : (
           <View>
             <View style={{ flexDirection: "row" }}>
-              {getMiniPic(list.data.items[0].image, {
+              {getMiniPic(list.data.items[0], {
                 borderRadius: 0,
                 borderWidth: 0,
                 borderTopLeftRadius: 5
               })}
-              {getMiniPic(list.data.items[1].image, {
+              {getMiniPic(list.data.items[1], {
                 borderRadius: 0,
                 borderWidth: 0,
                 borderTopRightRadius: 5
               })}
             </View>
             <View style={{ flexDirection: "row" }}>
-              {getMiniPic(list.data.items[2].image, {
+              {getMiniPic(list.data.items[2], {
                 borderRadius: 0,
                 borderWidth: 0,
                 borderBottomLeftRadius: 5
               })}
-              {getMiniPic(list.data.items[3].image, {
+              {getMiniPic(list.data.items[3], {
                 borderRadius: 0,
                 borderWidth: 0,
                 borderBottomRightRadius: 5

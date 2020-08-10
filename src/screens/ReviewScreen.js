@@ -8,6 +8,7 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
+  KeyboardAvoidingView,
   Keyboard
 } from "react-native";
 import context from "../context/context";
@@ -178,9 +179,11 @@ const ReviewScreen = ({ navigation }) => {
       blurRadius={blurRadius}
       source={{ uri: content.image }}
     >
-      <View
+      <KeyboardAvoidingView
+        behavior="padding"
         style={{
           backgroundColor: colors.darkener,
+          paddingBottom: 85,
           flex: 1
         }}
       >
@@ -191,7 +194,7 @@ const ReviewScreen = ({ navigation }) => {
           currentUser={firestore.fetchCurrentUID()}
           deleteComment={did => firestore.deleteComment(did)}
         ></CommentsSection>
-      </View>
+      </KeyboardAvoidingView>
       <ModalReviewCard
         showModal={showModal}
         setShowModal={setShowModal}

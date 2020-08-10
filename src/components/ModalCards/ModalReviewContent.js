@@ -8,7 +8,7 @@ const ModalReviewContent = ({
   onEdit,
   onDelete,
   onClose,
-  link,
+  content,
   content_type,
   hideEdit
 }) => {
@@ -44,7 +44,7 @@ const ModalReviewContent = ({
         <View>
           <TopBar
             onClose={onClose}
-            link={link}
+            content={content}
             showSpotify={content_type !== "List"}
           ></TopBar>
           {hideEdit ? null : onEdit ? (

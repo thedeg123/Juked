@@ -39,7 +39,7 @@ const LikeItem = ({ navigation, fetchReview, item, user, currentUser }) => {
       <ContentPic
         style={{ marginRight: 5 }}
         imageStyle={{ borderRadius: 2 }}
-        img={item.data.content.image}
+        content={item.data.content}
         width={60}
       ></ContentPic>
     </TouchableOpacity>
