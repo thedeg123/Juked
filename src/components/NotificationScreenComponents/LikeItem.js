@@ -37,8 +37,9 @@ const LikeItem = ({ navigation, fetchReview, item, user, currentUser }) => {
         </Text>
       </View>
       <ContentPic
-        containerStyle={{ borderRadius: 5, width: 45, marginRight: 10 }}
         content={item.data.content}
+        borderRadius={{ borderRadius: 5 }}
+        borderWidth={{ marginRight: 10 }}
         showPlay
       ></ContentPic>
     </TouchableOpacity>

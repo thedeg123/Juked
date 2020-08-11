@@ -35,7 +35,8 @@ const ListenlistItem = ({ navigation, item, user, currentUser }) => {
         </Text>
       </View>
       <ContentPic
-        containerStyle={{ borderRadius: 5, width: 45, marginRight: 10 }}
+        borderRadius={{ borderRadius: 5 }}
+        borderWidth={{ marginRight: 10 }}
         content={item.data.content}
         showPlay
       ></ContentPic>

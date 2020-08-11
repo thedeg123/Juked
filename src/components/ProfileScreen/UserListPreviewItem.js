@@ -21,7 +21,7 @@ const UserListPreviewItem = ({
   showCheck
 }) => {
   const getMiniPic = (content, style) => (
-    <ContentPic imageStyle={style} content={content} width={50}></ContentPic>
+    <ContentPic borderRadius={style} content={content} width={50}></ContentPic>
   );
   return (
     <TouchableOpacity

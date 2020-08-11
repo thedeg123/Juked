@@ -22,15 +22,15 @@ const ContentPic = ({
   return (
     <View
       style={{
-        ...borderRadius,
+        overflow: "hidden",
         ...borderWidth,
-        borderColor: colors.veryTranslucentWhite,
-        width
+        ...borderRadius,
+        borderColor: colors.veryTranslucentWhite
       }}
     >
       <ImageBackground
-        resizeMode="cover"
-        style={{ ...styles.imageStyle }}
+        imageStyle={borderRadius}
+        style={{ ...styles.imageStyle, width: width + 5 }}
         source={{ uri: img }}
       >
         {content.preview_url && showPlay && (
@@ -51,13 +51,13 @@ const ContentPic = ({
 };
 
 const styles = StyleSheet.create({
-  imageStyle: {
-    aspectRatio: 1
-  },
   buttonWrapper: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center"
+  },
+  imageStyle: {
+    aspectRatio: 1
   }
 });
 

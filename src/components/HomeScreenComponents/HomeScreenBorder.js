@@ -71,7 +71,6 @@ const HomeScreenBorder = ({
 const styles = StyleSheet.create({
   boxStyle: {
     borderRadius: 5,
-    margin: 5,
     marginBottom: 0,
     resizeMode: "cover",
     overflow: "hidden",
