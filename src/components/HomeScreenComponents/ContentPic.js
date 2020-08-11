@@ -13,50 +13,46 @@ import context from "../../context/context";
 const ContentPic = ({
   content,
   width,
-  is_review,
-  style,
-  imageStyle,
-  showPlay
+  showPlay,
+  borderRadius,
+  borderWidth
 }) => {
   const { useMusic } = useContext(context);
   const img = content.image || images.artistDefault; //becuase we cant set a default val from another file
   return (
-    <View style={[styles.contentStyle, style]}>
-      <View
-        style={{
-          borderRightWidth: 1,
-          borderBottomWidth: is_review ? 1 : 0,
-          borderRadius: 5,
-          borderColor: colors.veryTranslucentWhite,
-          ...style
-        }}
+    <View
+      style={{
+        ...borderRadius,
+        ...borderWidth,
+        borderColor: colors.veryTranslucentWhite,
+        width
+      }}
+    >
+      <ImageBackground
+        resizeMode="cover"
+        style={{ ...styles.imageStyle }}
+        source={{ uri: img }}
       >
-        <ImageBackground
-          style={[{ width, ...styles.imageStyle }, imageStyle]}
-          source={{ uri: img }}
-        >
-          {content.preview_url && showPlay && (
-            <TouchableOpacity
-              onPress={() => useMusic.playContent(content)}
-              style={styles.buttonWrapper}
-            >
-              <AntDesign
-                name="play"
-                size={width / 3}
-                color={colors.semiTranslucentWhite}
-              />
-            </TouchableOpacity>
-          )}
-        </ImageBackground>
-      </View>
+        {content.preview_url && showPlay && (
+          <TouchableOpacity
+            onPress={() => useMusic.playContent(content)}
+            style={styles.buttonWrapper}
+          >
+            <AntDesign
+              name="play"
+              size={width / 3}
+              color={colors.semiTranslucentWhite}
+            />
+          </TouchableOpacity>
+        )}
+      </ImageBackground>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   imageStyle: {
-    aspectRatio: 1,
-    borderRadius: 5
+    aspectRatio: 1
   },
   buttonWrapper: {
     flex: 1,
@@ -66,9 +62,7 @@ const styles = StyleSheet.create({
 });
 
 ContentPic.defaultProps = {
-  style: {},
-  imageStyle: {},
-  width: 0,
+  width: 50,
   showPlay: false
 };
 

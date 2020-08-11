@@ -10,14 +10,14 @@ import {
 import AuthForm from "../components/AuthForm";
 import colors from "../constants/colors";
 import context from "../context/context";
-import Logo from "../components/Logo";
+import TestLogo from "../components/TextLogo";
 import Button from "../components/AuthButton";
 const SignUpScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.containerStyle}>
-        <Logo subtext={"Welcome to Juked!"}></Logo>
+        <TestLogo subtext={"Welcome to Juked!"}></TestLogo>
         <KeyboardAvoidingView behavior="position">
           <AuthForm
             confirmPassword={true}

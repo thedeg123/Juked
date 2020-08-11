@@ -9,6 +9,7 @@ import ModalHomeCard from "../components/ModalCards/ModalHomeCard";
 import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
 import colors from "../constants/colors";
+import Logo from "../components/Logo";
 
 const HomeScreen = ({ navigation }) => {
   const [showModal, setShowModal] = useState(false);
@@ -33,7 +34,7 @@ const HomeScreen = ({ navigation }) => {
 
   const [startAfter, setStartAfter] = useState(null);
 
-  const { firestore } = useContext(context);
+  const { firestore, useMusic } = useContext(context);
   const [changed, setChanged] = useState(false);
   const flatListRef = useRef();
 
@@ -114,6 +115,11 @@ const HomeScreen = ({ navigation }) => {
               ) : (
                 <HomeScreenItem
                   review={item}
+                  onPlay={
+                    item.data.content.preview_url
+                      ? () => useMusic.playContent(item.data.content)
+                      : null
+                  }
                   content={item.data.content}
                   author={authors[item.data.author]}
                 ></HomeScreenItem>
@@ -182,7 +188,8 @@ HomeScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
   const handle = navigation.getParam("userStream");
   return {
-    title: handle ? `${handle}'s Stream` : "Stream",
+    headerComponent: handle ? null : <Logo />,
+    title: handle ? `${handle}'s Stream` : "",
     headerRight: () => <ModalButton setShowModal={setShowModal}></ModalButton>
   };
 };

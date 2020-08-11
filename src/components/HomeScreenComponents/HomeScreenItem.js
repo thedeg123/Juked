@@ -1,49 +1,87 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import UserPreview from "./UserPreview";
-import Rating from "./Rating";
 import ReviewTitle from "./ReviewTitle";
 import ContentPic from "./ContentPic";
 import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
+import colors from "../../constants/colors";
+import { AntDesign } from "@expo/vector-icons";
 
-const HomeScreenItem = ({ review, content, author }) => {
-  const picStyle = !review.data.is_review
-    ? { borderBottomRightRadius: 0, borderTopRightRadius: 0 }
-    : {};
-  return (
-    <HomeScreenBorder
-      content={content}
-      review={review}
-      height={review.data.is_review ? 135 : 100}
-      author={author}
+const HomeScreenItem = ({ review, content, author, onPlay }) => {
+  const Rating = ({ val }) => (
+    <View
+      style={{
+        justifyContent: "center",
+        alignItems: "flex-end",
+        marginRight: 5
+      }}
     >
+      <Text
+        style={{
+          fontWeight: "500",
+          color: colors.veryTranslucentWhite,
+          fontSize: 55
+        }}
+      >
+        {val}
+      </Text>
+    </View>
+  );
+
+  const ActionRow = () => (
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: onPlay ? "space-between" : "flex-end",
+        margin: 5
+      }}
+    >
+      {onPlay && (
+        <TouchableOpacity onPress={onPlay} style={{ paddingRight: 15 }}>
+          <AntDesign
+            name="play"
+            size={25}
+            color={colors.semiTranslucentWhite}
+          />
+        </TouchableOpacity>
+      )}
+
+      <UserPreview
+        size={25}
+        fontScaler={0.6}
+        username={author.handle}
+        img={author.profile_url}
+        uid={review.data.author}
+        horizontal
+      />
+    </View>
+  );
+
+  return (
+    <HomeScreenBorder content={content} review={review} author={author}>
       <View style={styles.contentStyle}>
         <ContentPic
           content={content}
-          showPlay
-          imageStyle={{ borderRadius: 0 }}
-          style={picStyle}
           width={100}
-          is_review={review.data.is_review}
-        ></ContentPic>
-        <ContentTitle
-          header={content.name}
-          subheader={content.artists}
-          date={new Date(review.data.last_modified)}
-          review={review.data.is_review}
-          type={review.data.type}
-        ></ContentTitle>
-        <View style={styles.textStyle}>
-          <UserPreview
-            username={author.handle}
-            img={author.profile_url}
-            uid={review.data.author}
-          ></UserPreview>
-          <Rating
-            number={review.data.rating}
-            size={review.data.is_review ? 55 : 45}
-          ></Rating>
+          borderRadius={{
+            borderBottomRightRadius: review.data.is_review ? 5 : 0
+          }}
+          borderWidth={{
+            borderRightWidth: 1,
+            borderBottomWidth: review.data.is_review ? 1 : 0
+          }}
+        />
+        <View style={{ flex: 1 }}>
+          <ActionRow />
+          <View style={{ flex: 1, bottom: 3, flexDirection: "row" }}>
+            <ContentTitle
+              header={content.name}
+              subheader={content.artists}
+              type={review.data.type}
+            />
+            <Rating val={review.data.rating} />
+          </View>
         </View>
       </View>
       {review.data.is_review ? (
@@ -54,12 +92,12 @@ const HomeScreenItem = ({ review, content, author }) => {
 };
 
 const styles = StyleSheet.create({
-  textStyle: {
-    padding: 5
+  imageReviewStyle: {
+    borderBottomRightRadius: 5,
+    borderColor: colors.veryTranslucentWhite
   },
   contentStyle: {
-    flexDirection: "row",
-    justifyContent: "space-between"
+    flexDirection: "row"
   }
 });
 

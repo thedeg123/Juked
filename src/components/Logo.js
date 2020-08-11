@@ -1,34 +1,28 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import colors from "../constants/colors";
+import { View, Image, Dimensions } from "react-native";
 
-const Logo = ({ subtext }) => {
-  return (
-    <View style={styles.containerStyle}>
-      <View style={styles.text}>
-        <Text style={styles.headerText}>Juked</Text>
-        <Text style={styles.subHeaderText}>{subtext}</Text>
-      </View>
-    </View>
-  );
+const Logo = ({ size }) => (
+  <View
+    style={{
+      marginTop: Dimensions.get("window").height * 0.037,
+      width: size,
+      height: size,
+      alignSelf: "center",
+      alignItems: "center",
+      justifyContent: "center"
+    }}
+  >
+    <Image
+      style={{
+        flex: 1,
+        resizeMode: "contain"
+      }}
+      source={require("../../assets/logos/logo_large.png")}
+    ></Image>
+  </View>
+);
+Logo.defaultProps = {
+  size: 35
 };
-
-const styles = StyleSheet.create({
-  containerStyle: {
-    alignSelf: "flex-start",
-    flex: 1,
-    margin: 10,
-    marginBottom: 0
-  },
-  headerText: {
-    fontSize: 65,
-    fontWeight: "bold",
-    color: colors.white
-  },
-  subHeaderText: {
-    fontSize: 36,
-    color: colors.text
-  }
-});
 
 export default Logo;

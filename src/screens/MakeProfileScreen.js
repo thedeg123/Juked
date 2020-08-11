@@ -12,7 +12,7 @@ import { Input } from "react-native-elements";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
 import context from "../context/context";
 import colors from "../constants/colors";
-import Logo from "../components/Logo";
+import Logo from "../components/TextLogo";
 import Button from "../components/AuthButton";
 
 const MakeProfileScreen = ({

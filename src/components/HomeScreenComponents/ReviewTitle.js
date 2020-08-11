@@ -1,26 +1,61 @@
-import React from "react";
-import { Text, View, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import {
+  Text,
+  View,
+  StyleSheet,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+  TouchableOpacity
+} from "react-native";
 import colors from "../../constants/colors";
+import { customCardAnimation } from "../../constants/heights";
+import { AntDesign, Entypo } from "@expo/vector-icons";
 
 const ReviewTitle = ({ title }) => {
+  const [multiline, setMultiline] = useState(false);
+
+  if (Platform.OS === "android") {
+    if (UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+  }
+
   return (
-    <View style={styles.containerStyle}>
-      <Text numberOfLines={1} style={styles.textStyle}>
+    <TouchableOpacity
+      disabled={title.length <= 27}
+      onPress={() => {
+        LayoutAnimation.configureNext(customCardAnimation);
+        setMultiline(!multiline);
+      }}
+      style={{
+        flexDirection: "row",
+        alignSelf: "stretch",
+        paddingLeft: 5,
+        paddingVertical: 5
+      }}
+    >
+      <Text numberOfLines={multiline ? 3 : 1} style={styles.textStyle}>
         {title}
       </Text>
-    </View>
+      {title.length > 27 && (
+        <AntDesign
+          name={multiline ? "up" : "down"}
+          size={20}
+          style={{
+            paddingRight: 5
+          }}
+          color={colors.translucentWhite}
+        />
+      )}
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  containerStyle: {
-    alignSelf: "stretch",
-    marginLeft: 5,
-    paddingVertical: 2,
-    bottom: 23
-  },
   textStyle: {
-    fontSize: 22,
+    flex: 1,
+    fontSize: 16,
     fontWeight: "bold",
     color: colors.translucentWhite
   }

@@ -13,7 +13,8 @@ const UserPreview = ({
   color,
   containerStyle,
   fontScaler,
-  allowPress
+  allowPress,
+  horizontal
 }) => {
   containerStyle = containerStyle || {};
   fontScaler = fontScaler || 0.3;
@@ -22,35 +23,54 @@ const UserPreview = ({
   const fontSize = size * fontScaler;
   color = color || colors.white;
   img = img || images.profileDefault; //becuase we cant set a default val from another file
+
+  const getImg = () => (
+    <Image
+      style={{
+        backgroundColor: colors.white,
+        width: size,
+        aspectRatio: 1,
+        borderColor: colors.lightShadow,
+        borderWidth: 0.7 * (1 - fontScaler),
+        alignSelf: "center",
+        borderRadius: 5
+      }}
+      source={{ uri: img }}
+    ></Image>
+  );
+
   return (
     <TouchableOpacity
-      style={[styles.containerStyle, containerStyle]}
+      style={[
+        styles.containerStyle,
+        {
+          alignItems: "center",
+          flexDirection: horizontal ? "row" : "column"
+        },
+        containerStyle
+      ]}
       disabled={!allowPress}
       onPress={() => {
         navigation.push("Profile", { uid });
       }}
     >
-      <Image
-        style={{
-          backgroundColor: colors.white,
-          width: size,
-          aspectRatio: 1,
-          borderColor: colors.lightShadow,
-          borderWidth: 0.7 * (1 - fontScaler),
-          alignSelf: "center",
-          borderRadius: 5
-        }}
-        source={{ uri: img }}
-      ></Image>
-      <View style={{ alignSelf: "stretch" }}>
+      {!horizontal && getImg()}
+      <View style={{ alignSelf: "stretch", justifyContent: "center" }}>
         {username ? (
           <Text
-            style={{ marginVertical: 1, color, fontSize, textAlign: "center" }}
+            style={{
+              marginVertical: horizontal ? 0 : 1,
+              marginRight: horizontal ? 5 : 0,
+              color,
+              fontSize,
+              textAlign: "center"
+            }}
           >
             {username}
           </Text>
         ) : null}
       </View>
+      {horizontal && getImg()}
     </TouchableOpacity>
   );
 };

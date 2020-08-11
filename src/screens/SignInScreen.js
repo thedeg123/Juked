@@ -11,7 +11,7 @@ import {
 import AuthForm from "../components/AuthForm";
 import colors from "../constants/colors";
 import context from "../context/context";
-import Logo from "../components/Logo";
+import TextLogo from "../components/TextLogo";
 import CustomButton from "../components/AuthButton";
 import { Input } from "react-native-elements";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
@@ -24,13 +24,13 @@ const SignInScreen = ({ navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.containerStyle}>
-        <Logo
+        <TextLogo
           subtext={
             showForgotPasswordView
               ? "To reset your password, enter your account email"
               : "Welcome back!"
           }
-        ></Logo>
+        ></TextLogo>
         <KeyboardAvoidingView behavior="position">
           {!showForgotPasswordView ? (
             <View>

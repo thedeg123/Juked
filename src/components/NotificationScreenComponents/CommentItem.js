@@ -43,10 +43,9 @@ const CommentItem = ({ navigation, fetchReview, item, user, currentUser }) => {
             </Text>
           </View>
           <ContentPic
-            style={{ marginRight: 5 }}
-            imageStyle={{ borderRadius: 2 }}
+            containerStyle={{ borderRadius: 5, width: 45, marginRight: 10 }}
             content={item.data.content}
-            width={60}
+            showPlay
           ></ContentPic>
         </View>
         <View

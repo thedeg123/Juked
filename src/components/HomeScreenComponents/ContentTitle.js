@@ -2,38 +2,25 @@ import React from "react";
 import { Text, View, StyleSheet } from "react-native";
 import colors from "../../constants/colors";
 import ArtistNames from "../ArtistNames";
-import { getStringDate } from "../../helpers/simplifyContent";
 
-const ContentTitle = ({ header, subheader, date, review, fontScaling }) => {
-  const [titleFont, subtitleFont, dateFont] = [20, 18, 14].map(
-    size => size * fontScaling
-  );
-
+const ContentTitle = ({ header, subheader }) => {
   return (
     <View style={styles.containerStyle}>
-      <View style={{ flex: 1 }}>
-        <Text
-          numberOfLines={2}
-          style={[styles.headerStyle, { fontSize: titleFont }]}
-        >
-          {header}
-        </Text>
-        {subheader ? (
-          <ArtistNames
-            artists={subheader}
-            allowPress={false}
-            textStyle={[styles.subheaderStyle, { fontSize: subtitleFont }]}
-          ></ArtistNames>
-        ) : null}
-      </View>
-
-      {date && (
-        <Text
-          numberOfLines={1}
-          style={[styles.dateStyle, { fontSize: dateFont }]}
-        >
-          {review ? "Reviewed" : "Rated"} {getStringDate(date)}
-        </Text>
+      <Text
+        numberOfLines={2}
+        style={[styles.headerStyle, { fontSize: header.length > 12 ? 18 : 24 }]}
+      >
+        {header}
+      </Text>
+      {subheader && (
+        <ArtistNames
+          artists={subheader}
+          allowPress={false}
+          textStyle={[
+            styles.subheaderStyle,
+            { fontSize: subheader.length === 1 ? 14 : 12 }
+          ]}
+        ></ArtistNames>
       )}
     </View>
   );
@@ -41,10 +28,9 @@ const ContentTitle = ({ header, subheader, date, review, fontScaling }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    height: 95,
-    flex: 2,
-    marginTop: 5,
-    marginLeft: 5
+    flex: 1,
+    height: 65,
+    marginHorizontal: 5
   },
   headerStyle: {
     fontSize: 20,
@@ -53,6 +39,7 @@ const styles = StyleSheet.create({
     color: colors.white
   },
   subheaderStyle: {
+    bottom: 1,
     fontSize: 18,
     color: colors.white
   },

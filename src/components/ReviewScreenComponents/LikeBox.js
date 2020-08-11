@@ -19,11 +19,13 @@ const LikeBox = ({ onLike, liked, numLikes, onPress }) => {
           color={liked ? colors.heat : colors.veryTranslucentWhite}
         />
       </TouchableOpacity>
-      <TouchableOpacity disabled={!numLikes} onPress={onPress}>
-        <Text style={styles.textStyle}>
-          {numLikes} {numLikes === 1 ? "like" : "likes"}
-        </Text>
-      </TouchableOpacity>
+      {numLikes || numLikes === 0 ? (
+        <TouchableOpacity disabled={!numLikes} onPress={onPress}>
+          <Text style={styles.textStyle}>
+            {numLikes} {numLikes === 1 ? "like" : "likes"}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 };

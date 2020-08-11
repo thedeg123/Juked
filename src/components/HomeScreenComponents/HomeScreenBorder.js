@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
+  Text,
   ImageBackground,
   LayoutAnimation,
   UIManager,
@@ -21,8 +22,7 @@ const HomeScreenBorder = ({
   author,
   onLongPress,
   forWriteList,
-  containerStyle,
-  height
+  containerStyle
 }) => {
   const [show, setShow] = useState(false);
   if (review && review.data.type === "list") content = review.data.items[0];
@@ -59,7 +59,7 @@ const HomeScreenBorder = ({
         <ImageBackground
           source={{ uri: content.image }}
           blurRadius={blurRadius}
-          style={[styles.boxStyle, { height: height }]}
+          style={[styles.boxStyle]}
         >
           <View style={styles.child}>{children}</View>
         </ImageBackground>

@@ -43,14 +43,7 @@ const UserListItem = ({
           <ContentPic
             content={content}
             showPlay
-            style={{
-              borderBottomRightRadius: 0,
-              borderTopRightRadius: 0
-            }}
-            imageStyle={{
-              borderBottomRightRadius: 0,
-              borderTopRightRadius: 0
-            }}
+            borderWidth={{ borderRightWidth: 1 }}
             width={70}
             is_review={false}
           ></ContentPic>
