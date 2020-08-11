@@ -23,6 +23,7 @@ exports.createDefaultUser = functions.auth.user().onCreate(user => {
     bio: "",
     profile_url: "",
     created: Date.now(),
+    notification_token: "",
     num_follower: 0,
     num_following: 0,
     review_data: new Array(11).fill(0),

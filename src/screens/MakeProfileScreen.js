@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -8,6 +8,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
+import { Permissions } from "expo-permissions";
+import { Notifications } from "expo-notifications";
 import { Input } from "react-native-elements";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
 import context from "../context/context";
@@ -27,7 +29,13 @@ const MakeProfileScreen = ({
   const [active, setActive] = useState(false);
   const handleRef = useRef(null);
   const bioRef = useRef(null);
+
   const { firestore } = useContext(context);
+
+  useEffect(() => {
+    firestore.registerForPushNotifications();
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.containerStyle}>

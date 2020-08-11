@@ -126,6 +126,27 @@ class useFirestore {
     return error;
   }
 
+  registerForPushNotifications = async () => {
+    if (Constants.isDevice) {
+      const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+      let finalStatus = status;
+
+      if (status !== "granted") {
+        const { status } = await Permissions.askAsync(
+          Permissions.NOTIFICATIONS
+        );
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") return;
+      const token = await Notifications.getExpoPushTokenAsync();
+      console.log(token);
+
+      this.users_db.doc(this.fetchCurrentUID()).update({
+        notification_token: token
+      });
+    }
+  };
+
   // -----------------------------------------------------------------------------------------------------------
   // Helpful listeners
   listenToContentandReview(cid, setContent, setReview) {
