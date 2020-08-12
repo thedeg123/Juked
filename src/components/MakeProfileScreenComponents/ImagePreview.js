@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
     fontSize: 10
   },
   imageBorderStyle: {
+    backgroundColor: colors.white,
     borderWidth: 0.5,
     alignSelf: "center",
     borderColor: colors.shadow,

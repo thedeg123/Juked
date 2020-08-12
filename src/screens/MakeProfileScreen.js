@@ -8,8 +8,6 @@ import {
   TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
-import { Permissions } from "expo-permissions";
-import { Notifications } from "expo-notifications";
 import { Input } from "react-native-elements";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
 import context from "../context/context";

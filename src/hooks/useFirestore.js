@@ -1,5 +1,9 @@
 import firebase from "firebase";
 import "firebase/firestore";
+import * as Permissions from "expo-permissions";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+import { Platform } from "react-native";
 
 class useFirestore {
   constructor() {
@@ -138,11 +142,19 @@ class useFirestore {
         finalStatus = status;
       }
       if (finalStatus !== "granted") return;
-      const token = await Notifications.getExpoPushTokenAsync();
-      console.log(token);
+      const { data } = await Notifications.getExpoPushTokenAsync();
+
+      if (Platform.OS === "android") {
+        Notifications.createChannelAndroidAsync("default", {
+          name: "default",
+          sound: true,
+          priority: "max",
+          vibrate: [0, 250, 250, 250]
+        });
+      }
 
       this.users_db.doc(this.fetchCurrentUID()).update({
-        notification_token: token
+        notification_token: data
       });
     }
   };
@@ -255,10 +267,6 @@ class useFirestore {
 
   likeReview(rid, review_author, content = {}) {
     const lid = rid + this.fetchCurrentUID();
-    this.reviews_db.doc(rid).update({
-      popularity: firebase.firestore.FieldValue.increment(1),
-      num_likes: firebase.firestore.FieldValue.increment(1)
-    });
     return this.interactions_db.doc(lid).set({
       author: this.fetchCurrentUID(),
       last_modified: Date.now(),
@@ -271,10 +279,6 @@ class useFirestore {
 
   unLikeReview(rid) {
     const lid = rid + this.fetchCurrentUID();
-    this.reviews_db.doc(rid).update({
-      popularity: firebase.firestore.FieldValue.increment(-1),
-      num_likes: firebase.firestore.FieldValue.increment(-1)
-    });
     return this.interactions_db.doc(lid).delete();
   }
 
@@ -306,10 +310,10 @@ class useFirestore {
   }
 
   async _establisCachedListenList() {
-    return (this.cachedListenList = await this.listen_list_db
+    const remover = await this.listen_list_db
       .doc(this.fetchCurrentUID() + "_personal")
-      .get()
-      .then(res => res.data()));
+      .onSnapshot(snap => (this.cachedListenList = snap.data()));
+    this.removers.push(remover);
   }
 
   getCachedListenList() {
@@ -328,6 +332,7 @@ class useFirestore {
    * @return {Boolean} - if the user has reccomended this content to a follower
    */
   async contentReccomendedToFollower(cid, uid) {
+    console.log(cid + uid);
     const id = cid + uid;
     return await this.interactions_db
       .doc(id)
@@ -376,14 +381,14 @@ class useFirestore {
       content_type: content.type,
       last_modified: new Date().getTime()
     };
-    this.cachedListenList.items = this.cachedListenList.items.filter(
+    let local_items = this.cachedListenList.items.filter(
       item => item.content.id != content.id
     );
     if (!remove) {
-      this.cachedListenList.items = [...this.cachedListenList.items, item];
+      local_items = [...this.cachedListenList.items, item];
     }
     return this.listen_list_db.doc(uid).update({
-      items: this.cachedListenList.items
+      items: local_items
     });
   }
 
@@ -411,8 +416,6 @@ class useFirestore {
     newestFirst = true,
     filterTypes = ["track", "album", "artist"]
   ) {
-    // If we dont want to update numbers on prof screen
-    // if (uid === this.fetchCurrentUID()) return this.getCachedListenList();
     const type = "personal";
     const lid = uid + "_" + type;
     return await this.listen_list_db
@@ -708,11 +711,11 @@ class useFirestore {
       return ret;
     });
   }
-  async searchUser(term) {
+  async searchUser(term, limit = 10) {
     return await this.users_db
       .where("handle", ">=", term)
       .where("handle", "<=", term + "\uf8ff")
-      .limit(10)
+      .limit(limit)
       .get()
       .then(content => {
         let ret = [];

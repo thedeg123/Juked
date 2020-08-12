@@ -77,101 +77,165 @@ exports.deleteUser = functions.auth.user().onDelete(async user => {
     .delete();
 });
 
-exports.Onfollow = functions.firestore
+const onFollow = newFollow => {
+  var batch = firestore.batch();
+  const refFollowing = firestore
+    .collection("users")
+    .doc(newFollow.review_author);
+  const refFollower = firestore.collection("users").doc(newFollow.author);
+  batch.update(refFollowing, {
+    num_follower: admin.firestore.FieldValue.increment(1)
+  });
+  batch.update(refFollower, {
+    num_following: admin.firestore.FieldValue.increment(1)
+  });
+  return batch.commit();
+};
+
+const onReccomend = newRec => {
+  const lid = newRec.review_author + "_personal";
+  firestore
+    .collection("listenlist")
+    .doc(lid)
+    .update({
+      incoming_item_count: admin.firestore.FieldValue.increment(1),
+      incoming_item_count_track: admin.firestore.FieldValue.increment(
+        Number(newRec.content.type === "track")
+      ),
+      incoming_item_count_album: admin.firestore.FieldValue.increment(
+        Number(newRec.content.type === "album")
+      ),
+      incoming_item_count_artist: admin.firestore.FieldValue.increment(
+        Number(newRec.content.type === "artist")
+      )
+    });
+};
+
+const onComment = commentInteraction => {
+  const rid = commentInteraction.review;
+  firestore
+    .collection("reviews")
+    .doc(rid)
+    .update({
+      num_comments: admin.firestore.FieldValue.increment(1),
+      popularity: admin.firestore.FieldValue.increment(1)
+    });
+};
+
+const onLike = likeInteraction => {
+  const rid = likeInteraction.review;
+  firestore
+    .collection("reviews")
+    .doc(rid)
+    .update({
+      popularity: admin.firestore.FieldValue.increment(1),
+      num_likes: admin.firestore.FieldValue.increment(1)
+    });
+};
+
+exports.onInteract = functions.firestore
   .document("interactions/{iid}")
   .onCreate(async (snap, context) => {
-    const newFollow = snap.data();
-    if (newFollow.type !== "follow") return;
-    var batch = firestore.batch();
-    const refFollowing = firestore
-      .collection("users")
-      .doc(newFollow.review_author);
-    const refFollower = firestore.collection("users").doc(newFollow.author);
-    batch.update(refFollowing, {
-      num_follower: admin.firestore.FieldValue.increment(1)
-    });
-    batch.update(refFollower, {
-      num_following: admin.firestore.FieldValue.increment(1)
-    });
-    return batch.commit();
+    const newInteraction = snap.data();
+    switch (newInteraction.type) {
+      case "follow":
+        return onFollow(newInteraction);
+      case "listenlist":
+        return onReccomend(newInteraction);
+      case "comment":
+        return onComment(newInteraction);
+      case "like":
+        return onLike(newInteraction);
+      default:
+        return;
+    }
   });
 
-exports.Onunfollow = functions.firestore
+const onUnFollow = delFollow => {
+  // we dont want the whole query to fail if the user has been deleted, therefore its not a batch
+  firestore
+    .collection("users")
+    .doc(delFollow.author)
+    .update({
+      num_following: admin.firestore.FieldValue.increment(-1)
+    });
+
+  firestore
+    .collection("users")
+    .doc(delFollow.review_author)
+    .update({
+      num_follower: admin.firestore.FieldValue.increment(-1)
+    });
+
+  return firestore
+    .collection("interactions")
+    .where("author", "==", delFollow.review_author)
+    .where("type", "==", "listenlist")
+    .get()
+    .then(res => {
+      const batch = firestore.batch();
+      res.forEach(doc => batch.delete(doc.ref));
+      return batch.commit();
+    });
+};
+
+const onUnReccomend = delRec => {
+  const lid = delRec.review_author + "_personal";
+  firestore
+    .collection("listenlist")
+    .doc(lid)
+    .update({
+      incoming_item_count: admin.firestore.FieldValue.increment(-1),
+      incoming_item_count_track: admin.firestore.FieldValue.increment(
+        -1 * Number(delRec.content.type === "track")
+      ),
+      incoming_item_count_album: admin.firestore.FieldValue.increment(
+        -1 * Number(delRec.content.type === "album")
+      ),
+      incoming_item_count_artist: admin.firestore.FieldValue.increment(
+        -1 * Number(delRec.content.type === "artist")
+      )
+    });
+};
+
+const onUnComment = commentInteraction => {
+  const rid = commentInteraction.review;
+  firestore
+    .collection("reviews")
+    .doc(rid)
+    .update({
+      num_comments: admin.firestore.FieldValue.increment(-1),
+      popularity: admin.firestore.FieldValue.increment(-1)
+    });
+};
+
+const onUnLike = likeInteraction => {
+  const rid = likeInteraction.review;
+  firestore
+    .collection("reviews")
+    .doc(rid)
+    .update({
+      popularity: admin.firestore.FieldValue.increment(-1),
+      num_likes: admin.firestore.FieldValue.increment(-1)
+    });
+};
+
+exports.onUnInteract = functions.firestore
   .document("interactions/{fid}")
   .onDelete(async (snap, context) => {
-    const delFollow = snap.data();
-    if (delFollow.type !== "follow") return;
-    // we dont want the whole query to fail if the user has been deleted, therefore its not a batch
-    firestore
-      .collection("users")
-      .doc(delFollow.author)
-      .update({
-        num_following: admin.firestore.FieldValue.increment(-1)
-      });
-
-    firestore
-      .collection("users")
-      .doc(delFollow.review_author)
-      .update({
-        num_follower: admin.firestore.FieldValue.increment(-1)
-      });
-
-    return firestore
-      .collection("interactions")
-      .where("author", "==", delFollow.review_author)
-      .where("type", "==", "listenlist")
-      .get()
-      .then(res => {
-        const batch = firestore.batch();
-        res.forEach(doc => batch.delete(doc.ref));
-        return batch.commit();
-      });
-  });
-
-exports.OnReccomend = functions.firestore
-  .document("interactions/{iid}")
-  .onCreate(async (snap, context) => {
-    const newRec = snap.data();
-    if (newRec.type !== "listenlist") return;
-    const lid = newRec.review_author + "_personal";
-    firestore
-      .collection("listenlist")
-      .doc(lid)
-      .update({
-        incoming_item_count: admin.firestore.FieldValue.increment(1),
-        incoming_item_count_track: admin.firestore.FieldValue.increment(
-          Number(newRec.content.type === "track")
-        ),
-        incoming_item_count_album: admin.firestore.FieldValue.increment(
-          Number(newRec.content.type === "album")
-        ),
-        incoming_item_count_artist: admin.firestore.FieldValue.increment(
-          Number(newRec.content.type === "artist")
-        )
-      });
-  });
-
-exports.OnUnReccomend = functions.firestore
-  .document("interactions/{iid}")
-  .onDelete(async (snap, context) => {
-    const delRec = snap.data();
-    if (delRec.type !== "listenlist") return;
-    const lid = delRec.review_author + "_personal";
-    firestore
-      .collection("listenlist")
-      .doc(lid)
-      .update({
-        incoming_item_count: admin.firestore.FieldValue.increment(-1),
-        incoming_item_count_track: admin.firestore.FieldValue.increment(
-          -1 * Number(delRec.content.type === "track")
-        ),
-        incoming_item_count_album: admin.firestore.FieldValue.increment(
-          -1 * Number(delRec.content.type === "album")
-        ),
-        incoming_item_count_artist: admin.firestore.FieldValue.increment(
-          -1 * Number(delRec.content.type === "artist")
-        )
-      });
+    const delInteract = snap.data();
+    switch (delInteract.type) {
+      case "follow":
+        return onUnFollow(delInteract);
+      case "listenlist":
+        return onUnReccomend(delInteract);
+      case "comment":
+        return onUnComment(delInteract);
+      case "like":
+        return onUnLike(delInteract);
+      default:
+        return;
+    }
   });
 
 exports.updateContent = functions.firestore
@@ -353,33 +417,6 @@ exports.updateContentOnDelete = functions.firestore
         res.forEach(doc => batch.delete(doc.ref));
         return batch.commit();
       });
-  });
-
-exports.updateReviewOnAddComment = functions.firestore
-  .document("comments/{did}")
-  .onCreate(async (snap, context) => {
-    const newComment = snap.data();
-    const ref = await firestore.collection("reviews").doc(newComment.review);
-    return ref.update({
-      num_comments: admin.firestore.FieldValue.increment(1),
-      popularity: admin.firestore.FieldValue.increment(1)
-    });
-  });
-
-//delete all comments when review is deleted
-
-exports.updateReviewOnDeleteComment = functions.firestore
-  .document("comments/{did}")
-  .onDelete(async (snap, context) => {
-    const delComment = snap.data();
-    const ref = await firestore.collection("reviews").doc(delComment.review);
-    const refExists = await ref.get().then(res => res.exists);
-    if (refExists)
-      return ref.update({
-        num_comments: admin.firestore.FieldValue.increment(-1),
-        popularity: admin.firestore.FieldValue.increment(-1)
-      });
-    return;
   });
 
 /**

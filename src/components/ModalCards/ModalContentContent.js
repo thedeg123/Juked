@@ -41,9 +41,10 @@ const ModalContentContent = ({ onClose, link, content }) => {
     let cr = {};
     for (let index = 0; index < followers.length; index++) {
       const user = followers[index];
-      cr[content.id + user.id] = await firestore.contentReccomendedToFollower(
+      const id = user.id || user.email;
+      cr[content.id + id] = await firestore.contentReccomendedToFollower(
         content.id,
-        user.id
+        id
       );
     }
     return cr;

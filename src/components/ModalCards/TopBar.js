@@ -1,6 +1,6 @@
 //Provides margin on components
 import React from "react";
-import { StyleSheet, Button, View } from "react-native";
+import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 import colors from "../../constants/colors";
 import { OpenButton, PlayButton } from "./SpotifyButtons";
 
@@ -11,7 +11,11 @@ const TopBar = ({ onClose, content, showSpotify }) => {
         {showSpotify && content && content.preview_url && (
           <PlayButton content={content} />
         )}
-        <Button onPress={onClose} title="Done" />
+        <TouchableOpacity onPress={onClose}>
+          <Text style={{ color: colors.primary, fontSize: 18, margin: 10 }}>
+            Done
+          </Text>
+        </TouchableOpacity>
       </View>
       {showSpotify && content && content.url && (
         <View>

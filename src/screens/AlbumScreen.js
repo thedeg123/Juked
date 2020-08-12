@@ -89,7 +89,7 @@ const AlbumScreen = ({ navigation }) => {
           style={{
             flexDirection: "row",
             alignItems: "center",
-            marginBottom: 20,
+            marginBottom: 10,
             marginHorizontal: 10
           }}
         >
@@ -105,8 +105,15 @@ const AlbumScreen = ({ navigation }) => {
               uri: album.image
             }}
           />
-          <View style={{ alignItems: "center", width: "50%" }}>
-            <Text style={styles.title}>{album.name}</Text>
+          <View style={{ alignItems: "center", width: "50%", marginLeft: 5 }}>
+            <Text
+              style={{
+                ...styles.title,
+                fontSize: album.name.length > 60 ? 20 : 25
+              }}
+            >
+              {album.name}
+            </Text>
             <ArtistNames
               horizontal={false}
               artists={album.artists}
@@ -220,7 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: 20
   },
-  title: { fontSize: 25, color: colors.text, textAlign: "center" },
+  title: { color: colors.text, textAlign: "center" },
   text: {
     fontSize: 15,
     marginTop: 5,
