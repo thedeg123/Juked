@@ -91,7 +91,7 @@ export default simplifyContent = (content, type) => {
         duration: stringifyTime(content.duration_ms),
         genres: content.genres,
         preview_url: content.preview_url,
-        popularity: content.popularity,
+        popularity: content.popularity ? content.popularity : null,
         year: content.year
       };
     }
@@ -111,7 +111,7 @@ export default simplifyContent = (content, type) => {
         id: content.id,
         url: content.external_urls.spotify,
         album_type: content.album_type,
-        popularity: content.popularity,
+        popularity: content.popularity ? content.popularity : null,
         preview_url:
           content.tracks && content.tracks.items
             ? content.tracks.items[0].preview_url

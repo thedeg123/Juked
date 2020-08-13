@@ -52,14 +52,14 @@ const UserListItem = ({
             subheader={content.artists}
             fontScaling={0.8}
           ></ContentTitle>
-          {showGrip && (
+          {showGrip ? (
             <FontAwesome5
               name="grip-lines"
               size={24}
               style={{ marginRight: 5, marginTop: 25 }}
               color={colors.veryTranslucentWhite}
             />
-          )}
+          ) : null}
         </View>
       </HomeScreenBorder>
     </View>

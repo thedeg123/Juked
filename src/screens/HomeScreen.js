@@ -43,7 +43,6 @@ const HomeScreen = ({ navigation }) => {
 
   const fetchHomeScreenData = async (limit = 20, reset_refresh = false) => {
     if (refreshing || loadingNext || (!allowLoad && !reset_refresh)) return;
-
     const start_after = reset_refresh ? null : startAfter;
     if (reset_refresh) {
       setAllowLoad(true);
@@ -85,7 +84,8 @@ const HomeScreen = ({ navigation }) => {
 
   useEffect(() => {
     navigation.setParams({ setShowModal });
-    fetchHomeScreenData(10, true);
+    fetchHomeScreenData(15, true);
+    firestore.registerForPushNotifications();
     // Alert.alert(
     //   "Welcome to the Juked Beta!",
     //   `Remember this is for testing purposes only. All beta accounts will likely be deleted prior to launch. Have fun!`
@@ -130,16 +130,16 @@ const HomeScreen = ({ navigation }) => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={async () => {
-                return await fetchHomeScreenData(10, true);
+                return await fetchHomeScreenData(15, true);
               }}
             />
           }
           onEndReached={async ({ distanceFromEnd }) => {
             if (distanceFromEnd >= 0) {
-              await fetchHomeScreenData(10);
+              await fetchHomeScreenData(15);
             }
           }}
-          onEndReachedThreshold={0.7}
+          onEndReachedThreshold={0.5}
           ListFooterComponent={() =>
             loadingNext && (
               <View style={{ padding: 20 }}>
@@ -162,7 +162,7 @@ const HomeScreen = ({ navigation }) => {
           if (changed) {
             if (flatListRef.current)
               flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-            fetchHomeScreenData(10, true);
+            fetchHomeScreenData(15, true);
           }
         }}
         filterTypes={filterTypes}

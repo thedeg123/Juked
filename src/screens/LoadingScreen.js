@@ -3,6 +3,7 @@ import { Alert } from "react-native";
 import { auth } from "firebase";
 import LoadingPage from "../components/Loading/LoadingPage";
 import context from "../context/context";
+import * as Notifications from "expo-notifications";
 
 const LoadingScreen = ({ navigation }) => {
   let { firestore } = useContext(context);
@@ -27,7 +28,29 @@ const LoadingScreen = ({ navigation }) => {
       resolve(response);
     });
 
-  //
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false
+    })
+  });
+
+  // triggered when user sees notification in app
+  const _handleNotification = (response, user) => {
+    //if the user is not logged in we return
+    if (!user) return;
+    Notifications.setBadgeCountAsync(0);
+  };
+
+  // triggered when user presses a notification
+  const _handleNotificationResponse = ({ notification }, user) => {
+    //if the user is not logged in we return
+    if (!user) return;
+    Notifications.setBadgeCountAsync(0);
+    const { screen, data } = notification.request.content.data.body;
+    return navigation.navigate(screen, data);
+  };
 
   useEffect(() => {
     const routeState = () => {
@@ -39,11 +62,19 @@ const LoadingScreen = ({ navigation }) => {
           Alert.alert("Failed to signin", "Sorry, an unknown error occurred.");
           return navigation.navigate("loginFlow");
         }
-
         await firestore.establishCachedContent();
-        return response.handle.length
-          ? navigation.navigate("homeFlow")
-          : navigation.navigate("MakeProfile");
+
+        if (!response.handle.length) return navigation.navigate("MakeProfile");
+
+        Notifications.addNotificationReceivedListener(notification =>
+          _handleNotification(notification, user)
+        );
+
+        Notifications.addNotificationResponseReceivedListener(notification =>
+          _handleNotificationResponse(notification, user)
+        );
+
+        return navigation.navigate("homeFlow");
       });
     };
     routeState();

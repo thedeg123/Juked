@@ -35,7 +35,11 @@ const UserListPreviewItem = ({
     >
       <View style={list ? styles.shadow : null}>
         {list.data.items.length < 4 ? (
-          <ContentPic content={list.data.items[0]} width={100}></ContentPic>
+          <ContentPic
+            borderRadius={{ borderRadius: 5 }}
+            content={list.data.items[0]}
+            width={100}
+          ></ContentPic>
         ) : (
           <View>
             <View style={{ flexDirection: "row" }}>

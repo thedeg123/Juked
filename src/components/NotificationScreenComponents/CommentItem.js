@@ -7,11 +7,13 @@ import { withNavigation } from "react-navigation";
 import { getAbreveatedTimeDif } from "../../helpers/simplifyContent";
 
 const CommentItem = ({ navigation, fetchReview, item, user, currentUser }) => {
+  const isList = item.data.content_type === "list";
   return (
     <TouchableOpacity
       onPress={async () =>
-        navigation.navigate("Review", {
-          review: await fetchReview(),
+        navigation.navigate(isList ? "UserList" : "Review", {
+          list: isList ? await fetchReview() : null,
+          review: !isList ? await fetchReview() : null,
           user: currentUser,
           content: item.data.content
         })
@@ -32,22 +34,26 @@ const CommentItem = ({ navigation, fetchReview, item, user, currentUser }) => {
               <Text style={{ fontWeight: "bold" }}>
                 {user.email == currentUser.email ? "You" : user.handle}{" "}
               </Text>
-              commented on your review of
-              <Text style={{ fontWeight: "bold" }}>
-                {" "}
-                {item.data.content.name}{" "}
-              </Text>
+              commented on your {isList ? "list" : "review of"}
+              {!isList ? (
+                <Text style={{ fontWeight: "bold" }}>
+                  {" "}
+                  {item.data.content.name}{" "}
+                </Text>
+              ) : null}
             </Text>
             <Text style={[styles.textStyle, { fontWeight: "bold" }]}>
               {getAbreveatedTimeDif(item.data.last_modified)}
             </Text>
           </View>
-          <ContentPic
-            borderRadius={{ borderRadius: 5 }}
-            borderWidth={{ marginRight: 10 }}
-            content={item.data.content}
-            showPlay
-          ></ContentPic>
+          {!isList ? (
+            <ContentPic
+              borderRadius={{ borderRadius: 5 }}
+              borderWidth={{ marginRight: 10 }}
+              content={item.data.content}
+              showPlay
+            ></ContentPic>
+          ) : null}
         </View>
         <View
           style={{

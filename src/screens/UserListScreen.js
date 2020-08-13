@@ -21,27 +21,26 @@ import "firebase/firestore";
 import LikeBox from "../components/ReviewScreenComponents/LikeBox";
 import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
+import UserPreviewItem from "../components/UserPreview";
 import UserListItem from "../components/UserList/UserListItem";
 import CommentBar from "../components/ReviewScreenComponents/CommentBar";
 import CommentsSection from "../components/ReviewScreenComponents/CommentsSection";
 import { customCommentBarAnimation } from "../constants/heights";
+import LoadingPage from "../components/Loading/LoadingPage";
 
 const UserListScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const firestoreConcurrent = firebase.firestore();
   const [list, setList] = useState(navigation.getParam("list"));
-  const user = navigation.getParam("user");
+  const [user, setUser] = useState(navigation.getParam("user"));
   const flatListRef = useRef();
-
-  if (!list || !user)
-    console.error("ReviewScreen should be passed review, content, user");
 
   const [showModal, setShowModal] = useState(false);
   const [keyboardIsActive, setKeyboardIsActive] = useState(false);
   const [comments, setComments] = useState([]);
   const [commentUsers, setCommentUsers] = useState({});
   const [userLikes, setUserLikes] = useState(null);
-  const content = list.data && list.data.items[0];
+  let content = list && list.data && list.data.items[0];
   let remover = null;
 
   if (Platform.OS === "android") {
@@ -57,37 +56,59 @@ const UserListScreen = ({ navigation }) => {
         .then(users => setCommentUsers(users));
   }, [comments]);
 
+  const getListandUser = async () => {
+    let list = navigation.getParam("list");
+    let user = navigation.getParam("user");
+
+    if (user || list) return list;
+
+    const lid = navigation.getParam("rid");
+    const uid = navigation.getParam("uid");
+
+    if (!(lid && uid))
+      console.warn("Page should be supplied rid and uid or list and user");
+    user = await firestore.getUser(uid);
+    list = await firestore.getReview(lid);
+    setUser(user);
+    setList(list);
+    return list;
+  };
+
   useEffect(() => {
-    navigation.setParams({ setShowModal, title: list.data.title });
-    const comment_remover = firestore.getComments(list.id, setComments);
+    let comment_remover, remover, keyboardOpenListenter, keyboardCloseListenter;
 
-    remover = firestoreConcurrent
-      .collection("reviews")
-      .doc(list.id)
-      .onSnapshot(doc => setList({ id: doc.id, data: doc.data() }));
+    getListandUser().then(list => {
+      content = list && list.data && list.data.items[0];
+      navigation.setParams({ setShowModal, title: list.data.title });
+      comment_remover = firestore.getComments(list.id, setComments);
+      firestore.userLikesReview(list.id).then(res => setUserLikes(res));
 
-    const keyboardOpenListenter = Keyboard.addListener(
-      "keyboardWillShow",
-      () => {
+      remover = firestoreConcurrent
+        .collection("reviews")
+        .doc(list.id)
+        .onSnapshot(doc => setList({ id: doc.id, data: doc.data() }));
+
+      keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () => {
         LayoutAnimation.configureNext(customCommentBarAnimation);
         setKeyboardIsActive(true);
-      }
-    );
-    const keyboardCloseListenter = Keyboard.addListener(
-      "keyboardWillHide",
-      () => {
+      });
+      keyboardCloseListenter = Keyboard.addListener("keyboardWillHide", () => {
         LayoutAnimation.configureNext(customCommentBarAnimation);
         setKeyboardIsActive(false);
-      }
-    );
+      });
+    });
+
     return () => {
       remover ? remover() : null;
       comment_remover ? comment_remover() : null;
-      keyboardOpenListenter.remove();
-      keyboardCloseListenter.remove();
+      keyboardOpenListenter ? keyboardOpenListenter.remove() : null;
+      keyboardCloseListenter ? keyboardCloseListenter.remove() : null;
     };
   }, []);
-  if (!list || !list.data) {
+
+  if (!list || !user) return <LoadingPage />;
+
+  if (!list.data) {
     return <View></View>;
   }
   const headerComponent = (
@@ -142,7 +163,7 @@ const UserListScreen = ({ navigation }) => {
               onLike={() => {
                 userLikes
                   ? firestore.unLikeReview(list.id)
-                  : firestore.likeReview(list.id, list.data.author, content);
+                  : firestore.likeReview(list.id, list.data.author);
                 setUserLikes(!userLikes);
               }}
               onPress={() =>
@@ -152,13 +173,18 @@ const UserListScreen = ({ navigation }) => {
                   fetchData: async () => {
                     const likes = await firestore.getLikes(list.id);
                     const users = await firestore.batchAuthorRequest(
-                      likes.map(like => like.author),
+                      likes.map(like => like.data.author),
                       false,
                       false
                     );
                     return [users];
                   },
-                  renderItem: ({ item }) => <UserPreview user={item.data} />,
+                  renderItem: ({ item }) => {
+                    return (
+                      <UserPreviewItem user={item.data ? item.data : item} />
+                    );
+                  },
+
                   keyExtractor: item => item.id
                 })
               }
@@ -170,7 +196,7 @@ const UserListScreen = ({ navigation }) => {
             keyboardIsActive={keyboardIsActive}
             submitComment={comment => {
               Keyboard.dismiss();
-              firestore.addComment(list.id, list.data.author, comment, content);
+              firestore.addComment(list.id, list.data.author, comment);
             }}
           ></CommentBar>
         </View>
@@ -262,11 +288,12 @@ const styles = StyleSheet.create({
 UserListScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
   const title = navigation.getParam("title");
+  const user = navigation.getParam("user");
 
   return {
-    title,
+    title: title ? title : "List",
     headerRight: () =>
-      navigation.getParam("user").email === auth().currentUser.email ? (
+      user && user.email === auth().currentUser.email ? (
         <TouchableOpacity onPress={() => setShowModal(true)}>
           <TopButton text={"Edit"}></TopButton>
         </TouchableOpacity>

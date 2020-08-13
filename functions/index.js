@@ -2,8 +2,11 @@ const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 const axios = require("axios");
 const { config } = require("./musicConfig.js");
+const { Expo } = require("expo-server-sdk");
 
 admin.initializeApp();
+
+let expo = new Expo();
 
 const firestore = admin.firestore();
 
@@ -77,7 +80,28 @@ exports.deleteUser = functions.auth.user().onDelete(async user => {
     .delete();
 });
 
-const onFollow = newFollow => {
+const sendPushNotification = async (uid, body) => {
+  // sending a push notifcation to the author
+  const pushToken = await firestore
+    .collection("users")
+    .doc(uid)
+    .get()
+    .then(res => res.data().notification_token);
+
+  // if the user is not signed up for notifications, do nothing
+  if (!pushToken || !Expo.isExpoPushToken(pushToken)) return;
+
+  // as cloud functions dont support es6
+  body.title = "Juked";
+  body.to = pushToken;
+  body.sound = "default";
+  body.badge = 1;
+  const messeges = [body];
+
+  return await expo.sendPushNotificationsAsync(messeges);
+};
+
+const onFollow = async newFollow => {
   var batch = firestore.batch();
   const refFollowing = firestore
     .collection("users")
@@ -89,10 +113,15 @@ const onFollow = newFollow => {
   batch.update(refFollower, {
     num_following: admin.firestore.FieldValue.increment(1)
   });
-  return batch.commit();
+  batch.commit();
+
+  return await sendPushNotification(newFollow.review_author, {
+    body: `${newFollow.author_handle} followed you!`,
+    data: { screen: "Profile", data: { uid: newFollow.author } }
+  });
 };
 
-const onReccomend = newRec => {
+const onReccomend = async newRec => {
   const lid = newRec.review_author + "_personal";
   firestore
     .collection("listenlist")
@@ -109,9 +138,21 @@ const onReccomend = newRec => {
         Number(newRec.content.type === "artist")
       )
     });
+  return await sendPushNotification(newRec.review_author, {
+    body: `${newRec.author_handle} added ${newRec.content.name}${
+      newRec.content.artists ? ` by ${newRec.content.artists[0].name}` : ""
+    } to your listenlist`,
+    data: {
+      screen: "ListenList",
+      data: {
+        type: "incoming",
+        user: { email: newRec.review_author }
+      }
+    }
+  });
 };
 
-const onComment = commentInteraction => {
+const onComment = async commentInteraction => {
   const rid = commentInteraction.review;
   firestore
     .collection("reviews")
@@ -120,9 +161,30 @@ const onComment = commentInteraction => {
       num_comments: admin.firestore.FieldValue.increment(1),
       popularity: admin.firestore.FieldValue.increment(1)
     });
+
+  const contentName =
+    commentInteraction.content_type === "list"
+      ? `list`
+      : `review of ${commentInteraction.content.name}`;
+
+  // we dont want to send a notification to someone liking their own review
+  if (commentInteraction.review_author === commentInteraction.author) return;
+
+  return await sendPushNotification(commentInteraction.review_author, {
+    body: `${commentInteraction.author_handle} commented on your ${contentName}: "${commentInteraction.text}"`,
+    data: {
+      screen:
+        commentInteraction.content_type === "list" ? "UserList" : "Review",
+      data: {
+        uid: commentInteraction.review_author,
+        rid: commentInteraction.review,
+        content: commentInteraction.content
+      }
+    }
+  });
 };
 
-const onLike = likeInteraction => {
+const onLike = async likeInteraction => {
   const rid = likeInteraction.review;
   firestore
     .collection("reviews")
@@ -131,6 +193,25 @@ const onLike = likeInteraction => {
       popularity: admin.firestore.FieldValue.increment(1),
       num_likes: admin.firestore.FieldValue.increment(1)
     });
+
+  const contentName =
+    likeInteraction.content_type === "list"
+      ? `list`
+      : `review of ${likeInteraction.content.name}`;
+  // we dont want to send a notification to someone liking their own review
+  if (likeInteraction.review_author === likeInteraction.author) return;
+
+  return await sendPushNotification(likeInteraction.review_author, {
+    body: `${likeInteraction.author_handle} liked your ${contentName}`,
+    data: {
+      screen: likeInteraction.content_type === "list" ? "UserList" : "Review",
+      data: {
+        uid: likeInteraction.review_author,
+        rid: likeInteraction.review,
+        content: likeInteraction.content
+      }
+    }
+  });
 };
 
 exports.onInteract = functions.firestore
@@ -305,6 +386,7 @@ exports.updateContentOnEdit = functions.firestore
   .onUpdate(async (change, context) => {
     const newReview = change.after.data();
     const oldReview = change.before.data();
+    if (newReview.review_type === "list") return;
     const ref = await firestore.collection("content").doc(oldReview.content_id);
     const content = await ref.get().then(res => res.data());
     const rating_nums = content.rating_nums;

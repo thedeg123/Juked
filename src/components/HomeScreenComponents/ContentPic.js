@@ -23,9 +23,9 @@ const ContentPic = ({
     <View
       style={{
         overflow: "hidden",
+        borderColor: colors.veryTranslucentWhite,
         ...borderWidth,
-        ...borderRadius,
-        borderColor: colors.veryTranslucentWhite
+        ...borderRadius
       }}
     >
       <ImageBackground

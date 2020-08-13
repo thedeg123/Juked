@@ -25,15 +25,17 @@ import UserListItem from "../components/UserPreview";
 import CommentBar from "../components/ReviewScreenComponents/CommentBar";
 import CommentsSection from "../components/ReviewScreenComponents/CommentsSection";
 import { customCommentBarAnimation } from "../constants/heights";
+import LoadingPage from "../components/Loading/LoadingPage";
 
 const ReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const firestoreConcurrent = firebase.firestore();
   const [review, setReview] = useState(navigation.getParam("review"));
-  const user = navigation.getParam("user");
+  const [user, setUser] = useState(navigation.getParam("user"));
   const content = navigation.getParam("content");
-  if (!review || !content || !user)
-    console.error("ReviewScreen should be passed review, content, user");
+
+  if (!content)
+    console.warn("ReviewScreen should be passed review, content, user");
 
   const [showModal, setShowModal] = useState(false);
   const [keyboardIsActive, setKeyboardIsActive] = useState(false);
@@ -54,44 +56,65 @@ const ReviewScreen = ({ navigation }) => {
         .then(users => setCommentUsers(users));
   }, [comments]);
 
+  /**
+   * @description - We will always be passed a user and review, so this funciton will just return, except in the case of
+   * a notification press where we navigate here first
+   */
+
+  const getReviewandUser = async () => {
+    let review = navigation.getParam("review");
+    let user = navigation.getParam("user");
+
+    if (user || review) return review;
+
+    const rid = navigation.getParam("rid");
+    const uid = navigation.getParam("uid");
+
+    if (!(rid && uid))
+      console.warn("Page should be supplied rid and uid or review and user");
+    user = await firestore.getUser(uid);
+    review = await firestore.getReview(rid);
+    setUser(user);
+    setReview(review);
+    return review;
+  };
+
   useEffect(() => {
-    firestore.userLikesReview(review.id).then(res => setUserLikes(res));
-    navigation.setParams({
-      setShowModal,
-      reviewType: toDisplayType(review.data.type)
-    });
+    let comment_remover, remover, keyboardOpenListenter, keyboardCloseListenter;
 
-    const comment_remover = firestore.getComments(review.id, setComments);
-    const remover = firestoreConcurrent
-      .collection("reviews")
-      .doc(review.id)
-      .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
+    getReviewandUser().then(review => {
+      firestore.userLikesReview(review.id).then(res => setUserLikes(res));
+      navigation.setParams({
+        setShowModal,
+        reviewType: toDisplayType(review.data.type)
+      });
 
-    const keyboardOpenListenter = Keyboard.addListener(
-      "keyboardWillShow",
-      () => {
+      comment_remover = firestore.getComments(review.id, setComments);
+      remover = firestoreConcurrent
+        .collection("reviews")
+        .doc(review.id)
+        .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
+
+      keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () => {
         LayoutAnimation.configureNext(customCommentBarAnimation);
         setKeyboardIsActive(true);
-      }
-    );
-    const keyboardCloseListenter = Keyboard.addListener(
-      "keyboardWillHide",
-      () => {
+      });
+      keyboardCloseListenter = Keyboard.addListener("keyboardWillHide", () => {
         LayoutAnimation.configureNext(customCommentBarAnimation);
         setKeyboardIsActive(false);
-      }
-    );
+      });
+    });
     return () => {
       remover ? remover() : null;
       comment_remover ? comment_remover() : null;
-      keyboardOpenListenter.remove();
-      keyboardCloseListenter.remove();
+      keyboardOpenListenter ? keyboardOpenListenter.remove() : null;
+      keyboardCloseListenter ? keyboardCloseListenter.remove() : null;
     };
   }, []);
 
-  if (!review.data) {
-    return <View></View>;
-  }
+  if (!review || !user) return <LoadingPage />;
+  if (!review.data) return <View></View>;
+
   const headerComponent = (
     <View style={{ flex: 1 }}>
       <ReviewHeader
@@ -220,11 +243,11 @@ const styles = StyleSheet.create({
 ReviewScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
   const reviewType = navigation.getParam("reviewType");
-
+  const user = navigation.getParam("user");
   return {
-    title: `${reviewType} Review`,
+    title: reviewType ? `${reviewType} Review` : "Review",
     headerRight: () =>
-      navigation.getParam("user").email === auth().currentUser.email ? (
+      user && user.email === auth().currentUser.email ? (
         <TouchableOpacity onPress={() => setShowModal(true)}>
           <TopButton text={"Edit"} />
         </TouchableOpacity>

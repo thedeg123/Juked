@@ -12,7 +12,14 @@ const TopBar = ({ onClose, content, showSpotify }) => {
           <PlayButton content={content} />
         )}
         <TouchableOpacity onPress={onClose}>
-          <Text style={{ color: colors.primary, fontSize: 18, margin: 10 }}>
+          <Text
+            style={{
+              color: colors.primary,
+              fontSize: 18,
+              margin: 10,
+              marginBottom: 0
+            }}
+          >
             Done
           </Text>
         </TouchableOpacity>

@@ -37,11 +37,11 @@ const ReviewButton = ({
             color={colors.white}
           />
         ) : (
-          <Entypo name="add-to-list" size={32} color={colors.white} />
+          <Entypo name="add-to-list" size={28} color={colors.white} />
         )}
         <Text
           style={{
-            fontSize: 16,
+            fontSize: 14,
             marginLeft: 10,
             color: colors.white,
             fontWeight: "bold"
@@ -60,10 +60,10 @@ const ReviewButton = ({
           });
         }}
       >
-        <MaterialIcons name="rate-review" size={32} color={colors.white} />
+        <MaterialIcons name="rate-review" size={28} color={colors.white} />
         <Text
           style={{
-            fontSize: 16,
+            fontSize: 14,
             marginLeft: 10,
             color: colors.white,
             fontWeight: "bold"
@@ -79,7 +79,7 @@ const ReviewButton = ({
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    width: 160,
+    width: 140,
     flexDirection: "row",
     backgroundColor: colors.secondary,
     borderRadius: 5,

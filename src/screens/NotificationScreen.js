@@ -18,6 +18,7 @@ import ListenlistItem from "../components/NotificationScreenComponents/Listenlis
 import context from "../context/context";
 import { customNotificationAnimation } from "../constants/heights";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
+import { setBadgeCountAsync } from "expo-notifications";
 
 const NotificationScreen = ({ navigation }) => {
   if (Platform.OS === "android") {
@@ -99,6 +100,7 @@ const NotificationScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
+    setBadgeCountAsync(0);
     LayoutAnimation.configureNext(customNotificationAnimation);
     if (!currentUser)
       firestore

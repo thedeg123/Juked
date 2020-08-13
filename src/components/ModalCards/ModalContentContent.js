@@ -19,7 +19,9 @@ const ModalContentContent = ({ onClose, link, content }) => {
     return (
       <UserSelectorScrollItem
         image={{
-          uri: item.profile_url || images.profileDefault
+          uri:
+            (item.data ? item.profile_url : item.profile_url) ||
+            images.profileDefault
         }}
         showCheck={contentReccomendedToFollower}
         textStyle={{
@@ -32,7 +34,7 @@ const ModalContentContent = ({ onClose, link, content }) => {
           contentRecs[content.id + item.email] = !contentReccomendedToFollower;
           setContentRecs({ ...contentRecs });
         }}
-        text={item.handle}
+        text={item.handle || item.data.handle}
       />
     );
   };
@@ -108,7 +110,7 @@ const ModalContentContent = ({ onClose, link, content }) => {
             <FlatList
               data={followers}
               horizontal
-              keyExtractor={item => item.email}
+              keyExtractor={item => item.email || item.id}
               renderItem={renderItem}
             />
           </View>

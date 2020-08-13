@@ -119,7 +119,7 @@ const ListenListScreen = ({ navigation }) => {
           return setShowModalItemCard(true);
         }}
       />
-      {listType === "incoming" && (
+      {listType === "incoming" ? (
         <UserPreview
           uid={listenListContributors[item.author].email}
           color={colors.text}
@@ -128,9 +128,10 @@ const ListenListScreen = ({ navigation }) => {
           containerStyle={{ marginRight: 10 }}
           username={listenListContributors[item.author].handle}
         />
-      )}
+      ) : null}
     </View>
   );
+
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: 10 }}>
@@ -155,9 +156,7 @@ const ListenListScreen = ({ navigation }) => {
             (onEndReachedCalledDuringMomentum = true)
           }
           onEndReached={async () => {
-            if (!allowRefresh || !onEndReachedCalledDuringMomentum) {
-              return;
-            }
+            if (!allowRefresh || !onEndReachedCalledDuringMomentum) return;
             onEndReachedCalledDuringMomentum = false;
             setRefreshing(true);
             await fetchLists();
@@ -166,12 +165,11 @@ const ListenListScreen = ({ navigation }) => {
           onEndReachedThreshold={0}
           initialNumToRender={10}
           ListFooterComponent={() =>
-            refreshing &&
-            allowRefresh && (
+            refreshing && allowRefresh ? (
               <View style={{ padding: 20 }}>
                 <LoadingIndicator />
               </View>
-            )
+            ) : null
           }
         />
       )}
@@ -209,7 +207,7 @@ const ListenListScreen = ({ navigation }) => {
               .then(res => fetchLists());
           }
         }}
-        content={currentContent && currentContent.content}
+        content={currentContent ? currentContent.content : null}
       />
     </View>
   );
@@ -217,16 +215,20 @@ const ListenListScreen = ({ navigation }) => {
 
 ListenListScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
-  const { handle } = navigation.getParam("user");
+  const user = navigation.getParam("user");
 
   return {
-    title: `${handle}'s listenlist`,
+    title: `${user && user.handle ? `${user.handle}'s` : "Your"} listenlist`,
     headerRight: () => (
       <TouchableOpacity onPress={() => setShowModal(true)}>
         <TopButton text={"Sort"} />
       </TouchableOpacity>
     )
   };
+};
+
+ListenListScreen.defaultProps = {
+  setShowModal: () => {}
 };
 
 export default ListenListScreen;

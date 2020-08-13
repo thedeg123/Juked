@@ -12,7 +12,7 @@ const ContentTitle = ({ header, subheader }) => {
       >
         {header}
       </Text>
-      {subheader && (
+      {subheader ? (
         <ArtistNames
           artists={subheader}
           allowPress={false}
@@ -21,13 +21,14 @@ const ContentTitle = ({ header, subheader }) => {
             { fontSize: subheader.length === 1 ? 14 : 12 }
           ]}
         ></ArtistNames>
-      )}
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   containerStyle: {
+    justifyContent: "center",
     flex: 1,
     height: 65,
     marginHorizontal: 5

@@ -52,6 +52,23 @@ class useFirestore {
     return ret;
   }
 
+  /**
+   *
+   * @param {Object} content - the given content to dehydrate
+   * @description - simplifies content to store, we just get rid of the tracks as its overkill to store all album tracks
+   * on the backend for an album review
+   */
+  dehydrateContent(content) {
+    const dehydrateItem = item => {
+      return { ...item, tracks: [] };
+    };
+
+    if (Array.isArray(content)) return content.map(item => dehydrateItem(item));
+    if (content.type !== "album") return content;
+
+    return dehydrateItem(content);
+  }
+
   // -----------------------------------------------------------------------------------------------------------
   // Authentication relations
 
@@ -265,15 +282,22 @@ class useFirestore {
       .then(res => res.exists);
   }
 
-  likeReview(rid, review_author, content = {}) {
+  async likeReview(rid, review_author, content = {}) {
     const lid = rid + this.fetchCurrentUID();
-    return this.interactions_db.doc(lid).set({
+
+    const author_handle = await this.fetchCurrentUserData().then(
+      res => res.handle
+    );
+
+    return await this.interactions_db.doc(lid).set({
       author: this.fetchCurrentUID(),
+      author_handle,
       last_modified: Date.now(),
       review: rid,
       type: "like",
       review_author,
-      content
+      content: this.dehydrateContent(content),
+      content_type: content.type || "list"
     });
   }
 
@@ -332,7 +356,6 @@ class useFirestore {
    * @return {Boolean} - if the user has reccomended this content to a follower
    */
   async contentReccomendedToFollower(cid, uid) {
-    console.log(cid + uid);
     const id = cid + uid;
     return await this.interactions_db
       .doc(id)
@@ -348,14 +371,20 @@ class useFirestore {
    */
   async reccomendContentToFollower(content, uid) {
     const lid = content.id + uid;
+
+    const author_handle = await this.fetchCurrentUserData().then(
+      res => res.handle
+    );
+
     const notification_item = {
       author: this.fetchCurrentUID(),
+      author_handle,
       last_modified: Date.now(),
       type: "listenlist",
       review_author: uid,
       genres: content.genres,
       content_type: content.type,
-      content: content
+      content: this.dehydrateContent(content)
     };
 
     return await this.interactions_db.doc(lid).set(notification_item);
@@ -376,7 +405,7 @@ class useFirestore {
   async _updatePersonalListenList(content, remove) {
     const uid = this.fetchCurrentUID() + "_personal";
     const item = {
-      content,
+      content: this.dehydrateContent(content),
       genres: content.genres,
       content_type: content.type,
       last_modified: new Date().getTime()
@@ -454,7 +483,7 @@ class useFirestore {
       title,
       description: description || "",
       itemKeys: [...itemKeys],
-      items,
+      items: this.dehydrateContent(items),
       review_type: "list"
     };
     return this.reviews_db.add(body);
@@ -474,7 +503,7 @@ class useFirestore {
     let body = {};
     typeof title == "string" ? (body["title"] = title) : null;
     typeof description == "string" ? (body["description"] = description) : null;
-    items ? (body["items"] = items) : null;
+    items ? (body["items"] = this.dehydrateContent(items)) : null;
     itemKeys ? (body["itemKeys"] = [...itemKeys]) : null;
     body["last_modified"] = new Date().valueOf();
     return this.reviews_db.doc(lid).update(body);
@@ -503,7 +532,7 @@ class useFirestore {
       content_id: cid,
       content_year: content.year ? content.year : null,
       content_popularity: content.popularity ? content.popularity : null,
-      content,
+      content: this.dehydrateContent(content),
       last_modified: new Date().getTime(),
       rating,
       text,
@@ -735,14 +764,16 @@ class useFirestore {
   // follower = author
   // following = review_author
   async followUser(uid) {
-    return await this.interactions_db
-      .doc(this.auth.currentUser.email + uid)
-      .set({
-        author: this.auth.currentUser.email,
-        review_author: uid,
-        last_modified: Date.now(),
-        type: "follow"
-      });
+    const author_handle = await this.fetchCurrentUserData().then(
+      res => res.handle
+    );
+    return await this.interactions_db.doc(this.fetchCurrentUID() + uid).set({
+      author: this.fetchCurrentUID(),
+      author_handle,
+      review_author: uid,
+      last_modified: Date.now(),
+      type: "follow"
+    });
   }
   async unfollowUser(uid) {
     return await this.interactions_db
@@ -886,12 +917,18 @@ class useFirestore {
    * @argument {Object} content - the assoceated content object
    */
   async addComment(rid, review_author, text, content = {}) {
+    const author_handle = await this.fetchCurrentUserData().then(
+      res => res.handle
+    );
+
     return await this.interactions_db.add({
       author: this.fetchCurrentUID(),
+      author_handle,
       review: rid,
       type: "comment",
       last_modified: Date.now(),
-      content,
+      content: this.dehydrateContent(content),
+      content_type: content.type || "list",
       review_author,
       text
     });
