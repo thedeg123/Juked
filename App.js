@@ -126,7 +126,7 @@ const mainStack = createBottomTabNavigator(
         tabBarLabel: ({ tintColor }) => (
           <Ionicons
             name="ios-notifications"
-            style={{ fontSize: 26, top: 4 }}
+            style={{ fontSize: 26, top: 2 }}
             color={tintColor}
           />
         )

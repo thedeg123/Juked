@@ -2,7 +2,6 @@ import React, { useEffect, useContext, useState } from "react";
 import {
   StyleSheet,
   View,
-  FlatList,
   RefreshControl,
   LayoutAnimation,
   UIManager,
@@ -10,6 +9,7 @@ import {
   Platform,
   ScrollView
 } from "react-native";
+import { FlatList } from "react-navigation";
 import colors from "../constants/colors";
 import LikeItem from "../components/NotificationScreenComponents/LikeItem";
 import CommentItem from "../components/NotificationScreenComponents/CommentItem";
@@ -100,7 +100,6 @@ const NotificationScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    setBadgeCountAsync(0);
     LayoutAnimation.configureNext(customNotificationAnimation);
     if (!currentUser)
       firestore
@@ -108,6 +107,10 @@ const NotificationScreen = ({ navigation }) => {
         .then(user => setCurrentUser(user));
     fetchDataCheck(paginationItem, true);
   }, []);
+
+  useEffect(() => {
+    setBadgeCountAsync(0);
+  });
 
   const refreshControl = (
     <RefreshControl

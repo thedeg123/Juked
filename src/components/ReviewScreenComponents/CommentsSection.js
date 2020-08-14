@@ -60,7 +60,10 @@ const CommentSection = ({
                   <UserPreview
                     img={commentUsers[item.data.author].profile_url}
                     username={commentUsers[item.data.author].handle}
-                    uid={commentUsers[item.data.author].id}
+                    uid={
+                      commentUsers[item.data.author].id ||
+                      commentUsers[item.data.author].email
+                    }
                     color={colors.translucentWhite}
                     size={35}
                     containerStyle={{

@@ -23,7 +23,7 @@ const ReviewPreview = ({
   style = style || {};
   return (
     <TouchableOpacity
-      style={{...styles.container, ...style}}
+      style={{ ...styles.container, ...style }}
       onPress={async () => {
         onPress();
         return navigation.push("Review", {
@@ -48,18 +48,15 @@ const ReviewPreview = ({
         >
           {review.data.rating}/10
         </Text>
-        <View style={{ flexDirection: "row" }}>
-          <Text style={{ top: 7, marginRight: 5, color: colors.text }}>
-            {author.handle}
-          </Text>
-          <UserPreview
-            img={author.profile_url}
-            uid={author.id}
-            size={30}
-            color={colors.text}
-            fontScaler={0.5}
-          ></UserPreview>
-        </View>
+        <UserPreview
+          img={author.profile_url}
+          uid={author.id || author.email}
+          horizontal
+          username={author.handle}
+          size={30}
+          color={colors.text}
+          fontScaler={0.5}
+        ></UserPreview>
       </View>
       <Text numberOfLines={3} style={styles.textStyle}>
         {review.data.text}

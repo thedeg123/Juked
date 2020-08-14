@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { StyleSheet, FlatList, Text, View, RefreshControl } from "react-native";
+import { StyleSheet, Text, View, RefreshControl } from "react-native";
+import { FlatList } from "react-navigation";
 import context from "../context/context";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import LoadingPage from "../components/Loading/LoadingPage";
@@ -83,6 +84,7 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
+    console.ignoredYellowBox = ["Setting a timer"];
     navigation.setParams({ setShowModal });
     fetchHomeScreenData(15, true);
     firestore.registerForPushNotifications();

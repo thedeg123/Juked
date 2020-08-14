@@ -24,6 +24,9 @@ const HomeScreenListItem = ({ list, author }) => {
           username={author.handle}
           img={author.profile_url}
           uid={author.email}
+          horizontal
+          size={25}
+          fontScaler={0.6}
           containerStyle={{ alignSelf: "flex-start" }}
         ></UserPreview>
       </View>

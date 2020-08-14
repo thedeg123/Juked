@@ -37,7 +37,13 @@ const TabBarComponent = props => {
   }, [activeMusic]);
 
   return (
-    <View style={[{ height: activeMusic ? activeHeight : 0 }, styles.border]}>
+    <View
+      style={[
+        { height: activeMusic ? activeHeight : 0 },
+        styles.border,
+        { borderWidth: activeMusic ? 1 : 0 }
+      ]}
+    >
       {activeMusic && (
         <View style={{ height: 55, paddingTop: 5 }}>
           <MusicPlayer
@@ -73,8 +79,7 @@ const styles = StyleSheet.create({
   border: {
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-    borderColor: colors.lightShadow,
-    borderWidth: 1
+    borderColor: colors.lightShadow
   },
   navigatorStyle: {
     borderTopLeftRadius: 10,

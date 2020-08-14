@@ -152,7 +152,9 @@ const ModalHomeContent = ({
             selected={userShow}
             onUserPress={user => {
               setChanged(true);
-              return setUserShow(userShow === user.id ? null : user);
+              return setUserShow(
+                userShow === (user.id || user.email) ? null : user
+              );
             }}
           />
         ) : (

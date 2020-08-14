@@ -158,8 +158,13 @@ class useFirestore {
         );
         finalStatus = status;
       }
-      if (finalStatus !== "granted") return;
+      // as we still want to register them if they ever change their mind
+      // if (finalStatus !== "granted") return;
       const { data } = await Notifications.getExpoPushTokenAsync();
+
+      this.users_db.doc(this.fetchCurrentUID()).update({
+        notification_token: data
+      });
 
       if (Platform.OS === "android") {
         Notifications.createChannelAndroidAsync("default", {
@@ -169,10 +174,6 @@ class useFirestore {
           vibrate: [0, 250, 250, 250]
         });
       }
-
-      this.users_db.doc(this.fetchCurrentUID()).update({
-        notification_token: data
-      });
     }
   };
 

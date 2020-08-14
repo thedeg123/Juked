@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import colors from "../../constants/colors";
 import { customCardAnimation } from "../../constants/heights";
-import { AntDesign, Entypo } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 
 const ReviewTitle = ({ title }) => {
   const [multiline, setMultiline] = useState(false);
@@ -23,7 +23,7 @@ const ReviewTitle = ({ title }) => {
 
   return (
     <TouchableOpacity
-      disabled={title.length <= 27}
+      disabled={title.length <= 40}
       onPress={() => {
         LayoutAnimation.configureNext(customCardAnimation);
         setMultiline(!multiline);
@@ -38,7 +38,7 @@ const ReviewTitle = ({ title }) => {
       <Text numberOfLines={multiline ? 3 : 1} style={styles.textStyle}>
         {title}
       </Text>
-      {title.length > 27 && (
+      {title.length > 40 && (
         <AntDesign
           name={multiline ? "up" : "down"}
           size={20}

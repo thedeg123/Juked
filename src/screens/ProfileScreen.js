@@ -4,9 +4,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  RefreshControl,
-  ScrollView
+  RefreshControl
 } from "react-native";
+import { ScrollView } from "react-navigation";
 import colors from "../constants/colors";
 import UserListItem from "../components/UserPreview";
 import ListPreview from "../components/ListPreview";
@@ -27,7 +27,7 @@ import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenLis
 import ListenListButton from "../components/ProfileScreen/ListenListButton";
 
 const UserProfileScreen = ({ navigation }) => {
-  const { firestore, disconnect } = useContext(context);
+  const { firestore, useMusic, disconnect } = useContext(context);
   const uid = navigation.getParam("uid") || firestore.fetchCurrentUID();
   const [user, setUser] = useState(null);
   const [followsYou, setFollowsYou] = useState(null);
@@ -124,6 +124,7 @@ const UserProfileScreen = ({ navigation }) => {
   };
 
   const onSignOut = async () => {
+    useMusic.stopContent();
     clearRemovers();
     await disconnect();
     firestore.signout();
@@ -303,16 +304,8 @@ const UserProfileScreen = ({ navigation }) => {
             personal
           />
           <ListenListButton
-            count={
-              graphType === "all"
-                ? personalListenList.incoming_item_count
-                : graphType === "song"
-                ? personalListenList.incoming_item_count_track
-                : graphType === "album"
-                ? personalListenList.incoming_item_count_album
-                : personalListenList.incoming_item_count_artist
-            }
-            type_of_interest={graphType}
+            count={personalListenList.incoming_item_count}
+            type_of_interest={"all"}
             user={user}
           />
         </View>
