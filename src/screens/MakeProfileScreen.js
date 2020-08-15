@@ -46,6 +46,9 @@ const MakeProfileScreen = ({
             label="Paste a URL for a profile pic,"
             value={imageURL}
             selectionColor={colors.white}
+            inputContainerStyle={{
+              borderColor: colors.veryVeryTranslucentWhite
+            }}
             labelStyle={{ color: colors.white }}
             onChangeText={setImageUrl}
             autoCapitalize="none"
@@ -61,6 +64,9 @@ const MakeProfileScreen = ({
             ref={handleRef}
             label="Choose a handle,"
             onFocus={() => setActive(true)}
+            inputContainerStyle={{
+              borderColor: colors.veryVeryTranslucentWhite
+            }}
             value={handle}
             selectionColor={colors.white}
             labelStyle={{ color: colors.white }}
@@ -81,6 +87,9 @@ const MakeProfileScreen = ({
             multiline
             maxLength={200}
             selectionColor={colors.white}
+            inputContainerStyle={{
+              borderColor: colors.veryVeryTranslucentWhite
+            }}
             onFocus={() => setActive(true)}
             blurOnSubmit
             onSubmitEditing={() => setActive(false)}

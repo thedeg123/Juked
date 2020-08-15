@@ -30,6 +30,7 @@ const AuthForm = ({
         returnKeyType={"next"}
         selectionColor={colors.white}
         labelStyle={{ color: colors.white }}
+        inputContainerStyle={{ borderColor: colors.veryVeryTranslucentWhite }}
         autoCorrect={false}
         onSubmitEditing={() => passwordRef.current.focus()}
       ></Input>
@@ -38,6 +39,7 @@ const AuthForm = ({
         ref={passwordRef}
         value={password}
         selectTextOnFocus
+        inputContainerStyle={{ borderColor: colors.veryVeryTranslucentWhite }}
         secureTextEntry={true}
         labelStyle={{ color: colors.white }}
         label={"Password"}
@@ -57,6 +59,7 @@ const AuthForm = ({
           ref={confirmPasswordRef}
           value={verifyPassword}
           selectTextOnFocus
+          inputContainerStyle={{ borderColor: colors.veryVeryTranslucentWhite }}
           secureTextEntry={true}
           selectionColor={colors.white}
           labelStyle={{ color: colors.white }}
