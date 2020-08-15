@@ -14,7 +14,7 @@ export default {
   semiTranslucentWhite: "rgba(255,255,255,0.8)",
   veryTranslucentWhite: "rgba(255,255,255,0.6)",
   veryVeryTranslucentWhite: "rgba(255,255,255,0.4)",
-  darkener: "rgba(0,0,0,0.35)",
+  darkener: "rgba(0,0,0,0.3)",
   cardColor: "rgba(255,255,255,0.85)",
   white: "#FFF",
   spotifyBackground: "rgb(24,20,20)",
@@ -23,4 +23,4 @@ export default {
   lightShadow: "rgba(0,0,0,0.2)"
 };
 
-export const blurRadius = 50;
+export const blurRadius = 30;
