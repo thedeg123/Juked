@@ -20,9 +20,13 @@ const TabBarComponent = props => {
   const [activeMusic, setActiveMusic] = useState(false);
   const [activeContent, setActiveContent] = useState(null);
 
-  const activeHeight = heights.tabBarHeight + 35 + 55;
+  const isAndroid = Platform.OS === "android";
 
-  if (Platform.OS === "android") {
+  const iosBottomHeight = 35;
+  const activeHeight =
+    heights.tabBarHeight + 55 + (isAndroid ? 0 : iosBottomHeight);
+
+  if (isAndroid) {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
       UIManager.setLayoutAnimationEnabledExperimental(true);
     }
@@ -39,9 +43,14 @@ const TabBarComponent = props => {
   return (
     <View
       style={[
-        { height: activeMusic ? activeHeight : 0 },
-        styles.border,
-        { borderWidth: activeMusic ? 1 : 0 }
+        {
+          height: activeMusic
+            ? activeHeight
+            : isAndroid
+            ? heights.tabBarHeight
+            : 0
+        },
+        styles.border
       ]}
     >
       {activeMusic && (
@@ -57,14 +66,13 @@ const TabBarComponent = props => {
       )}
       <BottomTabBar
         style={[
-          styles.navigatorStyle,
+          isAndroid ? styles.androidNavigatorStyle : styles.iosNavigatorStyle,
           {
             borderColor: colors.shadow,
             backgroundColor: activeMusic
               ? "transparent"
               : colors.translucentWhite,
-            borderTopWidth: activeMusic ? 0 : 0.5,
-            borderWidth: activeMusic ? 0 : 1
+            borderTopWidth: 0
           }
         ]}
         activeTintColor={colors.primary}
@@ -77,17 +85,20 @@ const TabBarComponent = props => {
 
 const styles = StyleSheet.create({
   border: {
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
     borderColor: colors.lightShadow
   },
-  navigatorStyle: {
+  iosNavigatorStyle: {
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
-    borderWidth: 1,
     borderColor: colors.lightShadow,
     position: "absolute",
-    paddingBottom: 5,
+    height: heights.tabBarHeight
+  },
+  androidNavigatorStyle: {
+    borderTopWidth: 1,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    borderColor: colors.lightShadow,
     height: heights.tabBarHeight
   }
 });

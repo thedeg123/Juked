@@ -29,10 +29,7 @@ const CommentBar = ({ keyboardIsActive, submitComment, onFocus }) => {
             ? colors.primary
             : colors.veryTranslucentWhite
         }}
-        numberOfLines={Platform.OS === "ios" ? null : numberOfLines}
-        maxHeight={
-          Platform.OS === "ios" && numberOfLines ? 26 * numberOfLines : null
-        }
+        maxHeight={numberOfLines ? 26 * numberOfLines : null}
         placeholder={"Add a Comment"}
         placeholderTextColor={colors.veryTranslucentWhite}
         value={comment}

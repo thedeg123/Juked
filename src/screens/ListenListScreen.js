@@ -16,6 +16,7 @@ import ModalSortCard from "../components/ModalCards/ModalSortCard";
 import ModalListCard from "../components/ModalCards/ModalListCard";
 import UserListItem from "../components/UserList/UserListItem";
 import OptionBar from "../components/OptionBar";
+import { paddingBottom } from "../constants/heights";
 import { listenlistButtonOptions as optionButtons } from "../constants/buttonOptions";
 import LoadingPage from "../components/Loading/LoadingPage";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
@@ -148,7 +149,7 @@ const ListenListScreen = ({ navigation }) => {
       ) : (
         <FlatList
           ref={flatListRef}
-          contentContainerStyle={{ paddingBottom: 85 }}
+          contentContainerStyle={{ paddingBottom }}
           keyExtractor={item => item.content.id + item.last_modified}
           data={listType === "personal" ? personalList.items : incomingList}
           renderItem={renderListItem}

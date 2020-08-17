@@ -17,6 +17,7 @@ import DraggableFlatList from "react-native-draggable-flatlist";
 import SearchItem from "../components/SearchItem";
 import { listSearchButtonOptions } from "../constants/buttonOptions";
 import ResultsList from "../components/ResultsList";
+import { paddingBottom } from "../constants/heights";
 import UserListItem from "../components/UserList/UserListItem";
 
 /**
@@ -40,6 +41,7 @@ const WriteListScreen = ({ navigation }) => {
   const [term, setTerm] = useState("");
   const [searchType, setSearchType] = useState("track");
   const [search, setSearch] = useState(null);
+  const [keyboardIsActive, setKeyboardIsActive] = useState(false);
 
   const submitList = () => {
     list
@@ -55,6 +57,20 @@ const WriteListScreen = ({ navigation }) => {
       setItems(list.data.items);
       setItemKeys(new Set(list.data.itemKeys));
     }
+    const show =
+      Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow";
+    const hide =
+      Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide";
+    const keyboardOpenListenter = Keyboard.addListener(show, () =>
+      setKeyboardIsActive(true)
+    );
+    const keyboardCloseListenter = Keyboard.addListener(hide, () =>
+      setKeyboardIsActive(false)
+    );
+    return () => {
+      keyboardOpenListenter.remove();
+      keyboardCloseListenter.remove();
+    };
   }, []);
 
   const goBackAlert = () =>
@@ -167,12 +183,6 @@ const WriteListScreen = ({ navigation }) => {
         returnKeyType="done"
         placeholderTextColor={colors.lightShadow}
         value={description}
-        numberOfLines={
-          Platform.OS === "ios" ? null : Dimensions.get("window").height * 0.005
-        }
-        maxHeight={
-          Platform.OS === "ios" ? Dimensions.get("window").height * 0.2 : null
-        }
         onChangeText={setDescription}
         multiline
         style={styles.descriptionTextStyle}
@@ -251,11 +261,13 @@ const WriteListScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1 }}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={{ flex: 1, marginBottom: 80 }}>
+        <View style={{ flex: 1, paddingBottom }}>
           <View style={{ flex: 1 }}>
             {showSearch ? searchView() : listView()}
           </View>
-          {bottomRowButtons()}
+          {!keyboardIsActive || Platform.OS != "android"
+            ? bottomRowButtons()
+            : null}
         </View>
       </TouchableWithoutFeedback>
     </View>

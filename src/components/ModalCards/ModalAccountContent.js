@@ -1,19 +1,14 @@
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  KeyboardAvoidingView
-} from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Input } from "react-native-elements";
 import colors from "../../constants/colors";
+import KeyboardAvoidingView from "../KeyboardAvoidingViewWrapper";
 import { Ionicons } from "@expo/vector-icons";
 
 const ModalAccountContent = ({ onClose, onDelete }) => {
   const [oldPassword, setOldPassword] = useState("");
   return (
-    <KeyboardAvoidingView behavior="padding">
+    <KeyboardAvoidingView>
       <View style={styles.content}>
         <Text
           style={{

@@ -12,6 +12,7 @@ import UserListItem from "../components/UserPreview";
 import ListPreview from "../components/ListPreview";
 import context from "../context/context";
 import images from "../constants/images";
+import { paddingBottom } from "../constants/heights";
 import FollowButton from "../components/FollowButton";
 import BarGraph from "../components/Graphs/BarGraph";
 import firebase from "firebase";
@@ -203,7 +204,7 @@ const UserProfileScreen = ({ navigation }) => {
         scrollEnabled={scrollEnabled}
         style={styles.containerStyle}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 85 }}
+        contentContainerStyle={{ paddingBottom }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

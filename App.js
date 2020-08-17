@@ -1,4 +1,5 @@
 import React from "react";
+import { Platform, Dimensions } from "react-native";
 import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
@@ -102,42 +103,67 @@ const profileStack = createStackNavigator(
   }
 );
 
+const iosBottomAdjust =
+  Platform.OS === "android"
+    ? 0
+    : Dimensions.get("window").height === 667 // iPhone 8 or SE2
+    ? 0
+    : Dimensions.get("window").height === 736 // iPhone 8 Plus
+    ? 0
+    : 10;
+
 const mainStack = createBottomTabNavigator(
   {
     homeFlow: {
       screen: homeStack,
       navigationOptions: {
-        tabBarLabel: ({ tintColor }) => (
-          <Foundation name="home" style={{ fontSize: 23 }} color={tintColor} />
-        )
+        tabBarIcon: ({ tintColor }) => (
+          <Foundation
+            name="home"
+            style={{ top: iosBottomAdjust, fontSize: 23 }}
+            color={tintColor}
+          />
+        ),
+        tabBarLabel: () => null
       }
     },
     searchFlow: {
       screen: searchStack,
       navigationOptions: {
-        tabBarLabel: ({ tintColor }) => (
-          <Octicons name="search" style={{ fontSize: 21 }} color={tintColor} />
-        )
+        tabBarIcon: ({ tintColor }) => (
+          <Octicons
+            name="search"
+            style={{ top: iosBottomAdjust, fontSize: 21 }}
+            color={tintColor}
+          />
+        ),
+        tabBarLabel: () => null
       }
     },
     notificationFlow: {
       screen: notificationStack,
       navigationOptions: {
-        tabBarLabel: ({ tintColor }) => (
+        tabBarIcon: ({ tintColor }) => (
           <Ionicons
             name="ios-notifications"
-            style={{ fontSize: 26, top: 2 }}
+            style={{ fontSize: 26, top: iosBottomAdjust }}
             color={tintColor}
           />
-        )
+        ),
+        tabBarLabel: () => null
       }
     },
     profileFlow: {
       screen: profileStack,
       navigationOptions: {
-        tabBarLabel: ({ tintColor }) => (
-          <Octicons name="person" style={{ fontSize: 22 }} color={tintColor} />
-        )
+        tabBarIcon: ({ tintColor }) => (
+          <Octicons
+            name="person"
+            style={{ top: iosBottomAdjust, fontSize: 22 }}
+            color={tintColor}
+          />
+        ),
+        tabBarLabel: () => null
       }
     }
   },
@@ -145,6 +171,7 @@ const mainStack = createBottomTabNavigator(
     tabBarComponent
   }
 );
+
 const loginSwitch = createSwitchNavigator(
   {
     SignIn: SignInScreen,

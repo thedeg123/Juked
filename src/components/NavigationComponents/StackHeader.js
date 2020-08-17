@@ -1,9 +1,10 @@
 import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Platform } from "react-native";
 import colors from "../../constants/colors";
 
 const StackHeader = ({ title, leftButton, center, previous, rightButton }) => {
-  const height = Dimensions.get("window").height * 0.098;
+  const scaleFactor = Platform.OS === "android" ? 0.07 : 0.098;
+  const height = Dimensions.get("window").height * scaleFactor;
   const rightComponent = rightButton ? rightButton() : null;
   return (
     <View
@@ -13,7 +14,7 @@ const StackHeader = ({ title, leftButton, center, previous, rightButton }) => {
         height: height
       }}
     >
-      {!previous && rightComponent ? <View style={{ width: 55 }}></View> : null}
+      {!previous && rightComponent ? <View style={{ width: 45 }}></View> : null}
       <View style={styles.buttonWrapper}>{leftButton}</View>
       <View style={{ flex: 1, alignItems: "center" }}>
         {center && center}
@@ -23,7 +24,7 @@ const StackHeader = ({ title, leftButton, center, previous, rightButton }) => {
           </Text>
         )}
       </View>
-      {previous && !rightComponent ? <View style={{ width: 55 }}></View> : null}
+      {previous && !rightComponent ? <View style={{ width: 45 }}></View> : null}
       {rightComponent ? (
         <View style={styles.buttonWrapper}>{rightComponent}</View>
       ) : null}
@@ -33,22 +34,20 @@ const StackHeader = ({ title, leftButton, center, previous, rightButton }) => {
 const styles = StyleSheet.create({
   containerStyle: {
     flexDirection: "row",
-    shadowColor: colors.shadow,
-    shadowOpacity: 1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 1,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.background
   },
   headerTitleStyle: {
-    marginTop: Dimensions.get("window").height * 0.037,
+    marginTop:
+      Dimensions.get("window").height * (Platform.OS === "android" ? 0 : 0.037),
     fontSize: 18,
     fontWeight: "500",
     color: colors.text
   },
   buttonWrapper: {
-    marginTop: Dimensions.get("window").height * 0.037
+    marginTop:
+      Dimensions.get("window").height * (Platform.OS === "android" ? 0 : 0.037)
   }
 });
 

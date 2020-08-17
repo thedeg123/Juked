@@ -6,6 +6,7 @@ import context from "../context/context";
 import * as Notifications from "expo-notifications";
 
 const LoadingScreen = ({ navigation }) => {
+  console.disableYellowBox = true;
   let { firestore } = useContext(context);
 
   //we  can get into a nasty situation where we navigate to this page before firestore has finished adding

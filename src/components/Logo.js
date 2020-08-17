@@ -1,26 +1,33 @@
 import React from "react";
-import { View, Image, Dimensions } from "react-native";
+import { View, Image, Dimensions, Platform } from "react-native";
 
-const Logo = ({ size }) => (
-  <View
-    style={{
-      marginTop: Dimensions.get("window").height * 0.037,
-      width: size,
-      height: size,
-      alignSelf: "center",
-      alignItems: "center",
-      justifyContent: "center"
-    }}
-  >
-    <Image
+const Logo = ({ size, inverse }) => {
+  const img = inverse
+    ? require("../../assets/logos/logo_large_inverse.png")
+    : require("../../assets/logos/logo_large.png");
+  return (
+    <View
       style={{
-        flex: 1,
-        resizeMode: "contain"
+        marginTop:
+          Dimensions.get("window").height *
+          (Platform.OS === "android" ? 0 : 0.037),
+        width: size,
+        height: size,
+        alignSelf: "center",
+        alignItems: "center",
+        justifyContent: "center"
       }}
-      source={require("../../assets/logos/logo_large.png")}
-    ></Image>
-  </View>
-);
+    >
+      <Image
+        style={{
+          flex: 1,
+          resizeMode: "contain"
+        }}
+        source={img}
+      ></Image>
+    </View>
+  );
+};
 Logo.defaultProps = {
   size: 35
 };

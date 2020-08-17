@@ -13,6 +13,7 @@ import context from "../context/context";
 import { Input } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import { paddingBottom } from "../constants/heights";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
 import ModalAccountCard from "../components/ModalCards/ModalAccountCard";
 
@@ -38,7 +39,7 @@ const AccountScreen = ({ navigation }) => {
 
   return (
     <ScrollView
-      contentContainerStyle={{ paddingBottom: 85 }}
+      contentContainerStyle={{ paddingBottom }}
       keyboardShouldPersistTaps="always"
       style={{ flex: 1 }}
     >

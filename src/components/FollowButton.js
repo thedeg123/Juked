@@ -72,6 +72,7 @@ const containerStyle = {
   height: 40,
   borderRadius: 5,
   paddingHorizontal: 7,
+  elevation: 5,
   shadowColor: colors.shadow,
   shadowOpacity: 0.6,
   shadowOffset: { width: 1, height: 1 },

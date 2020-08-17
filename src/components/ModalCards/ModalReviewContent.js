@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { StyleSheet, Button, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import Button from "../BaseButton";
 import colors from "../../constants/colors";
 import TopBar from "./TopBar";
 

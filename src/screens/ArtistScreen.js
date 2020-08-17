@@ -7,6 +7,7 @@ import {
   ScrollView
 } from "react-native";
 import colors from "../constants/colors";
+import { paddingBottom } from "../constants/heights";
 import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
@@ -95,7 +96,7 @@ const ArtistScreen = ({ navigation }) => {
   return (
     <ScrollView
       style={{ flex: 1 }}
-      contentContainerStyle={{ paddingBottom: 85 }}
+      contentContainerStyle={{ paddingBottom }}
       scrollIndicatorInsets={{ right: 1 }}
       scrollEnabled={scrollEnabled}
     >

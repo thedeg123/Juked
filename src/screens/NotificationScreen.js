@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { FlatList } from "react-navigation";
 import colors from "../constants/colors";
+import { paddingBottom } from "../constants/heights";
 import LikeItem from "../components/NotificationScreenComponents/LikeItem";
 import CommentItem from "../components/NotificationScreenComponents/CommentItem";
 import FollowItem from "../components/NotificationScreenComponents/FollowItem";
@@ -135,7 +136,7 @@ const NotificationScreen = ({ navigation }) => {
         </ScrollView>
       ) : (
         <FlatList
-          contentContainerStyle={{ paddingBottom: 85 }}
+          contentContainerStyle={{ paddingBottom }}
           data={content}
           renderItem={renderItem}
           keyExtractor={item => item.id}

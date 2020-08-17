@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
-import { StyleSheet, Button, Text, View, FlatList } from "react-native";
+import { StyleSheet, Text, View, FlatList } from "react-native";
+import Button from "../BaseButton";
 import colors from "../../constants/colors";
 import TopBar from "./TopBar";
 import UserSelectorScrollItem from "./UserSelectorScrollItem";

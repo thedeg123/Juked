@@ -3,6 +3,7 @@
  *
  */
 import images from "../constants/images";
+import { Platform } from "react-native";
 
 export const getAbreveatedTimeDif = time => {
   const now = new Date();
@@ -45,9 +46,11 @@ export const getStringDate = (date, fullDate = false) => {
 export default simplifyContent = (content, type) => {
   const toStringDate = num_date => {
     const date = new Date(num_date);
-    return `${date.toLocaleString("default", {
-      month: "long"
-    })} ${date.getDate()}, ${date.getFullYear()}`;
+    return Platform.OS === "android"
+      ? `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+      : `${date.toLocaleString("default", {
+          month: "long"
+        })} ${date.getDate()}, ${date.getFullYear()}`;
   };
 
   const dateToYear = date => new Date(date).getFullYear();

@@ -1,24 +1,57 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   Alert,
   StyleSheet,
   View,
-  KeyboardAvoidingView,
   Keyboard,
+  Platform,
   TouchableWithoutFeedback
 } from "react-native";
 import AuthForm from "../components/AuthForm";
 import colors from "../constants/colors";
 import context from "../context/context";
-import TestLogo from "../components/TextLogo";
+import TextLogo from "../components/TextLogo";
+import Logo from "../components/Logo";
 import Button from "../components/AuthButton";
+import KeyboardAvoidingViewWrapper from "../components/KeyboardAvoidingViewWrapper";
 const SignUpScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
+
+  const [keyboardIsActive, setKeyboardIsActive] = useState(false);
+
+  useEffect(() => {
+    const show =
+      Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow";
+    const hide =
+      Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide";
+    const keyboardOpenListenter = Keyboard.addListener(show, () =>
+      setKeyboardIsActive(true)
+    );
+    const keyboardCloseListenter = Keyboard.addListener(hide, () =>
+      setKeyboardIsActive(false)
+    );
+    return () => {
+      keyboardOpenListenter.remove();
+      keyboardCloseListenter.remove();
+    };
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.containerStyle}>
-        <TestLogo subtext={"Welcome to Juked!"}></TestLogo>
-        <KeyboardAvoidingView behavior="position">
+        {!keyboardIsActive ? <TextLogo subtext={"Welcome to Juked!"} /> : null}
+        {keyboardIsActive ? (
+          <View
+            style={{
+              alignSelf: "center",
+              flex: 1
+            }}
+          >
+            <Logo inverse />
+          </View>
+        ) : null}
+
+        <KeyboardAvoidingViewWrapper>
           <AuthForm
             confirmPassword={true}
             submitButtonAction={async (email, password, verifyPassword) =>
@@ -34,13 +67,15 @@ const SignUpScreen = ({ navigation }) => {
             }
             submitButtonTitle="Sign up"
           ></AuthForm>
-        </KeyboardAvoidingView>
-        <Button
-          onPress={() => {
-            return navigation.navigate("SignIn");
-          }}
-          title="Already have an account? Sign in."
-        ></Button>
+        </KeyboardAvoidingViewWrapper>
+        {!keyboardIsActive || Platform.OS != "android" ? (
+          <Button
+            onPress={() => {
+              return navigation.navigate("SignIn");
+            }}
+            title="Already have an account? Sign in."
+          ></Button>
+        ) : null}
       </View>
     </TouchableWithoutFeedback>
   );

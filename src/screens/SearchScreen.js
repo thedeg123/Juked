@@ -1,11 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
-import {
-  StyleSheet,
-  View,
-  KeyboardAvoidingView,
-  Text,
-  Keyboard
-} from "react-native";
+import { StyleSheet, View, Text, Keyboard } from "react-native";
+import KeyboardAvoidingView from "../components/KeyboardAvoidingViewWrapper";
+import { paddingBottom } from "../constants/heights";
 import ResultsList from "../components/ResultsList";
 import context from "../context/context";
 import colors from "../constants/colors";
@@ -21,12 +17,15 @@ const SearchScreen = ({ navigation }) => {
   const { firestore, useMusic } = useContext(context);
 
   useEffect(() => {
-    const keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () =>
+    const show =
+      Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow";
+    const hide =
+      Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide";
+    const keyboardOpenListenter = Keyboard.addListener(show, () =>
       setKeyboardIsActive(true)
     );
-    const keyboardCloseListenter = Keyboard.addListener(
-      "keyboardWillHide",
-      () => setKeyboardIsActive(false)
+    const keyboardCloseListenter = Keyboard.addListener(hide, () =>
+      setKeyboardIsActive(false)
     );
     return () => {
       keyboardOpenListenter.remove();
@@ -61,7 +60,7 @@ const SearchScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={{ flex: 1, marginBottom: 85 }}>
+    <View style={{ flex: 1, paddingBottom }}>
       <View style={styles.topContainerStyle}>
         <SearchItem
           keyboardIsActive={keyboardIsActive}

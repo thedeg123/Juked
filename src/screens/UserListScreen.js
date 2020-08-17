@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import context from "../context/context";
 import colors, { blurRadius } from "../constants/colors";
+import { paddingBottom } from "../constants/heights";
 import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import firebase from "firebase";
@@ -218,7 +219,7 @@ const UserListScreen = ({ navigation }) => {
         behavior="padding"
         style={{
           backgroundColor: colors.darkener,
-          paddingBottom: 85,
+          paddingBottom,
           flex: 1
         }}
       >

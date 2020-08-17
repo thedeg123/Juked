@@ -154,7 +154,8 @@ const styles = StyleSheet.create({
     shadowColor: colors.darkShadow,
     shadowOpacity: 1,
     shadowOffset: { width: 0, height: 0 },
-    shadowRadius: 6
+    shadowRadius: 6,
+    elevation: 10
   },
   imageStyle: {
     width: "50%",

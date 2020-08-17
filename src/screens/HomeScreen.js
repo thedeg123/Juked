@@ -4,7 +4,7 @@ import { FlatList } from "react-navigation";
 import context from "../context/context";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import LoadingPage from "../components/Loading/LoadingPage";
-
+import { paddingBottom } from "../constants/heights";
 import ModalButton from "../components/ModalCards/ModalButton";
 import ModalHomeCard from "../components/ModalCards/ModalHomeCard";
 import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
@@ -84,7 +84,6 @@ const HomeScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    console.ignoredYellowBox = ["Setting a timer"];
     navigation.setParams({ setShowModal });
     fetchHomeScreenData(15, true);
     firestore.registerForPushNotifications();
@@ -100,7 +99,7 @@ const HomeScreen = ({ navigation }) => {
       {reviews && reviews.length ? (
         <FlatList
           ref={flatListRef}
-          contentContainerStyle={{ paddingBottom: 85 }}
+          contentContainerStyle={{ paddingBottom }}
           keyExtractor={reviewItem =>
             reviewItem.data.last_modified + reviewItem.id
           }

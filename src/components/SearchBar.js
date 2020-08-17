@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   backgroundStyle: {
     borderRadius: 5,
     marginBottom: 10,
-    backgroundColor: colors.lightShadow,
+    backgroundColor: colors.searchBackground,
     height: 40,
     flex: 1,
     flexDirection: "row"

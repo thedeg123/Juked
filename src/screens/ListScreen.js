@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
 import LoadingIndicator from "../components/Loading/LoadingIndicator";
 import LoadingPage from "../components/Loading/LoadingPage";
+import { paddingBottom } from "../constants/heights";
 
 const ListScreen = ({ navigation }) => {
   const fetchData = navigation.getParam("fetchData");
@@ -29,7 +30,7 @@ const ListScreen = ({ navigation }) => {
     <View style={styles.containerStyle}>
       <FlatList
         data={data}
-        contentContainerStyle={{ paddingBottom: 85 }}
+        contentContainerStyle={{ paddingBottom }}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         onEndReached={async () => {

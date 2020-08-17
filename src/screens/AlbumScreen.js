@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { View, Text, Image, StyleSheet, FlatList } from "react-native";
 import AlbumPreview from "../components/AlbumPreview";
 import colors from "../constants/colors";
+import { paddingBottom } from "../constants/heights";
 import LoadingPage from "../components/Loading/LoadingPage";
 import ModalButton from "../components/ModalCards/ModalButton";
 import context from "../context/context";
@@ -158,7 +159,7 @@ const AlbumScreen = ({ navigation }) => {
     <View style={{ flex: 1 }}>
       <FlatList
         contentContainerStyle={{
-          paddingBottom: 85
+          paddingBottom
         }}
         scrollEnabled={scrollEnabled}
         scrollIndicatorInsets={{ right: 1 }}

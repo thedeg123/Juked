@@ -1,37 +1,71 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import {
   StyleSheet,
   Alert,
+  Platform,
   View,
-  Button,
-  KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback
 } from "react-native";
 import AuthForm from "../components/AuthForm";
+import Button from "../components/BaseButton";
 import colors from "../constants/colors";
 import context from "../context/context";
 import TextLogo from "../components/TextLogo";
+import Logo from "../components/Logo";
 import CustomButton from "../components/AuthButton";
 import { Input } from "react-native-elements";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import KeyboardAvoidingViewWrapper from "../components/KeyboardAvoidingViewWrapper";
 
 const SignInScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
   const [email, setEmail] = useState(null);
   const [showForgotPasswordView, setShowForgotPasswordView] = useState(false);
+
+  const [keyboardIsActive, setKeyboardIsActive] = useState(false);
+
+  useEffect(() => {
+    const show =
+      Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow";
+    const hide =
+      Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide";
+    const keyboardOpenListenter = Keyboard.addListener(show, () =>
+      setKeyboardIsActive(true)
+    );
+    const keyboardCloseListenter = Keyboard.addListener(hide, () =>
+      setKeyboardIsActive(false)
+    );
+    return () => {
+      keyboardOpenListenter.remove();
+      keyboardCloseListenter.remove();
+    };
+  }, []);
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.containerStyle}>
-        <TextLogo
-          subtext={
-            showForgotPasswordView
-              ? "To reset your password, enter your account email"
-              : "Welcome back!"
-          }
-        ></TextLogo>
-        <KeyboardAvoidingView behavior="position">
+        {!keyboardIsActive ? (
+          <TextLogo
+            subtext={
+              showForgotPasswordView
+                ? "To reset your password, enter your account email"
+                : "Welcome back!"
+            }
+          />
+        ) : null}
+        {keyboardIsActive ? (
+          <View
+            style={{
+              alignSelf: "center",
+              flex: 1
+            }}
+          >
+            <Logo inverse />
+          </View>
+        ) : null}
+        <KeyboardAvoidingViewWrapper>
           {!showForgotPasswordView ? (
             <View>
               <AuthForm
@@ -51,6 +85,9 @@ const SignInScreen = ({ navigation }) => {
             <View style={{ marginTop: 20 }}>
               <Input
                 label="Email"
+                inputContainerStyle={{
+                  borderColor: colors.veryVeryTranslucentWhite
+                }}
                 leftIcon={<Ionicons name="ios-mail" style={styles.iconStyle} />}
                 rightIcon={
                   <TouchableOpacity
@@ -80,7 +117,7 @@ const SignInScreen = ({ navigation }) => {
               ></Input>
             </View>
           )}
-        </KeyboardAvoidingView>
+        </KeyboardAvoidingViewWrapper>
         <CustomButton
           title="Don't have an account? Sign up."
           onPress={() => {

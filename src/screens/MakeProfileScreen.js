@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Alert,
   Text,
-  KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
@@ -12,8 +11,10 @@ import { Input } from "react-native-elements";
 import ImagePreview from "../components/MakeProfileScreenComponents/ImagePreview";
 import context from "../context/context";
 import colors from "../constants/colors";
-import Logo from "../components/TextLogo";
+import TextLogo from "../components/TextLogo";
 import Button from "../components/AuthButton";
+import Logo from "../components/Logo";
+import KeyboardAvoidingView from "../components/KeyboardAvoidingViewWrapper";
 
 const MakeProfileScreen = ({
   navigation,
@@ -37,9 +38,18 @@ const MakeProfileScreen = ({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.containerStyle}>
-        {!active ? <Logo subtext="Let's make that bio,"></Logo> : null}
-        {active ? <Text style={styles.smallLogoStyle}>Juked</Text> : null}
-        <KeyboardAvoidingView behavior="padding">
+        {!active ? <TextLogo subtext="Let's make that bio," /> : null}
+        {active ? (
+          <View
+            style={{
+              alignSelf: "center",
+              flex: 1
+            }}
+          >
+            <Logo inverse />
+          </View>
+        ) : null}
+        <KeyboardAvoidingView>
           <ImagePreview imageURL={imageURL}></ImagePreview>
           <Input
             onFocus={() => setActive(true)}

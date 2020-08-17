@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Button, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 
+import Button from "../BaseButton";
 import UserSelectorScroll from "./UserSelectorScroll";
 import colors from "../../constants/colors";
 import { FontAwesome5 } from "@expo/vector-icons";

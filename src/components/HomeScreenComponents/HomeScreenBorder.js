@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     alignSelf: "stretch",
     marginTop: 12,
+    elevation: 10,
     marginHorizontal: 10
   },
   showBox: {

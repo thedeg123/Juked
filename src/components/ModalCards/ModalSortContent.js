@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { StyleSheet, Button, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, View } from "react-native";
+import Button from "../BaseButton";
 import ContentTypeRow from "./ContentTypeRow";
 import colors from "../../constants/colors";
 import ModalFilterButton from "./ModalFilterButton";

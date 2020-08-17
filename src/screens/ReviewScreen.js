@@ -8,7 +8,6 @@ import {
   LayoutAnimation,
   UIManager,
   Platform,
-  KeyboardAvoidingView,
   Keyboard
 } from "react-native";
 import context from "../context/context";
@@ -17,6 +16,7 @@ import { auth } from "firebase";
 import TopButton from "../components/TopButton";
 import firebase from "firebase";
 import "firebase/firestore";
+import KeyboardAvoidingView from "../components/KeyboardAvoidingViewWrapper";
 import { toDisplayType } from "../helpers/simplifyContent";
 import LikeBox from "../components/ReviewScreenComponents/LikeBox";
 import ReviewHeader from "../components/ReviewScreenComponents/ReviewHeader";
@@ -24,7 +24,10 @@ import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import UserListItem from "../components/UserPreview";
 import CommentBar from "../components/ReviewScreenComponents/CommentBar";
 import CommentsSection from "../components/ReviewScreenComponents/CommentsSection";
-import { customCommentBarAnimation } from "../constants/heights";
+import heights, {
+  customCommentBarAnimation,
+  paddingBottom
+} from "../constants/heights";
 import LoadingPage from "../components/Loading/LoadingPage";
 
 const ReviewScreen = ({ navigation }) => {
@@ -94,12 +97,15 @@ const ReviewScreen = ({ navigation }) => {
         .collection("reviews")
         .doc(review.id)
         .onSnapshot(doc => setReview({ id: doc.id, data: doc.data() }));
-
-      keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () => {
+      const show =
+        Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow";
+      const hide =
+        Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide";
+      keyboardOpenListenter = Keyboard.addListener(show, () => {
         LayoutAnimation.configureNext(customCommentBarAnimation);
         setKeyboardIsActive(true);
       });
-      keyboardCloseListenter = Keyboard.addListener("keyboardWillHide", () => {
+      keyboardCloseListenter = Keyboard.addListener(hide, () => {
         LayoutAnimation.configureNext(customCommentBarAnimation);
         setKeyboardIsActive(false);
       });
@@ -206,7 +212,7 @@ const ReviewScreen = ({ navigation }) => {
         behavior="padding"
         style={{
           backgroundColor: colors.darkener,
-          paddingBottom: 85,
+          paddingBottom,
           flex: 1
         }}
       >

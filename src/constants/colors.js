@@ -3,6 +3,7 @@ export default {
   secondary: "#6496ef",
   object: "#f5f5f7",
   background: "#FFFFFF",
+  searchBackground: "rgb(237,238,240)",
   shadow: "rgba(0,0,0,0.3)",
   darkShadow: "rgba(0,0,0,0.45)",
   text: "#1C1C1C",

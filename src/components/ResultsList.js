@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, FlatList } from "react-native";
 import SearchPreview from "./SearchPreview";
 import UserPreview from "./UserPreview";
 import colors from "../constants/colors";
+import { paddingBottom } from "../constants/heights";
 
 const ResultsList = ({
   users,
@@ -27,7 +28,7 @@ const ResultsList = ({
     >
       {users && searchType === "user" ? (
         <FlatList
-          contentContainerStyle={{ paddingBottom: 85 }}
+          contentContainerStyle={{ paddingBottom }}
           data={users}
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="always"
@@ -37,7 +38,7 @@ const ResultsList = ({
       ) : (
         search && (
           <FlatList
-            contentContainerStyle={{ paddingBottom: 85 }}
+            contentContainerStyle={{ paddingBottom }}
             keyboardDismissMode="on-drag"
             keyboardShouldPersistTaps="always"
             data={search}

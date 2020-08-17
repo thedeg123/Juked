@@ -1,6 +1,24 @@
+import { Platform, Dimensions } from "react-native";
+
 export default {
-  tabBarHeight: 40
+  tabBarHeight:
+    Platform.OS === "android"
+      ? 50
+      : Dimensions.get("window").height === 667 // iPhone 8 or SE2
+      ? 50
+      : Dimensions.get("window").height === 736 // iPhone 8 Plus
+      ? 50
+      : 40
 };
+
+export const paddingBottom =
+  Platform.OS === "android"
+    ? 0
+    : Dimensions.get("window").height === 667 // iPhone 8 or SE2
+    ? 0
+    : Dimensions.get("window").height === 736 // iPhone 8 Plus
+    ? 0
+    : 85;
 
 export const customSearchAnimation = {
   create: {

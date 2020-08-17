@@ -3,6 +3,7 @@ import React from "react";
 import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 import colors from "../../constants/colors";
 import { OpenButton, PlayButton } from "./SpotifyButtons";
+import Button from "../BaseButton";
 
 const TopBar = ({ onClose, content, showSpotify }) => {
   return (
@@ -11,18 +12,7 @@ const TopBar = ({ onClose, content, showSpotify }) => {
         {showSpotify && content && content.preview_url && (
           <PlayButton content={content} />
         )}
-        <TouchableOpacity onPress={onClose}>
-          <Text
-            style={{
-              color: colors.primary,
-              fontSize: 18,
-              margin: 10,
-              marginBottom: 0
-            }}
-          >
-            Done
-          </Text>
-        </TouchableOpacity>
+        <Button onPress={onClose} title={"Done"}></Button>
       </View>
       {showSpotify && content && content.url && (
         <View>
