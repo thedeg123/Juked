@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Keyboard
+} from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import images from "../constants/images";
@@ -17,7 +24,10 @@ const UserPreview = ({ navigation, user }) => {
   return (
     <TouchableOpacity
       style={styles.showBox}
-      onPress={() => navigation.push("Profile", { uid: user.email })}
+      onPress={() => {
+        Keyboard.dismiss();
+        return navigation.push("Profile", { uid: user.email });
+      }}
     >
       <View style={styles.containerStyle}>
         <View style={{ borderRightWidth: 0.5, borderColor: colors.shadow }}>
