@@ -49,7 +49,11 @@ const CommentItem = ({ navigation, fetchReview, item, user, currentUser }) => {
           {!isList ? (
             <ContentPic
               borderRadius={{ borderRadius: 5 }}
-              borderWidth={{ marginRight: 10 }}
+              borderWidth={{
+                marginRight: 10,
+                borderColor: colors.lightShadow,
+                borderWidth: 0.5
+              }}
               content={item.data.content}
               showPlay
             ></ContentPic>

@@ -54,7 +54,14 @@ const TabBarComponent = props => {
       ]}
     >
       {activeMusic && (
-        <View style={{ height: 55, paddingTop: 5 }}>
+        <View
+          style={{
+            height: 55,
+            borderTopWidth: 1,
+            borderColor: colors.shadow,
+            paddingTop: 5
+          }}
+        >
           <MusicPlayer
             content={activeContent}
             onClose={() => {

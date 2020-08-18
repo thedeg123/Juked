@@ -67,7 +67,7 @@ const ReviewPreview = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 10,
+    marginHorizontal: 15,
     paddingBottom: 5,
     borderColor: colors.lightShadow
   },

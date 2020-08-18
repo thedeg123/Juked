@@ -185,13 +185,16 @@ const ListenListScreen = ({ navigation }) => {
       <ModalListCard
         showModal={showModalItemCard}
         setShowModal={setShowModalItemCard}
-        showDelete={user.email === firestore.fetchCurrentUID()}
+        showDelete={
+          user.email === firestore.fetchCurrentUID() ||
+          currentContent.author === firestore.fetchCurrentUID()
+        }
         onDelete={() => {
           if (listType === "incoming") {
             firestore
               .unreccomendContentToFollower(
                 currentContent.content,
-                firestore.fetchCurrentUID()
+                currentContent.review_author
               )
               .then(() =>
                 setIncomingList(

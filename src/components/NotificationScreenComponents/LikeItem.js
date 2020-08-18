@@ -48,7 +48,9 @@ const LikeItem = ({ navigation, fetchReview, item, user, currentUser }) => {
           content={item.data.content}
           borderRadius={{ borderRadius: 5 }}
           borderWidth={{
-            marginRight: 10
+            marginRight: 10,
+            borderColor: colors.lightShadow,
+            borderWidth: 0.5
           }}
           showPlay
         ></ContentPic>

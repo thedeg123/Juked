@@ -1,12 +1,12 @@
 import React, { useEffect, useContext } from "react";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import { auth } from "firebase";
 import LoadingPage from "../components/Loading/LoadingPage";
 import context from "../context/context";
 import * as Notifications from "expo-notifications";
 
 const LoadingScreen = ({ navigation }) => {
-  console.disableYellowBox = true;
+  if (Platform.OS === "android") console.disableYellowBox = true;
   let { firestore } = useContext(context);
 
   //we  can get into a nasty situation where we navigate to this page before firestore has finished adding
