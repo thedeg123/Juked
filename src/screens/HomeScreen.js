@@ -116,11 +116,6 @@ const HomeScreen = ({ navigation }) => {
               ) : (
                 <HomeScreenItem
                   review={item}
-                  onPlay={
-                    item.data.content.preview_url
-                      ? () => useMusic.playContent(item.data.content)
-                      : null
-                  }
                   content={item.data.content}
                   author={authors[item.data.author]}
                 ></HomeScreenItem>

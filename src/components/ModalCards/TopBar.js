@@ -2,7 +2,7 @@
 import React from "react";
 import { StyleSheet, TouchableOpacity, Text, View } from "react-native";
 import colors from "../../constants/colors";
-import { OpenButton, PlayButton } from "./SpotifyButtons";
+import { OpenButton, SpotifyPlayButton } from "./SpotifyButtons";
 import Button from "../BaseButton";
 
 const TopBar = ({ onClose, content, showSpotify }) => {
@@ -10,7 +10,7 @@ const TopBar = ({ onClose, content, showSpotify }) => {
     <View style={styles.buttonWrapper}>
       <View>
         {showSpotify && content && content.preview_url && (
-          <PlayButton content={content} />
+          <SpotifyPlayButton content={content} />
         )}
         <Button onPress={onClose} title={"Done"}></Button>
       </View>

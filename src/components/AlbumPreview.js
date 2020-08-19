@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import colors from "../constants/colors";
+import PlayButton from "./PlayButton";
 
 /**
  * ReviewPreview Component for ListScreen
@@ -45,6 +46,7 @@ const AlbumPreview = ({
         <Text style={styles.timeStyle} numberOfLines={1}>
           {content.duration}
         </Text>
+        <PlayButton content={content} />
       </TouchableOpacity>
     </View>
   );

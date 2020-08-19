@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
@@ -8,7 +8,7 @@ import {
 import colors from "../../constants/colors";
 import images from "../../constants/images";
 import { AntDesign } from "@expo/vector-icons";
-import context from "../../context/context";
+import PlayButton from "../PlayButton";
 
 const ContentPic = ({
   content,
@@ -17,7 +17,6 @@ const ContentPic = ({
   borderRadius,
   borderWidth
 }) => {
-  const { useMusic } = useContext(context);
   const img = content.image || images.artistDefault; //becuase we cant set a default val from another file
   return (
     <View
@@ -33,18 +32,23 @@ const ContentPic = ({
         style={{ ...styles.imageStyle, width: width + 5 }}
         source={{ uri: img }}
       >
-        {content.preview_url && showPlay && (
-          <TouchableOpacity
-            onPress={() => useMusic.playContent(content)}
-            style={styles.buttonWrapper}
-          >
-            <AntDesign
-              name="play"
-              size={width / 3}
-              color={colors.semiTranslucentWhite}
-            />
-          </TouchableOpacity>
-        )}
+        {showPlay ? (
+          <PlayButton
+            content={content}
+            containerStyle={{
+              flex: 1,
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+            PlayComponent={
+              <AntDesign
+                name="play"
+                size={width / 2.5}
+                color={colors.semiTranslucentWhite}
+              />
+            }
+          />
+        ) : null}
       </ImageBackground>
     </View>
   );

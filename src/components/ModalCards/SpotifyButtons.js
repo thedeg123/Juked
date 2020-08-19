@@ -8,7 +8,7 @@ import {
   Image,
   View
 } from "react-native";
-
+import PlayButton from "../PlayButton";
 import colors from "../../constants/colors";
 import context from "../../context/context";
 import { Entypo } from "@expo/vector-icons";
@@ -39,16 +39,16 @@ export const OpenButton = ({ link }) => {
   );
 };
 
-export const PlayButton = ({ content }) => {
-  const { useMusic } = useContext(context);
-  return (
-    <Wrapper onPress={() => useMusic.playContent(content)}>
+export const SpotifyPlayButton = ({ content }) => {
+  const Spotify = (
+    <View style={styles.wrapper}>
       <Entypo name="controller-play" size={20} color={colors.spotifyText} />
       <View style={{ justifyContent: "center" }}>
         <SpotifyText text="Play Preview" />
       </View>
-    </Wrapper>
+    </View>
   );
+  return <PlayButton content={content} PlayComponent={Spotify} />;
 };
 
 const styles = StyleSheet.create({

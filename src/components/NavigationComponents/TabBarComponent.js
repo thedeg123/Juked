@@ -57,8 +57,8 @@ const TabBarComponent = props => {
         <View
           style={{
             height: 55,
-            borderTopWidth: 1,
-            borderColor: colors.shadow,
+            borderTopWidth: 0.5,
+            borderColor: colors.lightShadow,
             paddingTop: 5
           }}
         >

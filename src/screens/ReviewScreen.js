@@ -24,10 +24,9 @@ import ModalReviewCard from "../components/ModalCards/ModalReviewCard";
 import UserListItem from "../components/UserPreview";
 import CommentBar from "../components/ReviewScreenComponents/CommentBar";
 import CommentsSection from "../components/ReviewScreenComponents/CommentsSection";
-import heights, {
-  customCommentBarAnimation,
-  paddingBottom
-} from "../constants/heights";
+import { customCommentBarAnimation, paddingBottom } from "../constants/heights";
+import { AntDesign } from "@expo/vector-icons";
+import PlayButton from "../components/PlayButton";
 import LoadingPage from "../components/Loading/LoadingPage";
 
 const ReviewScreen = ({ navigation }) => {
@@ -133,6 +132,19 @@ const ReviewScreen = ({ navigation }) => {
       <View style={{ marginHorizontal: 10, marginTop: 10 }}>
         <View style={{ flexDirection: "row" }}>
           {keyboardIsActive ? null : (
+            <PlayButton
+              content={content}
+              containerStyle={{ justifyContent: "center", paddingRight: 10 }}
+              PlayComponent={
+                <AntDesign
+                  name="play"
+                  size={30}
+                  color={colors.semiTranslucentWhite}
+                />
+              }
+            />
+          )}
+          {keyboardIsActive ? null : (
             <LikeBox
               onLike={() => {
                 userLikes
@@ -142,6 +154,15 @@ const ReviewScreen = ({ navigation }) => {
                       review.data.author,
                       content
                     );
+                // kinda hacky but were incrementing the review data prior to its updating on the backend,
+                // the updating happens on its own but takes 10 ish seconds
+                setReview({
+                  ...review,
+                  data: {
+                    ...review.data,
+                    num_likes: review.data.num_likes + (userLikes ? -1 : +1)
+                  }
+                });
                 setUserLikes(!userLikes);
               }}
               onPress={() =>

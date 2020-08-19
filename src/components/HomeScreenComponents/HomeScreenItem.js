@@ -7,8 +7,9 @@ import ContentTitle from "./ContentTitle";
 import HomeScreenBorder from "./HomeScreenBorder";
 import colors from "../../constants/colors";
 import { AntDesign } from "@expo/vector-icons";
+import PlayButton from "../PlayButton";
 
-const HomeScreenItem = ({ review, content, author, onPlay }) => {
+const HomeScreenItem = ({ review, content, author }) => {
   const Rating = ({ val }) => (
     <View
       style={{
@@ -33,19 +34,20 @@ const HomeScreenItem = ({ review, content, author, onPlay }) => {
     <View
       style={{
         flexDirection: "row",
-        justifyContent: onPlay ? "space-between" : "flex-end",
+        justifyContent: content.preview_url ? "space-between" : "flex-end",
         margin: 5
       }}
     >
-      {onPlay && (
-        <TouchableOpacity onPress={onPlay} style={{ paddingRight: 15 }}>
+      <PlayButton
+        content={content}
+        PlayComponent={
           <AntDesign
             name="play"
             size={25}
             color={colors.semiTranslucentWhite}
           />
-        </TouchableOpacity>
-      )}
+        }
+      />
 
       <UserPreview
         size={25}
