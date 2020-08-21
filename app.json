@@ -4,7 +4,7 @@
     "slug": "Juked",
     "privacy": "public",
     "platforms": ["ios", "android"],
-    "version": "1.1.4",
+    "version": "1.1.6",
     "orientation": "portrait",
     "icon": "./assets/icon-ios-1024@1x.png",
     "splash": {

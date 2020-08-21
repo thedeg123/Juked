@@ -13,11 +13,11 @@ export default {
 
 export const paddingBottom =
   Platform.OS === "android"
-    ? 0
+    ? 65
     : Dimensions.get("window").height === 667 // iPhone 8 or SE2
-    ? 0
+    ? 65
     : Dimensions.get("window").height === 736 // iPhone 8 Plus
-    ? 0
+    ? 65
     : 85;
 
 export const customSearchAnimation = {

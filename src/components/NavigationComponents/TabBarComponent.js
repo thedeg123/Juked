@@ -4,9 +4,8 @@ import {
   StyleSheet,
   LayoutAnimation,
   UIManager,
-  Text,
-  Platform,
-  Dimensions
+  Dimensions,
+  Platform
 } from "react-native";
 import colors from "../../constants/colors";
 import heights from "../../constants/heights";
@@ -29,9 +28,8 @@ const TabBarComponent = props => {
     Dimensions.get("window").height === 736; // iPhone 8 Plus
 
   const iosBottomHeight = 35;
-  const inactiveHeight = heights.tabBarHeight + (shorten ? 0 : iosBottomHeight);
-  const activeHeight = inactiveHeight + 55;
-  const height = activeMusic ? activeHeight : inactiveHeight;
+  const activeHeight =
+    heights.tabBarHeight + 55 + (shorten ? 0 : iosBottomHeight);
 
   if (isAndroid) {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -51,22 +49,21 @@ const TabBarComponent = props => {
     <View
       style={[
         {
-          height,
-          borderColor: colors.lightShadow,
-          backgroundColor: activeMusic ? colors.white : colors.translucentWhite,
-          top: Dimensions.get("window").height - height,
-          position: "absolute",
-          width: Dimensions.get("window").width,
-          borderTopWidth: activeMusic ? 0.5 : 0,
-          borderRadius: 0,
-          borderColor: colors.lightShadow
-        }
+          height: activeMusic
+            ? activeHeight
+            : isAndroid
+            ? heights.tabBarHeight
+            : 0
+        },
+        styles.border
       ]}
     >
       {activeMusic && (
         <View
           style={{
-            flex: 1,
+            height: 55,
+            borderTopWidth: 0.5,
+            borderColor: colors.lightShadow,
             paddingTop: 5
           }}
         >
@@ -81,25 +78,32 @@ const TabBarComponent = props => {
       )}
       <BottomTabBar
         style={[
-          isAndroid ? styles.androidNavigatorStyle : styles.iosNavigatorStyle
+          isAndroid ? styles.androidNavigatorStyle : styles.iosNavigatorStyle,
+          {
+            borderColor: colors.shadow,
+            backgroundColor: activeMusic
+              ? "transparent"
+              : colors.translucentWhite,
+            borderTopWidth: 0
+          }
         ]}
         activeTintColor={colors.primary}
         inactiveTintColor={colors.shadow}
         {...props}
-      >
-        <Text>he</Text>
-      </BottomTabBar>
+      ></BottomTabBar>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  border: {
+    borderColor: colors.lightShadow
+  },
   iosNavigatorStyle: {
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     borderColor: colors.lightShadow,
-    backgroundColor: "transparent",
-    borderTopWidth: 0,
+    position: "absolute",
     height: heights.tabBarHeight
   },
   androidNavigatorStyle: {
