@@ -40,6 +40,7 @@ const HomeScreenItem = ({ review, content, author }) => {
     >
       <PlayButton
         content={content}
+        containerStyle={{ paddingRight: 10 }}
         PlayComponent={
           <AntDesign
             name="play"
