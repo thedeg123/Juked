@@ -86,11 +86,7 @@ const AccountScreen = ({ navigation }) => {
               <TouchableOpacity
                 onPress={() => {
                   Keyboard.dismiss();
-                  profile_url &&
-                  !profile_url.endsWith(".jpg") &&
-                  !profile_url.endsWith(".png")
-                    ? Alert.alert("Sorry", "URLs must end with .jpg or .png")
-                    : handle.length < 3 || handle.length > 15
+                  handle.length < 3 || handle.length > 15
                     ? Alert.alert(
                         "Handles must be between 3 and 15 characters."
                       )
