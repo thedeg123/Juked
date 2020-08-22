@@ -41,7 +41,7 @@ export const OpenButton = ({ link }) => {
 
 export const SpotifyPlayButton = ({ content }) => {
   const Spotify = (
-    <View style={styles.wrapper}>
+    <View style={{ ...styles.wrapper, right: 10 }}>
       <Entypo name="controller-play" size={20} color={colors.spotifyText} />
       <View style={{ justifyContent: "center" }}>
         <SpotifyText text="Play Preview" />

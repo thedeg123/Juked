@@ -8,7 +8,7 @@ import Button from "../BaseButton";
 const TopBar = ({ onClose, content, showSpotify }) => {
   return (
     <View style={styles.buttonWrapper}>
-      <View>
+      <View style={{ alignItems: "flex-start" }}>
         {showSpotify && content && content.preview_url && (
           <SpotifyPlayButton content={content} />
         )}

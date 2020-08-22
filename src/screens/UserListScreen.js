@@ -165,6 +165,14 @@ const UserListScreen = ({ navigation }) => {
                 userLikes
                   ? firestore.unLikeReview(list.id)
                   : firestore.likeReview(list.id, list.data.author);
+
+                setList({
+                    ...list,
+                    data: {
+                      ...list.data,
+                      num_likes: list.data.num_likes + (userLikes ? -1 : +1)
+                    }
+                });
                 setUserLikes(!userLikes);
               }}
               onPress={() =>

@@ -71,7 +71,8 @@ const SearchScreen = ({ navigation }) => {
           setSearchType={setSearchType}
         ></SearchItem>
       </View>
-      {((search && search.length === 0) || (users && users.length === 0)) &&
+      {((search && search.length === 0 && searchType != "user") ||
+        (users && users.length === 0 && searchType == "user")) &&
       term.length !== 0 ? (
         <View style={styles.erorrViewStyle}>
           <Text style={styles.errorTextStyle}>
