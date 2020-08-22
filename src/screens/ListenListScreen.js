@@ -149,6 +149,7 @@ const ListenListScreen = ({ navigation }) => {
       ) : (
         <FlatList
           ref={flatListRef}
+          scrollIndicatorInsets={{ right: 1 }}
           contentContainerStyle={{ paddingBottom }}
           keyExtractor={item => item.content.id + item.last_modified}
           data={listType === "personal" ? personalList.items : incomingList}

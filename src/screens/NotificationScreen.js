@@ -136,6 +136,7 @@ const NotificationScreen = ({ navigation }) => {
         </ScrollView>
       ) : (
         <FlatList
+          scrollIndicatorInsets={{ right: 1 }}
           contentContainerStyle={{ paddingBottom }}
           data={content}
           renderItem={renderItem}
