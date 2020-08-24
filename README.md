@@ -1,5 +1,4 @@
-# Juked
-## The social media for music lovers
+# Juked - The social media for music lovers
 
 ## Join the Beta
 - Just shoot me an email at `juked.app.1@gmail.com` and I'll send you a beta link (external links for `ios` only).
