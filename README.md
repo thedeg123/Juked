@@ -14,7 +14,7 @@
 - A mechanism for users to block abusive users
 - The developer must act on objectionable content reports within 24 hours by removing the content and ejecting the user who provided the offending content
 #### (Epic) Feature - User Mentions
-#### (Epic) Dark mode
-#### (Epic) Apple Music and Spotify Listenlist and Song Integration 
+#### (Epic) Feature - Dark mode
+#### (Epic) Feature - Apple Music and Spotify Listenlist and Song Integration 
 ## NOTES:
 
