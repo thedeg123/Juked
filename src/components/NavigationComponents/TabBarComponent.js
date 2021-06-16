@@ -11,7 +11,6 @@ import colors from "../../constants/colors";
 import heights from "../../constants/heights";
 import { BottomTabBar } from "react-navigation-tabs";
 import context from "../../context/context";
-import { paddingBottom } from "../../constants/heights";
 
 import { customCardAnimation } from "../../constants/heights";
 import MusicPlayer from "./MusicPlayer";
@@ -45,7 +44,6 @@ const TabBarComponent = props => {
   useEffect(() => {
     LayoutAnimation.configureNext(customCardAnimation);
   }, [activeMusic]);
-  console.log(paddingBottom, heights.paddingBottom, heights.tabBarHeight);
   return (
     <View
       style={[
