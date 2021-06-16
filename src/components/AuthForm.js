@@ -1,10 +1,12 @@
 import React, { useState, useRef } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Linking, Text } from "react-native";
 import { Input } from "react-native-elements";
 import Button from "./AuthButton";
 import colors from "../constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import AuthLoading from "../components/AuthLoading";
+import CheckBox from "../components/MakeProfileScreenComponents/checkBox";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const AuthForm = ({
   submitButtonAction,
@@ -14,6 +16,7 @@ const AuthForm = ({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
+  const [termsOfService, setTermsOfService] = useState(false);
   const [loading, setLoading] = useState(false);
   const passwordRef = useRef(null);
   const confirmPasswordRef = useRef(null);
@@ -29,7 +32,7 @@ const AuthForm = ({
         keyboardType="email-address"
         returnKeyType={"next"}
         selectionColor={colors.white}
-        labelStyle={{ color: colors.white }}
+        labelStyle={styles.textStyle}
         inputContainerStyle={{ borderColor: colors.veryVeryTranslucentWhite }}
         autoCorrect={false}
         onSubmitEditing={() => passwordRef.current.focus()}
@@ -41,7 +44,7 @@ const AuthForm = ({
         selectTextOnFocus
         inputContainerStyle={{ borderColor: colors.veryVeryTranslucentWhite }}
         secureTextEntry={true}
-        labelStyle={{ color: colors.white }}
+        labelStyle={styles.textStyle}
         label={"Password"}
         selectionColor={colors.white}
         leftIcon={<Ionicons name="ios-unlock" style={styles.iconStyle} />}
@@ -55,21 +58,61 @@ const AuthForm = ({
       ></Input>
       <View style={styles.verticalSpacerStyle}></View>
       {confirmPassword ? (
-        <Input
-          ref={confirmPasswordRef}
-          value={verifyPassword}
-          selectTextOnFocus
-          inputContainerStyle={{ borderColor: colors.veryVeryTranslucentWhite }}
-          secureTextEntry={true}
-          selectionColor={colors.white}
-          labelStyle={{ color: colors.white }}
-          label={"Confirm Password"}
-          leftIcon={<Ionicons name="ios-lock" style={styles.iconStyle} />}
-          returnKeyType={"done"}
-          onChangeText={setVerifyPassword}
-          autoCapitalize="none"
-          autoCorrect={false}
-        ></Input>
+        <View>
+          <Input
+            ref={confirmPasswordRef}
+            value={verifyPassword}
+            selectTextOnFocus
+            inputContainerStyle={{
+              borderColor: colors.veryVeryTranslucentWhite
+            }}
+            secureTextEntry={true}
+            selectionColor={colors.white}
+            labelStyle={styles.textStyle}
+            label={"Confirm Password"}
+            leftIcon={<Ionicons name="ios-lock" style={styles.iconStyle} />}
+            returnKeyType={"next"}
+            onChangeText={setVerifyPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
+          ></Input>
+          <View
+            style={{
+              marginVertical: 20,
+              marginHorizontal: 10,
+              flexDirection: "row"
+            }}
+          >
+            <CheckBox
+              onPress={() => setTermsOfService(!termsOfService)}
+              active={termsOfService}
+            />
+            <View
+              style={{
+                marginLeft: 10,
+                justifyContent: "center"
+              }}
+            >
+              <Text style={styles.textStyle}>I have read and agree to the</Text>
+              <TouchableOpacity
+                onPress={() =>
+                  Linking.openURL(
+                    "https://raw.githubusercontent.com/thedeg123/Juked/master/LICENSE"
+                  )
+                }
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    ...styles.textStyle
+                  }}
+                >
+                  terms of service
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
       ) : null}
       {loading ? (
         <AuthLoading></AuthLoading>
@@ -78,9 +121,12 @@ const AuthForm = ({
           onPress={() => {
             setLoading(true);
             confirmPassword
-              ? submitButtonAction(email, password, verifyPassword).then(
-                  ok => !ok && setLoading(false)
-                )
+              ? submitButtonAction(
+                  email,
+                  password,
+                  verifyPassword,
+                  termsOfService
+                ).then(ok => !ok && setLoading(false))
               : submitButtonAction(email, password).then(
                   ok => !ok && setLoading(false)
                 );
@@ -101,6 +147,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 30
   },
+  textStyle: { fontSize: 20, color: colors.white },
   iconStyle: {
     fontSize: 25,
     right: 10,

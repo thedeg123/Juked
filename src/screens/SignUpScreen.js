@@ -54,16 +54,26 @@ const SignUpScreen = ({ navigation }) => {
         <KeyboardAvoidingViewWrapper>
           <AuthForm
             confirmPassword={true}
-            submitButtonAction={async (email, password, verifyPassword) =>
-              await firestore
-                .signup(email, password, verifyPassword)
-                .then(err => {
-                  if (err) {
-                    Alert.alert("Couldn't create account", err);
-                    return false;
-                  }
-                  return true;
-                })
+            submitButtonAction={async (
+              email,
+              password,
+              verifyPassword,
+              termsOfService
+            ) =>
+              termsOfService
+                ? await firestore
+                    .signup(email, password, verifyPassword)
+                    .then(err => {
+                      if (err) {
+                        Alert.alert("Couldn't create account", err);
+                        return false;
+                      }
+                      return true;
+                    })
+                : Alert.alert(
+                    "Please agree to the terms of service",
+                    "Check the box please!"
+                  )
             }
             submitButtonTitle="Sign up"
           ></AuthForm>

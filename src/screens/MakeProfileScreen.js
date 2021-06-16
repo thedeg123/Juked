@@ -3,7 +3,6 @@ import {
   View,
   StyleSheet,
   Alert,
-  Text,
   TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
@@ -38,7 +37,7 @@ const MakeProfileScreen = ({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.containerStyle}>
-        {!active ? <TextLogo subtext="Let's make that bio," /> : null}
+        {!active ? <TextLogo subtext="Let's make that profile," /> : null}
         {active ? (
           <View
             style={{
@@ -59,7 +58,7 @@ const MakeProfileScreen = ({
             inputContainerStyle={{
               borderColor: colors.veryVeryTranslucentWhite
             }}
-            labelStyle={{ color: colors.white }}
+            labelStyle={styles.textStyle}
             onChangeText={setImageUrl}
             autoCapitalize="none"
             returnKeyType={"next"}
@@ -79,7 +78,7 @@ const MakeProfileScreen = ({
             }}
             value={handle}
             selectionColor={colors.white}
-            labelStyle={{ color: colors.white }}
+            labelStyle={styles.textStyle}
             maxLength={15}
             returnKeyType={"done"}
             onChangeText={setHandle}
@@ -92,19 +91,21 @@ const MakeProfileScreen = ({
           ></Input>
           <Input
             ref={bioRef}
-            label="Anything else to add?"
+            label="Add a bio"
             value={bio}
             multiline
             maxLength={200}
             selectionColor={colors.white}
             inputContainerStyle={{
-              borderColor: colors.veryVeryTranslucentWhite
+              borderColor: colors.veryVeryTranslucentWhite,
+              marginBottom: 20
             }}
             onFocus={() => setActive(true)}
+            onBlur={() => setActive(false)}
             blurOnSubmit
             onSubmitEditing={() => setActive(false)}
             returnKeyType={"done"}
-            labelStyle={{ color: colors.white }}
+            labelStyle={styles.textStyle}
             onChangeText={setBio}
           ></Input>
           <Button
@@ -149,6 +150,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     flex: 1
   },
+  textStyle: { fontSize: 20, color: colors.white },
   smallLogoStyle: {
     textAlign: "center",
     fontSize: 24,
