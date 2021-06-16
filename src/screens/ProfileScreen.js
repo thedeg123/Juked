@@ -18,6 +18,7 @@ import BarGraph from "../components/Graphs/BarGraph";
 import firebase from "firebase";
 import "firebase/firestore";
 import ModalProfileCard from "../components/ModalCards/ModalProfileCard";
+import ModalBlockCard from "../components/ModalCards/ModalBlockCard";
 import ModalButton from "../components/ModalCards/ModalButton";
 import HomeScreenItem from "../components/HomeScreenComponents/HomeScreenItem";
 import UserPreview from "../components/HomeScreenComponents/UserPreview";
@@ -26,6 +27,7 @@ import { profileButtonOptions } from "../constants/buttonOptions";
 import LoadingPage from "../components/Loading/LoadingPage";
 import HomeScreenListItem from "../components/HomeScreenComponents/HomeScreenListItem";
 import ListenListButton from "../components/ProfileScreen/ListenListButton";
+import BlockView from "../components/BlockView";
 
 const UserProfileScreen = ({ navigation }) => {
   const { firestore, useMusic, disconnect } = useContext(context);
@@ -35,6 +37,8 @@ const UserProfileScreen = ({ navigation }) => {
   const [showProfileCard, setShowProfileCard] = useState(false);
   const [userFollowing, setUserFollowing] = useState(null);
   const [removers, setRemovers] = useState([]);
+  const [userIsBlocked, setUserIsBlocked] = useState(false);
+  const [viewerIsBlocked, setViewerIsBlocked] = useState(false);
   const [graphType, setGraphType] = useState(profileButtonOptions[0].type);
   const [personalListenList, setPersonalListenList] = useState(null);
 
@@ -93,6 +97,9 @@ const UserProfileScreen = ({ navigation }) => {
   };
 
   const init = () => {
+    setUserIsBlocked(firestore.currentUserHasBlocked(uid));
+    setViewerIsBlocked(firestore.currentUserIsBlocked(uid));
+
     fetchPersonalList();
 
     updateFollow();
@@ -200,189 +207,207 @@ const UserProfileScreen = ({ navigation }) => {
   }
   return user ? (
     <View style={{ flex: 1 }}>
-      <ScrollView
-        scrollEnabled={scrollEnabled}
-        style={styles.containerStyle}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom }}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={async () => {
-              setRefreshing(true);
-              await fetchPersonalList();
-              return setRefreshing(false);
-            }}
-          />
-        }
-      >
-        <View style={styles.headerContainer}>
-          <UserPreview
-            img={user.profile_url || images.profileDefault}
-            username={user.handle}
-            containerStyle={styles.imageStyle}
-            size={80}
-            color={colors.text}
-            fontScaler={0.2}
-            allowPress={false}
-          ></UserPreview>
-          <View style={styles.followContainer}>
-            {firestore.fetchCurrentUID() === uid ? null : (
-              <FollowButton
-                following={userFollowing}
-                followsYou={followsYou}
-                onPress={() =>
-                  userFollowing
-                    ? firestore.unfollowUser(uid).then(() => updateFollow())
-                    : firestore.followUser(uid).then(() => updateFollow())
-                }
-              ></FollowButton>
-            )}
-            <View style={styles.numberStyle}>
-              <TouchableOpacity
-                disabled={!user.num_follower}
-                onPress={async () =>
-                  navigateFollow("Followers", await firestore.getFollowers(uid))
-                }
-              >
-                <Text style={styles.followStyle}>
-                  {user.num_follower} Follower
-                  {user.num_follower === 1 ? "" : "s"}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                disabled={!user.num_following}
-                onPress={async () =>
-                  navigateFollow("Following", await firestore.getFollowing(uid))
-                }
-              >
-                <Text style={styles.followStyle}>
-                  {user.num_following} Following
-                </Text>
-              </TouchableOpacity>
+      {userIsBlocked || viewerIsBlocked ? (
+        <BlockView userBlocked={userIsBlocked} />
+      ) : (
+        <ScrollView
+          scrollEnabled={scrollEnabled}
+          style={styles.containerStyle}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={async () => {
+                setRefreshing(true);
+                await fetchPersonalList();
+                return setRefreshing(false);
+              }}
+            />
+          }
+        >
+          <View style={styles.headerContainer}>
+            <UserPreview
+              img={user.profile_url || images.profileDefault}
+              username={user.handle}
+              containerStyle={styles.imageStyle}
+              size={80}
+              color={colors.text}
+              fontScaler={0.2}
+              allowPress={false}
+            ></UserPreview>
+            <View style={styles.followContainer}>
+              {firestore.fetchCurrentUID() === uid ? null : (
+                <FollowButton
+                  following={userFollowing}
+                  followsYou={followsYou}
+                  onPress={() =>
+                    userFollowing
+                      ? firestore.unfollowUser(uid).then(() => updateFollow())
+                      : firestore.followUser(uid).then(() => updateFollow())
+                  }
+                ></FollowButton>
+              )}
+              <View style={styles.numberStyle}>
+                <TouchableOpacity
+                  disabled={!user.num_follower}
+                  onPress={async () =>
+                    navigateFollow(
+                      "Followers",
+                      await firestore.getFollowers(uid)
+                    )
+                  }
+                >
+                  <Text style={styles.followStyle}>
+                    {user.num_follower} Follower
+                    {user.num_follower === 1 ? "" : "s"}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  disabled={!user.num_following}
+                  onPress={async () =>
+                    navigateFollow(
+                      "Following",
+                      await firestore.getFollowing(uid)
+                    )
+                  }
+                >
+                  <Text style={styles.followStyle}>
+                    {user.num_following} Following
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-        <View style={{ marginHorizontal: 10, marginBottom: 10 }}>
-          {user.bio ? (
-            <Text style={styles.bioStyle}>{user.bio}</Text>
-          ) : uid === firestore.fetchCurrentUID() ? (
-            <Text style={styles.bioStyle}>
-              Add a bio from the Account screen
-            </Text>
-          ) : null}
-        </View>
-        <OptionBar
-          options={profileButtonOptions}
-          searchType={graphType}
-          containerStyle={{ marginHorizontal: 5, marginTop: 5 }}
-          onPress={setGraphType}
-        ></OptionBar>
+          <View style={{ marginHorizontal: 10, marginBottom: 10 }}>
+            {user.bio ? (
+              <Text style={styles.bioStyle}>{user.bio}</Text>
+            ) : uid === firestore.fetchCurrentUID() ? (
+              <Text style={styles.bioStyle}>
+                Add a bio from the Account screen
+              </Text>
+            ) : null}
+          </View>
+          <OptionBar
+            options={profileButtonOptions}
+            searchType={graphType}
+            containerStyle={{ marginHorizontal: 5, marginTop: 5 }}
+            onPress={setGraphType}
+          ></OptionBar>
 
-        <View style={{ marginTop: 10, marginHorizontal: 10 }}>
-          <BarGraph
-            data={graphDataContentSelector(graphType)}
-            setScrollEnabled={setScrollEnabled}
-          />
-        </View>
-        <View
-          style={{
-            marginTop: 10,
-            flexDirection: "row",
-            justifyContent: "space-evenly"
+          <View style={{ marginTop: 10, marginHorizontal: 10 }}>
+            <BarGraph
+              data={graphDataContentSelector(graphType)}
+              setScrollEnabled={setScrollEnabled}
+            />
+          </View>
+          <View
+            style={{
+              marginTop: 10,
+              flexDirection: "row",
+              justifyContent: "space-evenly"
+            }}
+          >
+            <ListenListButton
+              count={
+                graphType !== "all"
+                  ? personalListenList.items.filter(
+                      item => item.content.type === graphType
+                    ).length
+                  : personalListenList.items.length
+              }
+              type_of_interest={graphType}
+              user={user}
+              personal
+            />
+            <ListenListButton
+              count={personalListenList.incoming_item_count}
+              type_of_interest={"all"}
+              user={user}
+            />
+          </View>
+          {"all" === graphType &&
+          (reviewTypeSelector("list").length ||
+            uid === firestore.fetchCurrentUID()) ? (
+            <ListPreview
+              title="Most Recent Lists"
+              user={user}
+              data={reviewTypeSelector("list")}
+              onPress={() => navigateContent("Lists", ["list"])}
+              showAddListButton={uid === firestore.fetchCurrentUID()}
+              showListItems
+            />
+          ) : null}
+          {reviewTypeSelector("track").length &&
+          ["all", "track"].includes(graphType) ? (
+            <ListPreview
+              title="Most Recent Songs"
+              user={user}
+              data={reviewTypeSelector("track")}
+              onPress={() =>
+                navigateContent("Songs", ["track_review", "track_rating"])
+              }
+              marginBottom={10}
+            />
+          ) : null}
+          {reviewTypeSelector("album").length &&
+          ["all", "album"].includes(graphType) ? (
+            <ListPreview
+              title="Most Recent Albums"
+              user={user}
+              data={reviewTypeSelector("album")}
+              onPress={() =>
+                navigateContent("Albums", ["album_review", "album_rating"])
+              }
+            />
+          ) : null}
+          {reviewTypeSelector("artist").length &&
+          ["all", "artist"].includes(graphType) ? (
+            <ListPreview
+              title="Most Recent Artists"
+              user={user}
+              data={reviewTypeSelector("artist")}
+              onPress={() =>
+                navigateContent("Artists", ["artist_review", "artist_rating"])
+              }
+            />
+          ) : null}
+        </ScrollView>
+      )}
+      {firestore.fetchCurrentUID() === uid ? (
+        <ModalProfileCard
+          showModal={showProfileCard}
+          onSignOut={onSignOut}
+          onEdit={() => {
+            setShowProfileCard(false);
+            navigation.navigate("Account", { user });
           }}
-        >
-          <ListenListButton
-            count={
-              graphType !== "all"
-                ? personalListenList.items.filter(
-                    item => item.content.type === graphType
-                  ).length
-                : personalListenList.items.length
-            }
-            type_of_interest={graphType}
-            user={user}
-            personal
-          />
-          <ListenListButton
-            count={personalListenList.incoming_item_count}
-            type_of_interest={"all"}
-            user={user}
-          />
-        </View>
-        {"all" === graphType &&
-        (reviewTypeSelector("list").length ||
-          uid === firestore.fetchCurrentUID()) ? (
-          <ListPreview
-            title="Most Recent Lists"
-            user={user}
-            data={reviewTypeSelector("list")}
-            onPress={() => navigateContent("Lists", ["list"])}
-            showAddListButton={uid === firestore.fetchCurrentUID()}
-            showListItems
-          />
-        ) : null}
-        {reviewTypeSelector("track").length &&
-        ["all", "track"].includes(graphType) ? (
-          <ListPreview
-            title="Most Recent Songs"
-            user={user}
-            data={reviewTypeSelector("track")}
-            onPress={() =>
-              navigateContent("Songs", ["track_review", "track_rating"])
-            }
-            marginBottom={10}
-          />
-        ) : null}
-        {reviewTypeSelector("album").length &&
-        ["all", "album"].includes(graphType) ? (
-          <ListPreview
-            title="Most Recent Albums"
-            user={user}
-            data={reviewTypeSelector("album")}
-            onPress={() =>
-              navigateContent("Albums", ["album_review", "album_rating"])
-            }
-          />
-        ) : null}
-        {reviewTypeSelector("artist").length &&
-        ["all", "artist"].includes(graphType) ? (
-          <ListPreview
-            title="Most Recent Artists"
-            user={user}
-            data={reviewTypeSelector("artist")}
-            onPress={() =>
-              navigateContent("Artists", ["artist_review", "artist_rating"])
-            }
-          />
-        ) : null}
-      </ScrollView>
-      <ModalProfileCard
-        showModal={showProfileCard}
-        onSignOut={onSignOut}
-        onEdit={() => {
-          setShowProfileCard(false);
-          navigation.navigate("Account", { user });
-        }}
-        setShowModal={setShowProfileCard}
-        content={[]}
-        setShowHighlightedTrackCard={null}
-      ></ModalProfileCard>
+          setShowModal={setShowProfileCard}
+        ></ModalProfileCard>
+      ) : (
+        <ModalBlockCard
+          showModal={showProfileCard}
+          setShowModal={setShowProfileCard}
+          isBlocked={userIsBlocked}
+          onBlock={() => {
+            console.log(userIsBlocked);
+            userIsBlocked
+              ? firestore.unblockUser(uid)
+              : firestore.blockUser(uid);
+            setUserIsBlocked(!userIsBlocked);
+          }}
+        />
+      )}
     </View>
   ) : null;
 };
 
 UserProfileScreen.navigationOptions = ({ navigation }) => {
   const setShowModal = navigation.getParam("setShowModal");
-  const uid = navigation.getParam("uid");
   return {
-    headerRight: () =>
-      uid ? null : (
-        <ModalButton
-          settingType={true}
-          setShowModal={setShowModal}
-        ></ModalButton>
-      )
+    headerRight: () => (
+      <ModalButton settingType={false} setShowModal={setShowModal} />
+    )
   };
 };
 
