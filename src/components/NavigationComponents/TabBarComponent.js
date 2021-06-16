@@ -22,14 +22,8 @@ const TabBarComponent = props => {
   const [activeContent, setActiveContent] = useState(null);
 
   const isAndroid = Platform.OS == "android";
-  const shorten =
-    isAndroid ||
-    Dimensions.get("window").height === 667 || // iPhone 8 or SE2
-    Dimensions.get("window").height === 736; // iPhone 8 Plus
 
-  const iosBottomHeight = 35;
-  const activeHeight =
-    heights.tabBarHeight + 55 + (shorten ? 0 : iosBottomHeight);
+  const activeHeight = heights.tabBarHeight + 55;
 
   if (isAndroid) {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -90,7 +84,7 @@ const TabBarComponent = props => {
         inactiveTintColor={colors.shadow}
         allowFontScaling={false}
         keyboardHidesTabBar={true}
-        safeAreaInset={{ bottom: Platform.OS == "ios" ? 40 : 0 }}
+        safeAreaInset={{ bottom: Platform.OS == "ios" ? 20 : 0 }}
         adaptive={false}
         {...props}
       ></BottomTabBar>
