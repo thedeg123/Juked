@@ -18,6 +18,8 @@ class useFirestore {
     this.cachedLiteUsers = {};
     this.userFollowingIds = null;
     this.userFollowerIds = null;
+    this.userBlockedIds = null;
+    this.userBlockedByIds = null;
     this.removers = [];
   }
 
@@ -150,7 +152,6 @@ class useFirestore {
   registerForPushNotifications = async () => {
     if (Constants.isDevice) {
       const { status } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
-      let finalStatus = status;
 
       if (status !== "granted") {
         const { status } = await Permissions.askAsync(
@@ -158,8 +159,6 @@ class useFirestore {
         );
         finalStatus = status;
       }
-      // as we still want to register them if they ever change their mind
-      // if (finalStatus !== "granted") return;
       const { data } = await Notifications.getExpoPushTokenAsync();
 
       this.users_db.doc(this.fetchCurrentUID()).update({
@@ -219,10 +218,16 @@ class useFirestore {
   /**
    * @argument {Number} limit - the number of items to return per batch
    * @argument {Object} start_after - pagination object
+   * @argument {Array} filterTypes - what kind of interaction content to get, by default all but blocked users
    */
-  async getUserInteractions(limit = 10, start_after = null) {
+  async getUserInteractions(
+    limit = 10,
+    start_after = null,
+    filterTypes = ["like", "comment", "follow", "listenlist"]
+  ) {
     let base = this.interactions_db
       .where("review_author", "==", this.fetchCurrentUID())
+      .where("type", "in", filterTypes)
       .orderBy("last_modified", "desc");
     if (start_after) base = base.startAfter(start_after);
     return await base
@@ -309,30 +314,6 @@ class useFirestore {
 
   // -----------------------------------------------------------------------------------------------------------
   // ListenList relations
-
-  async establishCachedContent() {
-    this._establishUserFollowIds("author");
-    this._establishUserFollowIds("review_author");
-    return await this._establisCachedListenList();
-  }
-
-  _establishUserFollowIds(type) {
-    const remover = this.interactions_db
-      .where("type", "==", "follow")
-      .where(type, "==", this.fetchCurrentUID())
-      .onSnapshot(snap => {
-        const ret = [];
-        snap.forEach(d =>
-          ret.push(d.data()[type === "author" ? "review_author" : "author"])
-        );
-        if (type === "author") {
-          this.userFollowingIds = ret;
-        } else {
-          this.userFollowerIds = ret;
-        }
-      });
-    return this.removers.push(remover);
-  }
 
   async _establisCachedListenList() {
     const remover = await this.listen_list_db
@@ -473,6 +454,7 @@ class useFirestore {
 
   // -----------------------------------------------------------------------------------------------------------
   // List relations
+
   async addList(title, description, items, itemKeys) {
     const body = {
       author: this.auth.currentUser.email,
@@ -760,10 +742,85 @@ class useFirestore {
   }
 
   // -----------------------------------------------------------------------------------------------------------
+  // Block relations
+
+  _establishUserBlockedIds(type) {
+    const remover = this.interactions_db
+      .where("type", "==", "block")
+      .where(type, "==", this.fetchCurrentUID())
+      .onSnapshot(snap => {
+        const ret = new Set();
+        snap.forEach(d =>
+          ret.add(d.data()[type === "author" ? "review_author" : "author"])
+        );
+        if (type === "author") {
+          this.userBlockedIds = ret;
+        } else {
+          this.userBlockedByIds = ret;
+        }
+      });
+    return this.removers.push(remover);
+  }
+
+  async blockUser(uid) {
+    const author_handle = await this.fetchCurrentUserData().then(
+      res => res.handle
+    );
+    return await this.interactions_db
+      .doc(this.fetchCurrentUID() + uid + "_block")
+      .set({
+        author: this.fetchCurrentUID(),
+        author_handle,
+        review_author: uid,
+        last_modified: Date.now(),
+        type: "block"
+      });
+  }
+  async unblockUser(uid) {
+    return await this.interactions_db
+      .doc(this.auth.currentUser.email + uid + "_block")
+      .delete();
+  }
+
+  currentUserHasBlocked(uid) {
+    return this.userBlockedIds.has(uid);
+  }
+  currentUserIsBlocked(uid) {
+    return this.userBlockedByIds.has(uid);
+  }
+
+  // -----------------------------------------------------------------------------------------------------------
   // Follow relations
 
   // follower = author
   // following = review_author
+
+  async establishCachedContent() {
+    this._establishUserFollowIds("author");
+    this._establishUserFollowIds("review_author");
+    this._establishUserBlockedIds("author");
+    this._establishUserBlockedIds("review_author");
+    return await this._establisCachedListenList();
+  }
+
+  _establishUserFollowIds(type) {
+    const remover = this.interactions_db
+      .where("type", "==", "follow")
+      .where(type, "==", this.fetchCurrentUID())
+      .onSnapshot(snap => {
+        const ret = [];
+        snap.forEach(d =>
+          ret.push(d.data()[type === "author" ? "review_author" : "author"])
+        );
+        if (type === "author") {
+          this.userFollowingIds = ret;
+        } else {
+          this.userFollowerIds = ret;
+        }
+      });
+    return this.removers.push(remover);
+  }
+
   async followUser(uid) {
     const author_handle = await this.fetchCurrentUserData().then(
       res => res.handle
