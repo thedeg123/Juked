@@ -8,7 +8,7 @@ export default {
       ? 50
       : Dimensions.get("window").height === 736 // iPhone 8 Plus
       ? 50
-      : 40
+      : 60
 };
 
 export const paddingBottom =
