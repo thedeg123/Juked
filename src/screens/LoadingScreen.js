@@ -24,7 +24,7 @@ const LoadingScreen = ({ navigation }) => {
         response = await firestore.getUser(user, false);
         if (response) break;
         count += 1;
-        await wait(500);
+        await wait(1000);
       } while (count < 20);
       resolve(response);
     });
