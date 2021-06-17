@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
-    height: 85,
+    height: 75,
     borderBottomWidth: 0,
     borderBottomColor: colors.shadow
   },
@@ -138,19 +138,19 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   textStyle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "500",
     color: colors.text,
     justifyContent: "center"
   },
   subtextStyle: {
     marginTop: 5,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "400",
     color: colors.text
   },
   dateStyle: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "300",
 
     color: colors.text
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     color: colors.shadow
   },
   imageStyle: {
-    width: 70,
+    width: 60,
     aspectRatio: 1,
     borderRadius: 5,
     marginRight: 10,
