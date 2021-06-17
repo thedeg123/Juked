@@ -109,12 +109,12 @@ const styles = StyleSheet.create({
   containerStyle: {
     borderRadius: 5,
     marginTop: 2,
-    paddingHorizontal: 10,
+    marginHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     height: 75,
-    borderBottomWidth: 0,
-    borderBottomColor: colors.shadow
+    borderBottomWidth: 0.35,
+    borderBottomColor: colors.lightShadow
   },
   iconStyle: {
     fontSize: 30,
