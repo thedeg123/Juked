@@ -42,7 +42,7 @@ const ResultsList = ({
             keyboardDismissMode="on-drag"
             keyboardShouldPersistTaps="always"
             data={search}
-            keyExtractor={searchItem => searchItem.id}
+            keyExtractor={(searchItem, index) => searchItem.id + index}
             renderItem={({ item }) => (
               <SearchPreview
                 type={searchType}
