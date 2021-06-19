@@ -3,12 +3,12 @@ import React from "react";
 import { View, StyleSheet, Text } from "react-native";
 import colors from "../constants/colors";
 /***
- * @param userBlocked {bool} - if the current user is the one who did the blocking, if false the other user blocked the current user
+ * @param {Boolean} userBlocked - if the current user is the one who did the blocking, if false the other user blocked the current user
  */
-const BlockView = ({ userBlocked }) => {
+const BlockView = ({ userBlocked, textStyle }) => {
   return (
     <View style={styles.containerStyle}>
-      <Text style={styles.textStyle}>
+      <Text style={{ ...styles.textStyle, ...textStyle }}>
         {userBlocked
           ? "Because you blocked this user, you may not view this content"
           : "This user has blocked you so you may not view this content"}
@@ -31,5 +31,9 @@ const styles = StyleSheet.create({
     textAlign: "center"
   }
 });
+
+BlockView.defaultProps = {
+  confirmPassword: {}
+};
 
 export default BlockView;

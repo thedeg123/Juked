@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, Alert } from "react-native";
 import Button from "../BaseButton";
 import colors from "../../constants/colors";
 
@@ -9,7 +9,21 @@ const ModalBlockContent = ({ onClose, onBlock, isBlocked }) => {
       <Button title="Close" onPress={onClose}></Button>
       <Button
         title={isBlocked ? "unblock User" : "Block User"}
-        onPress={onBlock}
+        onPress={() => {
+          isBlocked
+            ? onBlock()
+            : Alert.alert(
+                "Are you sure you want to block this user?",
+                "You will no longer see any reviews they produce",
+                [
+                  { text: "Yes", onPress: onBlock },
+                  {
+                    text: "Cancel",
+                    style: "cancel"
+                  }
+                ]
+              );
+        }}
       ></Button>
     </View>
   );

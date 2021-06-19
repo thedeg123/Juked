@@ -390,11 +390,11 @@ const UserProfileScreen = ({ navigation }) => {
           setShowModal={setShowProfileCard}
           isBlocked={userIsBlocked}
           onBlock={() => {
-            console.log(userIsBlocked);
             userIsBlocked
               ? firestore.unblockUser(uid)
               : firestore.blockUser(uid);
             setUserIsBlocked(!userIsBlocked);
+            setShowProfileCard(false);
           }}
         />
       )}

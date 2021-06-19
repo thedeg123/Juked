@@ -18,8 +18,8 @@ class useFirestore {
     this.cachedLiteUsers = {};
     this.userFollowingIds = null;
     this.userFollowerIds = null;
-    this.userBlockedIds = null;
-    this.userBlockedByIds = null;
+    this.userBlockedIds = [];
+    this.userBlockedByIds = [];
     this.removers = [];
   }
 
@@ -646,12 +646,7 @@ class useFirestore {
     return base
       .limit(limit)
       .get()
-      .then(res => [
-        res.docs.map(r => {
-          return { id: r.id, data: r.data() };
-        }),
-        res.docs.pop()
-      ]);
+      .then(res => [this._processDocs(res), res.docs.pop()]);
   }
 
   // -----------------------------------------------------------------------------------------------------------
@@ -766,6 +761,7 @@ class useFirestore {
     const author_handle = await this.fetchCurrentUserData().then(
       res => res.handle
     );
+    this.unfollowUser(uid);
     return await this.interactions_db
       .doc(this.fetchCurrentUID() + uid + "_block")
       .set({
@@ -780,6 +776,18 @@ class useFirestore {
     return await this.interactions_db
       .doc(this.auth.currentUser.email + uid + "_block")
       .delete();
+  }
+  /**
+   * @description Check if the current user can view the content or if they have been blocked or blocked
+   * @param {String} uid - The author's content Id to check the current user in relation to
+   */
+
+  checkContentPermission(uid) {
+    return this.currentUserHasBlocked(uid)
+      ? "user_blocked"
+      : this.currentUserIsBlocked(uid)
+      ? "user_is_blocked"
+      : null;
   }
 
   currentUserHasBlocked(uid) {

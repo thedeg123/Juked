@@ -28,6 +28,7 @@ import { customCommentBarAnimation, paddingBottom } from "../constants/heights";
 import { AntDesign } from "@expo/vector-icons";
 import PlayButton from "../components/PlayButton";
 import LoadingPage from "../components/Loading/LoadingPage";
+import BlockView from "../components/BlockView";
 
 const ReviewScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
@@ -44,6 +45,7 @@ const ReviewScreen = ({ navigation }) => {
   const [comments, setComments] = useState([]);
   const [commentUsers, setCommentUsers] = useState({});
   const [userLikes, setUserLikes] = useState(null);
+  const [userPermission, setUserPermission] = useState(null);
 
   if (Platform.OS === "android") {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -90,6 +92,8 @@ const ReviewScreen = ({ navigation }) => {
         setShowModal,
         reviewType: toDisplayType(review.data.type)
       });
+      const uid = user.email;
+      setUserPermission(firestore.checkContentPermission(uid));
 
       comment_remover = firestore.getComments(review.id, setComments);
       remover = firestoreConcurrent
@@ -229,22 +233,29 @@ const ReviewScreen = ({ navigation }) => {
       blurRadius={blurRadius}
       source={{ uri: content.image }}
     >
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={{
-          backgroundColor: colors.darkener,
-          paddingBottom,
-          flex: 1
-        }}
-      >
-        <CommentsSection
-          headerComponent={headerComponent}
-          comments={comments}
-          commentUsers={commentUsers}
-          currentUser={firestore.fetchCurrentUID()}
-          deleteComment={did => firestore.deleteComment(did)}
-        ></CommentsSection>
-      </KeyboardAvoidingView>
+      {userPermission ? (
+        <BlockView
+          userBlocked={userPermission === "user_blocked"}
+          textStyle={{ color: colors.white }}
+        />
+      ) : (
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={{
+            backgroundColor: colors.darkener,
+            paddingBottom,
+            flex: 1
+          }}
+        >
+          <CommentsSection
+            headerComponent={headerComponent}
+            comments={comments}
+            commentUsers={commentUsers}
+            currentUser={firestore.fetchCurrentUID()}
+            deleteComment={did => firestore.deleteComment(did)}
+          ></CommentsSection>
+        </KeyboardAvoidingView>
+      )}
       <ModalReviewCard
         showModal={showModal}
         setShowModal={setShowModal}

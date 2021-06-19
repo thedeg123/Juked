@@ -28,6 +28,7 @@ import CommentBar from "../components/ReviewScreenComponents/CommentBar";
 import CommentsSection from "../components/ReviewScreenComponents/CommentsSection";
 import { customCommentBarAnimation } from "../constants/heights";
 import LoadingPage from "../components/Loading/LoadingPage";
+import BlockView from "../components/BlockView";
 
 const UserListScreen = ({ navigation }) => {
   const { firestore } = useContext(context);
@@ -41,6 +42,8 @@ const UserListScreen = ({ navigation }) => {
   const [comments, setComments] = useState([]);
   const [commentUsers, setCommentUsers] = useState({});
   const [userLikes, setUserLikes] = useState(null);
+  const [userPermission, setUserPermission] = useState(null);
+
   let content = list && list.data && list.data.items[0];
   let remover = null;
 
@@ -88,15 +91,18 @@ const UserListScreen = ({ navigation }) => {
         .collection("reviews")
         .doc(list.id)
         .onSnapshot(doc => setList({ id: doc.id, data: doc.data() }));
+    });
 
-      keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () => {
-        LayoutAnimation.configureNext(customCommentBarAnimation);
-        setKeyboardIsActive(true);
-      });
-      keyboardCloseListenter = Keyboard.addListener("keyboardWillHide", () => {
-        LayoutAnimation.configureNext(customCommentBarAnimation);
-        setKeyboardIsActive(false);
-      });
+    const uid = user.email;
+    setUserPermission(firestore.checkContentPermission(uid));
+
+    keyboardOpenListenter = Keyboard.addListener("keyboardWillShow", () => {
+      LayoutAnimation.configureNext(customCommentBarAnimation);
+      setKeyboardIsActive(true);
+    });
+    keyboardCloseListenter = Keyboard.addListener("keyboardWillHide", () => {
+      LayoutAnimation.configureNext(customCommentBarAnimation);
+      setKeyboardIsActive(false);
     });
 
     return () => {
@@ -167,11 +173,11 @@ const UserListScreen = ({ navigation }) => {
                   : firestore.likeReview(list.id, list.data.author);
 
                 setList({
-                    ...list,
-                    data: {
-                      ...list.data,
-                      num_likes: list.data.num_likes + (userLikes ? -1 : +1)
-                    }
+                  ...list,
+                  data: {
+                    ...list.data,
+                    num_likes: list.data.num_likes + (userLikes ? -1 : +1)
+                  }
                 });
                 setUserLikes(!userLikes);
               }}
@@ -223,22 +229,29 @@ const UserListScreen = ({ navigation }) => {
       blurRadius={blurRadius}
       source={{ uri: content.image }}
     >
-      <KeyboardAvoidingView
-        behavior="padding"
-        style={{
-          backgroundColor: colors.darkener,
-          paddingBottom,
-          flex: 1
-        }}
-      >
-        <CommentsSection
-          headerComponent={headerComponent}
-          comments={comments}
-          commentUsers={commentUsers}
-          currentUser={firestore.fetchCurrentUID()}
-          deleteComment={did => firestore.deleteComment(did)}
-        ></CommentsSection>
-      </KeyboardAvoidingView>
+      {userPermission ? (
+        <BlockView
+          userBlocked={userPermission === "user_blocked"}
+          textStyle={{ color: colors.white }}
+        />
+      ) : (
+        <KeyboardAvoidingView
+          behavior="padding"
+          style={{
+            backgroundColor: colors.darkener,
+            paddingBottom,
+            flex: 1
+          }}
+        >
+          <CommentsSection
+            headerComponent={headerComponent}
+            comments={comments}
+            commentUsers={commentUsers}
+            currentUser={firestore.fetchCurrentUID()}
+            deleteComment={did => firestore.deleteComment(did)}
+          ></CommentsSection>
+        </KeyboardAvoidingView>
+      )}
       <ModalReviewCard
         showModal={showModal}
         setShowModal={setShowModal}
